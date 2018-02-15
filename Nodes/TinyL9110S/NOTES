@@ -1,0 +1,148 @@
+09Jan2018
+
+ALL SKETCHES IN THIS DIR. HAVE BEEN TESTED TO WORK WITH JeeLib 2018 and ArdunioIDE 1.8.1.
+
+Programming the ATT84 using UNO as the ISP
+--------------------------------------------------------------
+
+1. To setup Ardunio UNO as ISP using Arduino IDE 1.8
+
+     1.1 Connect the ATT84 to the UNO pins
+
+                  Arduino      ATtiny84
+                     D13            Pin 9
+                     D12            Pin 8
+                     D11            Pin 7
+                     D10            Pin 4
+                    3.3/5V         Pin 1
+                    GND            Pin 14
+         
+      1.2 Load ArduinoISP from Edit->Examples in the normal fashion
+       	       - Make sure that Tools->Boards is set to "Ardunio/Genuino UNO"
+
+      1.3 Set Tools->Boards to "ATtiny84 @ 8MHz (internal oscillator;BOD disabled)"
+
+      1.4 Set Tools->Programmer to "Arduino as ISP"
+
+      1.5 Now Tools->Burn Bootloader
+
+      1.6 Finally, upload the sketch for ATT84 as usual.  The
+            ArdunioISP running on Ardunio will make the UNO behave
+            like an ISP and burn the code to the attached ATT84. 
+
+      Steps including 1.5 needs to be done once (as long as the UNO is not
+      programmed for something else before Step 1.6).
+	
+2. When programming ATTinyXX using the Ardunio-tiny core (the
+    ArduinoISP sketch on UNO), the pinMode(), digitalRead(),
+    digitalWrite(), analogRead(), etc. function DO NOT take the
+    physical pin numbers on the chip.  The mapping of pins and the
+    integer values to use is in
+    <IDE-ROOT>/hardware/tiny/avr/cores/tiny/core_pins.h.   For
+    ATTiny84, it's the following:
+
+#define PIN_A0  (10)
+#define PIN_A1  ( 9)
+#define PIN_A2  ( 8)
+#define PIN_A3  ( 7)
+#define PIN_A4  ( 6)
+#define PIN_A5  ( 5)
+#define PIN_A6  ( 4)
+#define PIN_A7  ( 3)
+#define PIN_B0  ( 0)
+#define PIN_B1  ( 1)
+#define PIN_B2  ( 2)
+#define PIN_B3  (11)  /* RESET */
+
+    Note that no D0, D1, etc. are defined here.  So one needs to know
+    the labeling of the pins on the chip (chip data sheet).
+
+    ?? same as D0 (B0?)
+    ?? same as D1 (B1?)
+    ?? same as D2 (B2?)
+    A7 same as D3
+    A6 same as D4
+    A5 same as D5
+    A4 same as D6
+    A3 same as D7
+    A2 same as D8
+    A1 same as D9
+    A0 same as D10
+
+    Funny how hardware related spaghetti code is never frowned upon!
+
+
+
+16Jan2018
+
+The ATT84 Tx-only sketch using JeeLib from 2018
+------------------------------------------------------------------
+
+I first tried programming the new TinyTx board with Tx only to work
+exactly like other remote temperature sensors.  When I uploaded the
+TempTx_tiny.ino, the first packet with nodeID=7 was received at the
+base station, after which the base station went into a loop of
+"{rf_fail:1 }" and could not receive packets from other stations also.
+
+Suspecision is that the node-7 was not finishing the send protocol for
+the first packet, which made the server on the UNO at the base station
+never finish receiving that packet (or something similar -- there are
+flaws in this logic too since the first packet from the UNO at the
+base was transferred to the serial port and received by RPi.  THat
+packet, printed on the screen, looked alright).
+
+After trying various things (mostly putting extra delays before the
+MCU is put to sleep in the sketch), what worked with replacing
+
+rf12_sendWait(2)
+
+with
+
+rf_12_sendWait(1)
+
+The sketch, when build with the jeelib from ~2013 (the one running on
+other stations) resulted in no packets from node 7 received
+(presumably because none were transmitted).
+
+This looks like a timing issue on this node, which if true, is
+flacky. I.e., when I turn on the Rx on this sketch also, this might
+show up again (and then I won't know what to do!).
+
+
+The RFM69_RxTx.ino
+---------------------------
+
+This is the sketch now running on node 15.  This has both the Tx and
+Rx code.  The loop() wakes up every 60s, does a Tx, checks for Rx and
+if it receives a valid packet, it is serviced and the radio put to
+sleep.  So the logic for Rx+Tx is there, but the Rx service code is
+not exercised since there are no packets transmitted for it yet (by
+the base station).
+
+
+
+
+BUGS:
+====
+
+1. The JSON string from UNO on the base-station does not seem to be
+    cleared up properly.  As a result, if one string was (e.g.),
+    "{a,b, c }" and the next one was shorter, like "{a, b }", it comes
+    out looking like {"a, b }}".  This should be fixed in the UNO
+    code.
+
+    Currently this is fixed with a hack in NaaradTopic2.py on RPi
+    (look for "A HACK:").
+
+2. The temperature conversion code in RFM69_RxTx.ino seems to be
+    wrong. 
+
+TIPS:
+===
+
+1. Keeping the ATT84 on a header is very useful, allowing easy
+    pull-out and push back on bread-board as well as on the PCB (which
+    already has another header.  Without this, it is hard to push it
+    on the header and the bread-board making it hard to rapidly change
+    sketch on it.  The legs of the chip are rather fragile and
+    brittle and easy to bend and break.

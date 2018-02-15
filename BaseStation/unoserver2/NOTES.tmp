@@ -1,0 +1,46 @@
+Jan 07, 2015
+
+1. unoserver2.ino.bak has the working sketch.
+1.1. unoserver2.ino has the test code for non-blocking RFM69 read.
+
+2. serversock4.py has the code which select() on Serial also.
+2.1 serversock3.py has the working code that works with unoserver2.ino
+
+3 Latest combination to use:
+    - unoserver2.ino on UNO (Arduino)
+
+        Does not block to receiver RFM69CW packets.  Sends the RFM69
+        packets to the serial port as they arrive.  Services other
+        requests (for OOK, e.g.) immediately.
+
+    - serversock4.py on R-Pi (the socket server)
+
+        Always starts are data consumer thread which ingests RFM69
+        packets from the serial port and conveys them to any socket
+        connection that requests for packets.
+        
+    - rx4.py on Client (langur)
+       
+        Listen async (via select() on serial port) for incoming
+	packet-radio packets.  There is no polling -- data plotting
+	cadence is controlled by the remote transmitters.  The packets
+	are plotted as and when they arrive.
+
+    
+Rewrite [DONE]:
+  - serversoc to open a special socket for serving the sensor data only.
+    This service will (a) watch the serial port, (b) anything is
+    available for reading, will read it, and (c) write what it read to
+    the receiver socket.
+
+  - rx4.py will then also open the socket connect (the above "special
+    socket"), and wait on in-coming data on this socket.  When the
+    data arrives, it will be processed.
+
+  - This should leave serversoc to not block and server other requests
+    instantaneously (e.g. requests for commands to transmitted with
+    OOK radio).
+
+TODO:
+  - Check why two packets are sent for every RF packet that arrives at
+    RFM69. 
