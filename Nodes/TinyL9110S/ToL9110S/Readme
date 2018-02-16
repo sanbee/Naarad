@@ -1,0 +1,2 @@
+This sketch is a standalone test for ATT84 to toggle the solenoid via L9110S connected to it on pins (11,12).
+This just toggles the Pin11 and Pin12 every 10 sec. 

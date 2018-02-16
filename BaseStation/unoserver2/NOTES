@@ -1,0 +1,52 @@
+o Run serversoc2.py on the R-Pi.  This waits for a socket connection,
+  request and also gets into an infinite loop to service a connection.
+  As a result, this can take only one connection at a time.
+
+   TODO: 
+     1. Make servicing the socket connection into a separate thread
+     2. Change the servicing to trigger on the client socket 
+        using select.Select.  Currently it uses too much CPU.
+
+   Update (Jan. 06, 2015)
+     3. Start serversoc3.py on R-Pi instead of serversoc2.py.  The
+        former is a multi-threaded version and probably the only one
+        which will work with both OOK and RFM69.
+
+        serversoc2.py did not work with OOK itself UNLESS the Serial
+        Monitor of the Arduino GUI is open (don't quite understand
+        why). serversoc3.py seem to work fine without the Serial
+        Monitor. 
+
+o rx.py/rx2.py to connect to the socket on R-Pi and receive the data
+  in an infinite loop. rx2.py is probably the better one.
+
+o Insert a async kbd input in rx2.py loop
+
+
+
+
+Jan. 2018
+---------
+
+Development of remote sprinkler controller:
+
+1. Command structure
+
+     SEND_RFM  CMD NODE PORT TIMEOUT
+
+     CMD: 0 : Sprinkler start
+          1 : Sprinkler stop
+            : Otherwise shut
+
+     NODE: Target node number
+    
+     PORT: Which port on the target node. 
+           Can support multiple sprinkler valves
+           per node.
+
+     TIMEOUT: Issue a local STOP command after
+              this time interval.
+
+     Pack these 4 arguments in the nibbles of
+     PayLoad elements (there are 2 int elements,
+     and each int is 2-bytes/4-nibbles long).

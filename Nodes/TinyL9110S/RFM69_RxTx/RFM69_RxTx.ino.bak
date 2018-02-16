@@ -1,0 +1,233 @@
+// -*- C++ -*-
+// --------------------------------------------------------------------------------------
+// ATtiny84 Based Wireless temperature sensor and sprinkler DC
+// latching solenoid controller.
+//
+// GNU GPL V3
+//--------------------------------------------------------------------------------------
+
+#define RF69_COMPAT 1
+#pragma message("Compiling in RF69_COMPAT mode")
+#include <JeeLib.h> // https://github.com/jcw/jeelib
+#include <avr/power.h>
+ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
+
+#define myNodeID    15                     // RF12 node ID in the range 1-30
+#define network        210                   // RF12 Network group
+#define freq              RF12_433MHZ  // Frequency of RFM12B module
+
+#define tempPin              PIN_A0      // TMP36 Vout connected to A0,D10 (ATtiny pin 13)
+#define tempPower         PIN_A1      //was:9    TMP36 Power pin is connected on pin A1,D9 (ATtiny pin 12)
+#define SOLENOID_CTL0 PIN_A2      // A2,D8 (ATtiny pin 11)
+#define SOLENOID_CTL1 PIN_A3      // A3,D7 (ATtiny pin 10)
+
+#define CODE_DONE 10
+#define CLOSE            0
+#define OPEN             1
+#define SHUT             2
+
+#define SERVER_NODE_ID 5
+
+#define RFM69_READ_TIMEOUT  15000 /* 3 sec */
+#define RFM69_SEND_INTERVAL 30000 /* 60 sec */
+
+#define RCV_TIMEDOUT           10
+#define RCV_GOT_SOME_PKT  20
+#define RCV_GOT_VALID_PKT  30
+
+//int tempReading;         // Analogue reading from the sensor
+byte dataReady=0;
+unsigned long lastRF;                    // used to check for RF recieve failures
+int payload_nodeID;
+//###################
+//Data Structure to be sent
+//###################
+
+typedef struct
+{
+  int temp;	// Temperature reading
+  int supplyV;	// Supply voltage
+ } Payload;
+
+Payload payLoad_RxTx;
+uint16_t freqOffset=1600;
+MilliTimer sendTimer;
+
+// class PacketBuffer : public Print {
+// public:
+//     PacketBuffer () : fill (0) {}
+//     const char* buffer() { return buf; }
+//     byte length() { return fill; }
+//     void reset() { fill = 0; }
+//     virtual size_t write(uint8_t ch)
+//         { if (fill < sizeof buf) buf[fill++] = ch; }  
+//     byte fill;
+//     char buf[150];
+//     private:
+// };
+// static PacketBuffer str;
+
+//#################################################################
+void setup()
+{
+  rf12_initialize(myNodeID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
+  rf12_sleep(0);                          // Put the RFM12 to sleep
+
+  analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
+ 
+  pinMode(tempPower, OUTPUT); // set power pin for TMP36 to output
+  pinMode(SOLENOID_CTL0, OUTPUT);
+  pinMode(SOLENOID_CTL1, OUTPUT);
+}
+//#################################################################
+void loop()
+{
+  // Turn-on the temperature sensor, read it and send the data via RF
+  //----------------------------------------------------------------------------------------
+  digitalWrite(tempPower, HIGH); // turn TMP36 sensor on
+  delay(10); // Allow 10ms for the sensor to be ready
+  analogRead(tempPin); // throw away the first reading
+  payLoad_RxTx.temp=0.0;
+  for(int i = 0; i < 10 ; i++) // take 10 more readings
+    payLoad_RxTx.temp += analogRead(tempPin); // accumulate readings
+  digitalWrite(tempPower, LOW); // turn TMP36 sensor off
+  payLoad_RxTx.temp = int((((double(payLoad_RxTx.temp/10.0)*0.942382812) - 500)/10)*100);
+
+  // payLoad_RxTx.temp = payLoad_RxTx.temp / 10 ; // calculate the average
+  // // //  double voltage = tempReading * (1100/1024); // Convert to mV (assume internal reference is accurate)
+  // double voltage = payLoad_RxTx.temp * 0.942382812; // Calibrated conversion to mV
+  // double temperatureC = (voltage - 500) / 10; // Convert to temperature in degrees C. 
+  // payLoad_RxTx.temp = temperatureC * 100; // Convert temperature to an integer, reversed at receiving end
+  
+  payLoad_RxTx.supplyV = readVcc(); // Get supply voltage
+
+  
+  rfwrite(1); // Send data via RF
+  // delay(100);
+  // rfwrite(1); // Send data via RF 
+  //----------------------------------------------------------------------------------------
+
+  // Reusing some variables to reduce memory footprint.
+  payload_nodeID=-1;
+  payLoad_RxTx.supplyV=-1;
+
+  // Now poll for reading the radio to see if a command has come from the server
+  // Stop the polling after RFM69_READ_TIMEOUT milliseconds.
+  int cmd=-1;
+  
+  lastRF=millis();
+  rf12_sleep(-1);
+  sendTimer.poll(1000);
+  /*
+ TRYAGAIN:
+  cmd=-1;
+  while ((cmd=readRFM69())==-1)
+    {
+      if ((millis() - lastRF) > RFM69_READ_TIMEOUT)
+	{
+	  dataReady=RCV_TIMEDOUT;
+	  break;
+	}
+    }
+
+  if (dataReady != RCV_TIMEDOUT)
+	{
+	  dataReady=RCV_GOT_SOME_PKT;
+
+	  // If ((a RF packet was received) && (pkt was from the server) && (pkt was meant for this node)) then process the command
+	  // TODO: Parse the payLoad_RxTx.temp value to extrat the time-out value after which issue a SHUT command
+	  if ((cmd != -1) && (payload_nodeID==SERVER_NODE_ID) && (payLoad_RxTx.supplyV == myNodeID))
+	    {
+	      dataReady=RCV_GOT_VALID_PKT;
+	      payLoad_RxTx.supplyV = cmd*100;
+	      // controlSolenoid(cmd); delay(10); controlSolenoid(SHUT);
+	    }
+	}
+  if (dataReady==RCV_GOT_SOME_PKT) goto TRYAGAIN;
+  */
+  //if (dataReady == RCV_TIMEDOUT)
+  payLoad_RxTx.supplyV=cmd*100;
+  {
+    payLoad_RxTx.temp = 4567;
+    rfwrite(1);
+    delay(10);
+  }
+  //Sleepy::loseSomeTime(RFM69_SEND_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+}
+//
+//#################################################################
+//#################################################################
+//
+// Application specific functions
+static void controlSolenoid(const int dir)
+{
+  if (dir==OPEN)
+    {
+      digitalWrite(SOLENOID_CTL0, HIGH);
+      digitalWrite(SOLENOID_CTL1, LOW);
+    }
+  else if (dir==CLOSE)
+    {
+      digitalWrite(SOLENOID_CTL0, LOW);
+      digitalWrite(SOLENOID_CTL1, HIGH);
+    }
+  else
+    {
+      digitalWrite(SOLENOID_CTL0, LOW);
+      digitalWrite(SOLENOID_CTL1, LOW);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Send payload data via RF
+//--------------------------------------------------------------------------------------------------
+static void rfwrite(const byte wakeup)
+ {
+   if (wakeup==1) rf12_sleep(-1);     //wake up RF module
+   while (!rf12_canSend()) rf12_recvDone();
+   rf12_sendStart(0, &payLoad_RxTx, sizeof payLoad_RxTx); 
+   rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
+   rf12_sleep(0);    //put RF module to sleep
+}
+
+//--------------------------------------------------------------------------------------------------
+// Read current supply voltage
+//--------------------------------------------------------------------------------------------------
+static long readVcc()
+ {
+   long result;
+   // Read 1.1V reference against Vcc
+   ADMUX = _BV(MUX5) | _BV(MUX0);
+   delay(2); // Wait for Vref to settle
+   ADCSRA |= _BV(ADSC); // Convert
+   while (bit_is_set(ADCSRA,ADSC));
+   result = ADCL;
+   result |= ADCH<<8;
+   result = 1126400L / result; // Back-calculate Vcc in mV
+   return result;
+}
+
+static int readRFM69() 
+{
+  //  digitalWrite(LEDPIN,LOW);    // turn LED off
+  
+  // On data receieved from rf12
+  //################################################################
+  
+  //  if (rf12_recvDone() && rf12_crc == 0 && (rf12_hdr & RF12_HDR_CTL) == 0) 
+  if (rf12_recvDone() && rf12_crc == 0)
+    {
+      payload_nodeID = rf12_hdr & 0x1F;   // extract node ID from received packet
+      payLoad_RxTx=*(Payload*) rf12_data;         // Get the payload
+
+      dataReady = 1;                   // Ok, data is ready
+
+      // if ((payload_nodeID != SERVER_NODE_ID) && (payLoad_RxTx.supplyV != myNodeID))
+      // 	return -1;
+      payLoad_RxTx.supplyV *= 100;
+      if (payLoad_RxTx.temp == 0) return CLOSE;
+      else if (payLoad_RxTx.temp == 1) return OPEN;
+      else return SHUT;
+    }
+    return -1;
+}
