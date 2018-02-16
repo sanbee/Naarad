@@ -1,0 +1,41 @@
+##/usr/local/stow/python-3.5.0/bin/ipython3
+
+import pyowm
+pyowm.utils.timeutils.date()
+pyowm.utils.timeutils.date(2017)
+pyowm.utils.timeutils.date(2017,2,14)
+pyowm?
+API_key='xxx'
+OWM
+from pyowm import OWM
+owm=OWM(API_key)
+owm.get_API_key()
+obs = owm.weather_at_place('Socorro,NM')
+w = obs.get_weather()
+;
+w
+w.get_clouds()
+w.get_sunrise_time()
+w.get_sunrise_time(timeformat='iso')
+w.get_sunrise_time(timeformat='mst')
+w.get_sunrise_time(timeformat='ut')
+w.get_sunrise_time(timeformat='iso')
+w.get_temperature()
+w.get_temperature('celcius')
+w.get_temperature('celsius')
+print(w)
+w.get_clouds()
+w.get_clouds?
+w.get_clouds()
+w.get_wind()
+xx=w.get_sunrise_time()
+xx
+u
+owm.city_id_registry
+xx=w.get_sunrise_time()
+print(xx)
+w.get_sunrise_time()
+w.get_sunrise_time('iso')
+w = obs.get_weather();
+w.get_sunrise_time('iso')
+w.get_clouds()
