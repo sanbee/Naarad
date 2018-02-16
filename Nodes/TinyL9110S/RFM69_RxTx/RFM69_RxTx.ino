@@ -174,10 +174,6 @@ void loop()
     {
       dataReady=RCV_GOT_VALID_PKT;
       controlSolenoid(cmd);
-      // Comment the line below along with the changes in
-      // controlSolenoid to ensure that OPEN and CLOSE are followed by
-      // delay and SHUT in controlSolenoid() itself.
-      //delay(10); controlSolenoid(SHUT);
       
       // Following is an ACK packet which is captured by the base station (acutully right now by all listeners).
       rfwrite(1);
@@ -274,11 +270,9 @@ static int readRFM69()
   if (rf12_recvDone() && rf12_crc == 0)
     {
       payload_nodeID = rf12_hdr & 0x1F;   // extract node ID from received packet
-      payLoad_RxTx=*(Payload*) rf12_data;         // Get the payload
+      payLoad_RxTx=*(Payload*) rf12_data; / Get the payload
 
       dataReady = 1;                   // Ok, data is ready
-
-      //payLoad_RxTx.supplyV = int(payLoad_RxTx.supplyV * 1000);
       
       if ((payload_nodeID != SERVER_NODE_ID) && (GET_NODEID(payLoad_RxTx) != MY_NODE_ID)) return -1;
 
