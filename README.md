@@ -2,7 +2,7 @@
 A simple house monitor and control system. 
 
 The *Naarad* system is a network of remote Nodes with radios operating
-at 433 MHz, a Base Station with an RFM69CW (RFM) packet radio,
+at 433 MHz, and a Base Station with an RFM69CW (RFM) packet radio,
 currently connected to an Arduino UNO.  The UNO talks to a Linux-based
 computer (currently a Raspberry PI (RPi)) via the serial connection.
 The RPi also listens for incoming socket connections.  Commands for
