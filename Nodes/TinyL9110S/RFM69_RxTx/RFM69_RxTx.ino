@@ -38,7 +38,8 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1,
-  VALVE_PULSE_WIDTH=10; // 10 ms
+  VALVE_PULSE_WIDTH=10,
+  PULSE_WIDTH_MULTIPLIER=1; // 10 ms
 
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
@@ -202,7 +203,12 @@ static void controlSolenoid(const int cmd)
       SYS_SHUTDOWN_INTERVAL_MULTIPLIER=((SYS_SHUTDOWN_INTERVAL_MULTIPLIER==0)?1:SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
       return;
     };
-  if (cmd== SET_VALVE_PULSE_WIDTH) {VALVE_PULSE_WIDTH = GET_PARAM1(payLoad_RxTx);return;}; // Default 10 ms.
+  if (cmd== SET_VALVE_PULSE_WIDTH)
+    {
+      VALVE_PULSE_WIDTH = GET_PARAM1(payLoad_RxTx); // Default 10 ms.
+      PULSE_WIDTH_MULTIPLIER = GET_PARAM0(payLoad_RxTx);//Detaul 1
+      return;
+    };
   //
   // Service the solenoid control commands
   //
@@ -210,14 +216,14 @@ static void controlSolenoid(const int cmd)
     {
       digitalWrite(SOLENOID_CTL0, HIGH);
       digitalWrite(SOLENOID_CTL1, LOW);
-      delay(VALVE_PULSE_WIDTH);
+      for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
       TimeOfLastValveCmd=millis(); // Record the time when OPEN command is issued.
     }
   else if (cmd==CLOSE)
     {
       digitalWrite(SOLENOID_CTL0, LOW);
       digitalWrite(SOLENOID_CTL1, HIGH);
-      delay(VALVE_PULSE_WIDTH);
+      for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
       TimeOfLastValveCmd=0; // Record that the valve is off now
     }
   //  else //Comment this line, and uncomment the delays in above blocks

@@ -97,7 +97,7 @@ Commands accepted by the remote node:
  Set TX interval   4      N     TO in sec.     Multiplier (default 1)
                                 (default 60s)
 
- Set valve pulse   5      N     N/A            Pulse width in milli sec.
+ Set valve pulse   5      N     Multiplier     Pulse width in milli sec.
  width                                         (default 10ms)
 
  NOOP             255     N     N/A            N/A
