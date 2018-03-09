@@ -351,7 +351,7 @@ static char* readRFM69()
     {
       if ((rf12_crc == 0) && ((rf12_hdr & RF12_HDR_CTL) == 0))
 	{
-<	  payload_nodeID = rf12_hdr & 0x1F; // Extract node ID from the received packet
+	  payload_nodeID = rf12_hdr & 0x1F; // Extract node ID from the received packet
 	  payload=*(Payload*) rf12_data;    // Get the payload
 	  makeJSON(payload_nodeID);         // Save JSON string in global str object
 	  isACK=processACK(payload_nodeID, payload.rx1, payload.supplyV);
