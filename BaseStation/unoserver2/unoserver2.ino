@@ -34,8 +34,8 @@
 //
 #define SEQ_LEN 35
 
-int outputRFTxPin = 6;
-int sensorTMP36Pin = 0; //the analog pin the TMP36's Vout (sense) pin is connected to
+#define outputRFTxPin  6
+#define sensorTMP36Pin  0 //the analog pin the TMP36's Vout (sense) pin is connected to
 char cmdStr[SEQ_LEN];
 char seqReady = 0;
 char serialCount;
@@ -76,8 +76,7 @@ typedef struct
   int supplyV;              // payload voltage
 } Payload;
 
-Payload payload; 
-Payload TX_payload;
+static Payload payload, TX_payload;
 static byte rssi2, rssi1, rssiMantisa;
 static byte TX_counter=N_TRIALS+1;
 #define SET_CMD(p,v)      (p.supplyV = setNibble(p.supplyV,v,1))
@@ -126,27 +125,28 @@ void setup()
 {
 #ifdef DEBUG
   Serial.begin(BAUDRATE);
-  Serial.println("Base Station: ");
-  Serial.print(" Node: "); Serial.print(MYNODE); 
-  Serial.print(" Freq: "); Serial.print("433MHz"); 
-  Serial.print(" Network group: "); Serial.println(group);
+  Serial.println(F("Base Station: "));
+  Serial.print(F(" Node: ")); Serial.print(MYNODE); 
+  Serial.print(F(" Freq: ")); Serial.print(F("433MHz")); 
+  Serial.print(F(" Network group: ")); Serial.println(group);
 #if RF69_COMPAT
-  Serial.println(" Working in RF69 Compatibility mode (RF12B Compat. mode actually)");
+  Serial.println(F(" Working in RF69 Compatibility mode (RF12B Compat. mode actually)"));
 #endif
 #endif
   delay(10);
   rf12_initialize(MYNODE, freq,group,1600 /*freqOffset*/);
   
   initOOKRadio();
-  Serial.println("Receiver ready");
+  Serial.println(F("Receiver ready"));
   
   // Set the node ID in the TX_payload to invalid value to indicate
   // that there is nothing to send yet.  Reset the re-try counter and
   // set the TX mode to OFF.
   INIT_TXPKT(TX_payload);
-  DISABLE_TXPKT();//  TX_counter=N_TRIALS+1;
+  DISABLE_TXPKT();        // TX_counter=N_TRIALS+1;
+  str.reset();            // Reset json string       
 }
-
+//####################################################################
 void loop() 
 {
   if (seqReady) 
@@ -175,35 +175,35 @@ void loop()
 	  TX_payload.supplyV=TX_payload.rx1=0;
 	  // RFM_SEND    CMD NODEID      PORT TIMEOUT
 	  //               supplyV          rx1
-	  char *token; char s[2] = " ";
+	  char *token; char s[2] = " ";const char *D="%d";
 	  // CMD
 	  token=strtok(cmdStr+9,s);
-	  int v; sscanf(token,"%d",&v);  
+	  int v; sscanf(token,D,&v);  
 	  SET_CMD(TX_payload,v);
 	  //TX_payload.supplyV=v;  // The command
 	  
 	  // NODIED
 	  token=strtok(NULL, s);
-	  sscanf(token,"%d",&v); 
+	  sscanf(token,D,&v); 
 	  SET_NODEID(TX_payload,v);
 	  //TX_payload.rx1=v;  // The target node ID
 	  
 	  // PORT
 	  token=strtok(NULL, s);
-	  sscanf(token,"%d",&v); 
+	  sscanf(token,D,&v); 
 	  SET_PORT(TX_payload,v);
 	  
 	  // TIMEOUT
 	  token=strtok(NULL, s);
-	  sscanf(token,"%d",&v); 
+	  sscanf(token,D,&v); 
 	  SET_TIMEOUT(TX_payload,v);
 	  // This is a debugging message printed as a JSON string on
 	  // the serial port with rf_fail:1 so that the server
 	  // listening on the serial port need not process it further.
 	  Serial.println("{\"rf_fail\":1,\"source\":\"Got RFM_SEND\",\"cmd\":"+String(GET_CMD(TX_payload))
-			 +",\"node\":" + String(GET_NODEID(TX_payload))+" "
-			 +",\"port\":" + String(GET_PORT(TX_payload))+" "
-			 +",\"TIMEOUT\":" + "\"" + String(GET_TIMEOUT(TX_payload))+" " +String(TX_counter)+"\" }\0"); 
+			 +(",\"node\":") + String(GET_NODEID(TX_payload))+s
+			 +(",\"port\":") + String(GET_PORT(TX_payload))+s
+			 +(",\"TIMEOUT\":") + ("\"") + String(GET_TIMEOUT(TX_payload))+" " +String(TX_counter)+("\" }\0")); 
 	}
       // Read a value from sensorTMP36PIN and return the value as
       // temperature in degC
@@ -211,10 +211,10 @@ void loop()
 	{
 	  float val = readTemperature();
 	  str.reset();
-	  str.print("{\"rf_fail\":0");             // RF recieved so no failure
-	  str.print(",\"degc\":");   str.print(val); 
-	  str.print(",\"node_id\":0");
-	  str.print(",\"source\":\"RS0\" }\0");
+	  str.print(("{\"rf_fail\":0"));             // RF recieved so no failure
+	  str.print((",\"degc\":"));   str.print(val); 
+	  str.print((",\"node_id\":0"));
+	  str.print((",\"source\":\"RS0\" }\0"));
 	  Serial.println(str.buf);
 	  //Serial.println(val);
 	  //delay(10);
@@ -234,38 +234,41 @@ void loop()
     {
       char *msg=NULL;
       if ((msg = readRFM69())!=NULL)
-	Serial.println(msg);
+        {
+	  Serial.println(msg);
+          str.reset();
+        }
     }
 }
-
+//####################################################################
 static void initOOKRadio() 
 {
   pinMode(outputRFTxPin, OUTPUT);
   // Set the output pin to high impedence state
   digitalWrite(outputRFTxPin, LOW);
 }
-
+//####################################################################
 static bool inList(const int& val,const byte list[])
 {
   for (byte i=0; i<N_LISTENERS; i++)
     if (list[i] == val) return true;
   return false; 
 }
-
+//####################################################################
 static short int getNibble(short int target, short int which)
 {
   return (target >> (which*8)) & (0xFF);
 }
-
+//####################################################################
 static short int setNibble(short int word, short int nibble, short int whichNibble)
 {
   short int shift = whichNibble * 8;
   return (word & ~(0xf << shift)) | (nibble << shift);
 }
-
-//--------------------------------------------------------------------------------------------------
+//####################################################################
+//---------------------------------------------
 // Send payload data via RF
-//--------------------------------------------------------------------------------------------------
+//---------------------------------------------
 static void rfwrite()
 {
   //if (TX_payload.supplyV != NOTHING_TO_SEND)
@@ -280,30 +283,31 @@ static void rfwrite()
     //       rf12_sleep(0);    //put RF module to sleep
   }
 }
-
+//####################################################################
 static void makeJSON(const int& payload_nodeID)
 {
   rssi2 = RF69::rssi;      rssi1 = rssi2>>1;
   rssiMantisa = rssi2-(rssi1<<1);
-  //  str.reset();                           // Reset json string     
-  str.print("{\"rf_fail\":0,");             // RF recieved so no failure
-  str.print("\"node_id\":"); str.print(payload_nodeID);   // Add node ID
-  str.print(",\"degc\":");   str.print(payload.rx1/100.0); // Add reading 
-  str.print(",\"node_v\":"); str.print(payload.supplyV/1000.0); // Add tx battery voltage reading
-  str.print(",\"node_p\":"); str.print(-(rssi1));// Add received power (in dB)
-  if (rssiMantisa) str.print(PSTR(".5"));  str.print(",\"source\":\"RS0\" }\0");
+  str.reset();                           // Reset json string     
+  str.print(("{\"rf_fail\":0,"));             // RF recieved so no failure
+  str.print(("\"node_id\":")); str.print(payload_nodeID);   // Add node ID
+  str.print((",\"degc\":"));   str.print(payload.rx1/100.0); // Add reading 
+  str.print((",\"node_v\":")); str.print(payload.supplyV/1000.0); // Add tx battery voltage reading
+  str.print((",\"node_p\":")); str.print(-(rssi1));// Add received power (in dB)
+  //if (rssiMantisa) str.print(PSTR(".5"));  str.print((",\"source\":\"RS0\" }\0"));
+  if (rssiMantisa) str.print(".5");  str.print((",\"source\":\"RS0\" }\0"));
 }
-
+//####################################################################
 static void printJSON(const byte& counter)
 {
   Serial.println("{\"rf_fail\":1,\"source\":\"Sending RFM_SEND\""
 		 ",\"cmd\":"+String(GET_CMD(TX_payload))
-		 +",\"node\":" + String(GET_NODEID(TX_payload))+" "
-		 +",\"port\":" + String(GET_PORT(TX_payload))+" "
-		 +",\"TIMEOUT\":" + "\"" + String(GET_TIMEOUT(TX_payload))+" "
-		 +String(counter)+"\" }\0"); 
+		 +(",\"node\":") + String(GET_NODEID(TX_payload))+(" ")
+		 +(",\"port\":") + String(GET_PORT(TX_payload))+(" ")
+		 +(",\"TIMEOUT\":") + ("\"") + String(GET_TIMEOUT(TX_payload))+(" ")
+		 +String(counter)+("\" }\0")); 
 }
-
+//####################################################################
 static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supplyV)
 {
   // An ACK packet is detected using the following logic:
@@ -323,16 +327,21 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
   if ((rx_nodeID == GET_NODEID(TX_payload)) && (rx_rx == TX_payload.rx1))
     {
       Serial.println("{\"rf_fail\":1,\"source\":\"ACKpkt:\",\"cmd\":"+String(GET_CMD(TX_payload))
-		     +",\"node\":" + String(GET_NODEID(TX_payload))
-		     +",\"t2\": "+String(rx_rx)
-		     +",\"t3\": "+String(rx_nodeID)+" }\0"); 
+		     +(",\"node\":") + String(GET_NODEID(TX_payload))
+		     +(",\"t2\": ")+String(rx_rx)
+		     +(",\"t3\": ")+String(rx_nodeID)+(" }\0")); 
       SET_CMD(TX_payload,NOOP);
       DISABLE_TXPKT();
       return true;
     }
-  return false;
+  else // Current payload is not an ACK packet
+    {
+      // Save JSON string in global str object
+      makeJSON(rx_nodeID);
+      return false;
+    }
 }
-
+//####################################################################
 // If a CMD is available for the nodeID, copy it to TX_payload.  This
 // currently is a place-holder for copying TX payload from
 // NodeID-based caches to global TX_payload
@@ -341,29 +350,36 @@ static void loadTxCmdForNode(const int& nodeID)
   SET_NODEID(TX_payload,nodeID);
   return;
 }
+//####################################################################
+#define RX_CRC_OK()  ((rf12_crc == 0))
+#define RX_HDR_OK()  (((rf12_hdr & RF12_HDR_CTL) == 0))
+#define RX_NODEID()  ((rf12_hdr & 0x1F))
 
 static char* readRFM69() 
 {
   int payload_nodeID=NOTHING_TO_SEND;
   bool isACK=false;
-  str.reset();                           // Reset json string       
-  if (rf12_recvDone())
+  if (rf12_recvDone()) 
     {
-      if ((rf12_crc == 0) && ((rf12_hdr & RF12_HDR_CTL) == 0))
+      if (RX_CRC_OK() && RX_HDR_OK()) // Is the payload valid?
 	{
-	  payload_nodeID = rf12_hdr & 0x1F; // Extract node ID from the received packet
-	  payload=*(Payload*) rf12_data;    // Get the payload
-	  makeJSON(payload_nodeID);         // Save JSON string in global str object
+	  payload_nodeID = RX_NODEID();   // Extract node ID from the received packet
+	  payload=*(Payload*) rf12_data;  // Get the payload
 	  isACK=processACK(payload_nodeID, payload.rx1, payload.supplyV);
 	}
       
       if (!isACK && inList(payload_nodeID,listenerNodeIDList))
 	{
+	  // Prepare the Tx payload, enable it for Tx and start a
+	  // timer for re-transmission cadence.
 	  loadTxCmdForNode(payload_nodeID);
 	  ENABLE_TXPKT();
 	  lastPktSent=millis();
 	}
     }
+  // Transmit the Tx payload if the number of trials is not exhausted
+  // and the timer meets the re-transmission cadence.  Update the
+  // timer and the number of re-transmissions.
   if (TXPKT_ENABLED() && (millis() - lastPktSent > 200))
     {
       printJSON(TX_counter);
@@ -373,7 +389,7 @@ static char* readRFM69()
     }
   return (str.fill==0)?NULL:str.buf;
 }
-
+//####################################################################
 void writeOne() 
 {
   //digitalWrite(ledPin, HIGH);
@@ -382,7 +398,7 @@ void writeOne()
   digitalWrite(outputRFTxPin, LOW);
   delayMicroseconds(195);
 }
-
+//####################################################################
 void writeZero() 
 {
   //digitalWrite(ledPin, LOW);
@@ -391,7 +407,7 @@ void writeZero()
   digitalWrite(outputRFTxPin, LOW);
   delayMicroseconds(580);
 }
-
+//####################################################################
 /* void writeln(char *str,int count) */
 /* { */
 /* //  for (char i = 0; i < SEQ_LEN-1; i++)  */
@@ -399,7 +415,7 @@ void writeZero()
 /*     Serial.print(str[i]); */
 /*   Serial.println(); */
 /* } */
-
+//####################################################################
 void TXSequence(char *seq,int len) 
 {
   for (char i = 0; i < len; i++) 
@@ -415,7 +431,7 @@ void TXSequence(char *seq,int len)
   digitalWrite(outputRFTxPin, LOW);
   //  writeZero();
 } 
-
+//####################################################################
 void serialEvent() 
 {   
   while (Serial.available()) 
@@ -430,8 +446,8 @@ void serialEvent()
 	}
     }
 }
-
-float readTemperature()                     // run over and over again
+//####################################################################
+float readTemperature()   
 {
   //initGPIO();
   //getting the voltage reading from the temperature sensor
