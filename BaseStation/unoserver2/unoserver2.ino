@@ -288,7 +288,6 @@ static void makeJSON(const int& payload_nodeID)
 {
   rssi2 = RF69::rssi;      rssi1 = rssi2>>1;
   rssiMantisa = rssi2-(rssi1<<1);
-  str.reset();                           // Reset json string     
   str.print(("{\"rf_fail\":0,"));             // RF recieved so no failure
   str.print(("\"node_id\":")); str.print(payload_nodeID);   // Add node ID
   str.print((",\"degc\":"));   str.print(payload.rx1/100.0); // Add reading 
