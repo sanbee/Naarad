@@ -2,7 +2,7 @@ RFM69_RxTx.ino.2_Tx_pkt_relay
 -----------------------------
 
 (This is a test program to learn how to make Rx/Tx work.  It is a
-rudementary relay program for any packet in the network)
+rudimentary relay program for any packet in the network)
 
 The RFM9_RxTX.ino.2_Tx_pkt_relay sketch does the following:
 
@@ -10,8 +10,8 @@ The RFM9_RxTX.ino.2_Tx_pkt_relay sketch does the following:
  - send the packet.  Put the RFM to sleep (P0)
  - delay(100) -- D0
  - wake up the RFM
- - Turn on the RFM for listen and look for in-comming packets. 
-   Timeout after 15 sec. on this loop (this is the receivew window - RW).
+ - Turn on the RFM for listen and look for in-coming packets. 
+   Timeout after 15 sec. on this loop (this is the received window - RW).
    If a packet was found, break the loop
  - delay(100) -- D1
  - Send the packet again.  Put the RFM to sleep (P1)
@@ -34,7 +34,7 @@ send command (rfwrite()) and the rf12_sleep() (which is also inside
 the rfwrite() call) appear to be crucial for the second packet (P1) to
 be sent reliably and correctly.  Not sure if this is only a send
 issue.  Will this work, without D1 and second-send (which is only for
-debugging) and just process the incomming packet?
+debugging) and just process the incoming packet?
 
 IMP: It looks like that the delay is required between switching the
         RFM69 from Tx to Rx (or the reverse).  These are the D0 and D1
@@ -44,7 +44,7 @@ The receive loop breaks immediately if a packet from BS arrives.  If
 no BS-packet arrives, this loop waits from any other packet to arrive.
 This currently then keeps the receiver on for O(6sec.).  Can this
 timeout be reduced to only a few sec. (or whatever interval necessary
-to ensure that the BS packet is always receivded)?
+to ensure that the BS packet is always received)?
 
 
 
@@ -70,7 +70,7 @@ after finishing sending, it switches RFM69 to Rx with a timeout of
 3sec.  A packet received in this Rx window is processed to see if (a)
 it was meant for this node (ID=15 sent in payLoad.supplyV), and (b) if
 the sender was the server node (ID=5).  If a valid packet was
-received, it is procssed and the RFM69 put to sleep.  ATT84 goes to
+received, it is processed and the RFM69 put to sleep.  ATT84 goes to
 low-power sleep for 60sec.
 
 The BS treats any packet from ID=15 as a heart-beat and responds with
@@ -86,9 +86,9 @@ Commands accepted by the remote node:
                Nibble1 Nibble0 Nibble1               Nibble0
  RFM_SEND         CMD    NODE    P1                      P0
 --------------------------------------------------------------------------------
- VALVE CLOSE       0      N     PORT           TIMEOUT in minutes (defult 30min)
+ VALVE CLOSE       0      N     PORT           TIMEOUT in minutes (default 30min)
 
- VALVE OPEN        1      N     PORT           TIMEOUT in minutes (defult 30min)
+ VALVE OPEN        1      N     PORT           TIMEOUT in minutes (default 30min)
 
  VALVE SHUT        2      N     PORT           N/A
 
@@ -113,11 +113,11 @@ receive.
 Cmd-4 (SET_TX_INT) sets the interval for which the remote unit is shut
 (the radio and the MCU in sleep mode).  It is calculated as
 
-  for i=0; i<MULTIPLER;i++) sleep(TO sec.);
+  for i=0; i<MULTIPLIER;i++) sleep(TO sec.);
 
 Cmd-5 (SET_VALVE_PULSE_WIDTH) sets the width of the pulse in time sent
 to the solenoid (via L9110s) by keep the DIO pins to HIGH/LOW for this
-lenght of time.
+length of time.
 
 Cmd-255 (NOOP) is does nothing. It is currently treated as an hint
 that there is nothing to receive for this node.

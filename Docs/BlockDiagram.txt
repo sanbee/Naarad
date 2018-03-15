@@ -1,0 +1,31 @@
+[Arduino sketch] <----------------> [Socket Sever] <-------->  [Client Sockets]
+   ^     |            (Serial          (R-Pi)                   (Unix/Android)
+   |     V             connection)
+   |   OOK Tx
+   V
+ RFM69CW
+
+
+
+
+         [Base Station]                         [RPi]		      [Socket Clients]
+     +-------------------+		  +---------------+           +-------------+
+     |    Ardunio UNO    |		  |               |	      |   Android   |
+     |-------------------|<==============>| Socket Server |<=========>|    Linux    |
+     |RFM69CW |OOK Radio | [Serial     	  |               | [Linux    |     Apps    |
+     +-------------------+  connection]	  +---------------+  Socket]  +-------------+
+        ^          |
+        |      	   |
+        |	   |
+        |	   |Tx-Only
+        |	   +-------->
+        V
+     +------------+
+     |  RFM69CW   |
+     |            |
+     |  ATTiny84  |
+     +------------+
+         [Node]
+
+
+

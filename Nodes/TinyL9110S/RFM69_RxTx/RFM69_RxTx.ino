@@ -155,7 +155,6 @@ void loop()
   // node with a target ID of this node.  It returns -1 otherwise (if
   // it did not get a packet or if the packet was not from the server
   // node or not meant for this node).
- TRYAGAIN:
   cmd=-1;
   while ((cmd=readRFM69())==-1)
     {
