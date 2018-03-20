@@ -19,9 +19,9 @@ via the serial connection. The block level system diagram looks like this:
 ![SysDiagram](Docs/SysDiagram-crop.png)
 
 This repository has the code for the three components of the Naarad system: 
-  * The code running on the MCUs on the remote nodes is in the Nodes directory
-  * The code running on the Arduino UNO on the Base Station is in the BaseStation directory
-  * The code running on the central computer (Raspberry Pi) is in the RPi directory
+  * The code running on the MCUs on the remote nodes is in the [Nodes](Nodes) directory
+  * The code running on the Arduino UNO on the Base Station is in the [BaseStation](BaseStation) directory
+  * The code running on the central socket server (Raspberry Pi) is in the [RPi](RPi) directory
 
 The communication with the RFM is done using the
 [JeeLib](https://github.com/jcw/jeelib) library from
