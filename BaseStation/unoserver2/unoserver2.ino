@@ -66,7 +66,7 @@ char serialCount;
 #define NOTHING_TO_SEND -1
 #define N_TRIALS 5
 #define N_LISTENERS 2
-byte listenerNodeIDList[2]={15,16};
+byte listenerNodeIDList[N_LISTENERS]={15,16};
 //####################################################################
 //Data Structure to be received 
 //####################################################################
