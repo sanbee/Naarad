@@ -65,8 +65,8 @@ char serialCount;
 
 #define NOTHING_TO_SEND -1
 #define N_TRIALS 5
-#define N_LISTENERS 1
-byte listenerNodeIDList[1]={15};
+#define N_LISTENERS 2
+byte listenerNodeIDList[2]={15,16};
 //####################################################################
 //Data Structure to be received 
 //####################################################################
@@ -79,15 +79,15 @@ typedef struct
 static Payload payload, TX_payload;
 static byte rssi2, rssi1, rssiMantisa;
 static byte TX_counter=N_TRIALS+1;
-#define SET_CMD(p,v)      (p.supplyV = setNibble(p.supplyV,v,1))
-#define SET_NODEID(p,v)   (p.supplyV = setNibble(p.supplyV,v,0))
-#define SET_PORT(p,v)     (p.rx1 = setNibble(p.rx1,v,1))
-#define SET_TIMEOUT(p,v)  (p.rx1 = setNibble(p.rx1,v,0))
+#define SET_CMD(p,v)      (p.supplyV = setByte(p.supplyV,v,1))
+#define SET_NODEID(p,v)   (p.supplyV = setByte(p.supplyV,v,0))
+#define SET_PORT(p,v)     (p.rx1 = setByte(p.rx1,v,1))
+#define SET_TIMEOUT(p,v)  (p.rx1 = setByte(p.rx1,v,0))
 
-#define GET_CMD(p)      (getNibble(p.supplyV,1))
-#define GET_NODEID(p)   (getNibble(p.supplyV,0))
-#define GET_PORT(p)     (getNibble(p.rx1,1))
-#define GET_TIMEOUT(p)  (getNibble(p.rx1,0))
+#define GET_CMD(p)      (getByte(p.supplyV,1))
+#define GET_NODEID(p)   (getByte(p.supplyV,0))
+#define GET_PORT(p)     (getByte(p.rx1,1))
+#define GET_TIMEOUT(p)  (getByte(p.rx1,0))
 
 #define INIT_TXPKT(p)  {p.supplyV=0;SET_CMD(p,NOOP);SET_PORT(p,0);SET_TIMEOUT(p,0);}//Set cmd to NOOP
 #define DISABLE_TXPKT() (TX_counter=N_TRIALS+1) // Set the count to > allowed no. of trials
@@ -255,14 +255,14 @@ static bool inList(const int& val,const byte list[])
   return false; 
 }
 //####################################################################
-static short int getNibble(short int target, short int which)
+static short int getByte(short int target, short int which)
 {
   return (target >> (which*8)) & (0xFF);
 }
 //####################################################################
-static short int setNibble(short int word, short int nibble, short int whichNibble)
+static short int setByte(short int word, short int nibble, short int whichByte)
 {
-  short int shift = whichNibble * 8;
+  short int shift = whichByte * 8;
   return (word & ~(0xFF << shift)) | (nibble << shift);
 }
 //####################################################################
