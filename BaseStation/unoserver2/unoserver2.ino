@@ -263,7 +263,7 @@ static short int getNibble(short int target, short int which)
 static short int setNibble(short int word, short int nibble, short int whichNibble)
 {
   short int shift = whichNibble * 8;
-  return (word & ~(0xf << shift)) | (nibble << shift);
+  return (word & ~(0xFF << shift)) | (nibble << shift);
 }
 //####################################################################
 //---------------------------------------------
