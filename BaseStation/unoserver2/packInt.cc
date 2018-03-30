@@ -11,10 +11,10 @@ void showbits(short int x)
     printf("\n");
 }
 
-void setnibble(short int& target, short int shift, short int val)
-{
-  target = (val << shift);
-}
+// void setnibble(short int& target, short int shift, short int val)
+// {
+//   target = (val << shift);
+// }
 short int getnibble(short int target, short int which)
 {
   return (target >> (which*8)) & (0xFF);
@@ -23,7 +23,7 @@ short int getnibble(short int target, short int which)
 static short int setNibble(short int word, short int nibble, short int whichNibble)
 {
   short int shift = whichNibble * 8;
-  return (word & ~(0xf << shift)) | (nibble << shift);
+  return (word & ~(0xFF << shift)) | (nibble << shift);
 }
 
 int main(int argc, char** argv)
@@ -36,6 +36,10 @@ int main(int argc, char** argv)
   printf("Value being set: %d %d \n",val0,val1);
   buf=setNibble(buf, val0, 0);
   buf=setNibble(buf, val1, 1);
+  showbits(buf);
+  printf("%d\n",buf);
+  buf=setNibble(buf, 16, 0);
+  buf=setNibble(buf, 15, 0);
   showbits(buf);
   printf("%d\n",buf);
 

@@ -26,7 +26,7 @@
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
 
 #define SERVER_NODE_ID 5
-#define MY_NODE_ID     15                     // RF12 node ID in the range 1-30
+#define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
 #define network        210                   // RF12 Network group
 #define freq           RF12_433MHZ  // Frequency of RFM12B module
 
@@ -275,7 +275,7 @@ static int readRFM69()
   if (rf12_recvDone() && rf12_crc == 0)
     {
       payload_nodeID = rf12_hdr & 0x1F;   // extract node ID from received packet
-      payLoad_RxTx=*(Payload*) rf12_data; / Get the payload
+      payLoad_RxTx=*(Payload*) rf12_data; // Get the payload
 
       dataReady = 1;                   // Ok, data is ready
       
