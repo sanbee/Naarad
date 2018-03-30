@@ -68,6 +68,9 @@ inline static short int getNibble(short int target, short int which)
 // Utility macros
 #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
 #define adc_enable()  (ADCSRA |=  (1<<ADEN)) // re-enable ADC
+//bitClear(PRR, PRADC); ADCSRA |= bit(ADEN); // Enable the ADC
+//ADCSRA &= ~ bit(ADEN); bitSet(PRR, PRADC); // Disable the ADC to save power
+  
 
 byte dataReady=0;
 unsigned long lastRF;                    // used to check for RF recieve failures
@@ -126,7 +129,6 @@ void loop()
   digitalWrite(tempPower, HIGH); // turn TMP36 sensor on
   delay(10); // Allow 10ms for the sensor to be ready
 
-  //bitClear(PRR, PRADC); ADCSRA |= bit(ADEN); // Enable the ADC
 
   analogRead(tempPin); // throw away the first reading
   //payLoad_RxTx.temp=0.0;
@@ -136,8 +138,6 @@ void loop()
     tempReading += analogRead(tempPin); // accumulate readings
     
 
-  //ADCSRA &= ~ bit(ADEN); bitSet(PRR, PRADC); // Disable the ADC to save power
-  
   digitalWrite(tempPower, LOW); // turn TMP36 sensor off
   payLoad_RxTx.temp = int((((double(tempReading/10.0)*0.942382812) - 500)/10)*100);
 
@@ -166,7 +166,6 @@ void loop()
     }
 
   delay(100); // With the receiver ON, this delay is necessary for the second packet to be issued.  What's the minimum delay?
-  // payLoad_RxTx.temp = 4567;
 
   // rfwrite(1) puts RFM69 to sleep.  loseSomeTime() below puts the MCU to sleep for the specified length of time.
 
