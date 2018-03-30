@@ -66,8 +66,8 @@ inline static short int getNibble(short int target, short int which)
 
 
 // Utility macros
-#define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
-#define adc_enable()  (ADCSRA |=  (1<<ADEN)) // re-enable ADC
+// #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
+// #define adc_enable()  (ADCSRA |=  (1<<ADEN)) // re-enable ADC
 //bitClear(PRR, PRADC); ADCSRA |= bit(ADEN); // Enable the ADC
 //ADCSRA &= ~ bit(ADEN); bitSet(PRR, PRADC); // Disable the ADC to save power
   
@@ -86,7 +86,7 @@ typedef struct
  } Payload;
 
 int tempReading,cmd=-1, port=0;
-unsigned long valveTimeout=1800000,TimeOfLastValveCmd=0; /*30 min*/
+unsigned long valveTimeout=60000,TimeOfLastValveCmd=0; /*1 min*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
 //MilliTimer sendTimer;
@@ -120,7 +120,7 @@ void setup()
 //#################################################################
 void loop()
 {
-  adc_enable();
+  power_adc_enable();
   // Turn-on the temperature sensor, read it and send the data via RF
   //----------------------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ void loop()
   payLoad_RxTx.supplyV = readVcc(); // Get supply voltage
   
   rfwrite(1); // Send data via RF
-  delay(100); // Without this delay, the second packet is never issued.  Why? 10ms does not work.  100ms does.  Is 10<d<100 possible?
+  delay(10); // Without this delay, the second packet is never issued.  Why? 10ms does not work.  100ms does.  Is 10<d<100 possible?
   
   cmd=-1;
   
@@ -165,7 +165,7 @@ void loop()
 	}
     }
 
-  delay(100); // With the receiver ON, this delay is necessary for the second packet to be issued.  What's the minimum delay?
+  delay(10); // With the receiver ON, this delay is necessary for the second packet to be issued.  What's the minimum delay?
 
   // rfwrite(1) puts RFM69 to sleep.  loseSomeTime() below puts the MCU to sleep for the specified length of time.
 
@@ -178,7 +178,7 @@ void loop()
       rfwrite(1);
     }
 
-  adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
     Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
@@ -283,7 +283,7 @@ static int readRFM69()
       cmd=GET_CMD(payLoad_RxTx);
       port=GET_PORT(payLoad_RxTx);
       valveTimeout=GET_TIMEOUT(payLoad_RxTx)*60*1000;//Convert user value in min. to milli sec.
-      valveTimeout=(valveTimeout==0?1800000:valveTimeout);
+      valveTimeout=(valveTimeout==0?60000:valveTimeout);
 
       if (cmd == 0)      return CLOSE;
       else if (cmd == 1) return OPEN;
