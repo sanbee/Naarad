@@ -5,13 +5,15 @@ typedef char byte;
 #define MASK_PORTA 0b10001111 //Only bits with 1 will be modified
 #define MASK_PORTB 0b00000001 //Only bits with 1 will be modified
 #define N_PORTS 5
-#define HIGH 1
-#define LOW 0
 #define SETBIT(t,n)  (t |= 1<<n)
 #define CLRBIT(t,n)  (t &= ~(1 << n))
 static const byte port2BitMap[N_PORTS]={0,1,2,3,7}; //Pins: A0, A1,A2,A3,A7
 #define getPORTA() (0b10001111)
 #define getPORTB() (0b00000001)
+
+// These can go when this code is used in a ATT84 sketch.
+#define HIGH 1
+#define LOW 0
 
 static byte PORTA, PORTB;
 using namespace std;
@@ -26,7 +28,6 @@ void showbits(byte x)
     
     printf("\n");
 }
-//value = (value & ~mask) | (newvalue & mask);
 
 void setPortA(byte& port,const byte& val)
 {
@@ -40,7 +41,7 @@ void setPortB(byte& port,const byte& val)
 
 void cmdPort(const byte& cmd, const byte& port)
 {
-  byte CommonPin, Pin1;
+  byte CommonPin=0, Pin1=0;
   // portA and portB values should be set to whatever is the current
   // value of PORTA and PORTB registers.
   byte portA=getPORTA(), portB=getPORTB();
@@ -50,7 +51,6 @@ void cmdPort(const byte& cmd, const byte& port)
   // blindly using it to set the bits in PORTA and PORTB will work.
   if      (cmd == OPEN)  {CommonPin=0xFF; Pin1=0;}
   else if (cmd == CLOSE) {CommonPin=0;  Pin1=1;} 
-  else                   {CommonPin = Pin1 = 0;}
 
   printf("P, S, C: %d %d %d\n",port2BitMap[port], (CommonPin==-1)?1:0, Pin1);
 
@@ -70,6 +70,14 @@ void cmdPort(const byte& cmd, const byte& port)
   // lines below actually sets the hardware.
   PORTA=portA;
   PORTB=portB;
+  printf("B: "); showbits(PORTB);
+  printf("A: "); showbits(PORTA);
+  printf("Insert 10ms delay\n");
+  // Issue the SHUT command
+  PORTA=0x00;
+  PORTB=0x00;
+  printf("B: "); showbits(PORTB);
+  printf("A: "); showbits(PORTA);
 }
 
 int main(int argc, char **argv)
@@ -79,11 +87,6 @@ int main(int argc, char **argv)
       int port, cmd;
       std::cin >> port >> cmd;
       cmdPort(cmd,port);
-      printf("B: "); showbits(PORTB);
-      printf("A: "); showbits(PORTA);
-      cmdPort(SHUT,port);
-      printf("B: "); showbits(PORTB);
-      printf("A: "); showbits(PORTA);
       printf("------------------------\n");
     }
 }
