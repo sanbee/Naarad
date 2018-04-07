@@ -126,6 +126,7 @@ void loop()
 
   if ((TimeOfLastValveCmd>0)&&((unsigned long)(millis() - TimeOfLastValveCmd) >= valveTimeout))
     {controlSolenoid(CLOSE);TimeOfLastValveCmd=0;}
+  digitalWrite(SOLENOID_CTL0, HIGH); // turn TMP36 sensor off
   digitalWrite(tempPower, HIGH); // turn TMP36 sensor on
   delay(10); // Allow 10ms for the sensor to be ready
 
@@ -137,14 +138,14 @@ void loop()
     //payLoad_RxTx.temp += analogRead(tempPin); // accumulate readings
     tempReading += analogRead(tempPin); // accumulate readings
     
+  payLoad_RxTx.supplyV = PORTA*1000;
 
+  digitalWrite(SOLENOID_CTL0, LOW); // turn TMP36 sensor off
   digitalWrite(tempPower, LOW); // turn TMP36 sensor off
-  payLoad_RxTx.temp = int((((double(tempReading/10.0)*0.942382812) - 500)/10)*100);
+  payLoad_RxTx.temp = PORTA*1000;
 
-  payLoad_RxTx.supplyV = readVcc(); // Get supply voltage
-  
   rfwrite(1); // Send data via RF
-  //  delay(100); // Without this delay, the second packet is never issued.  Why? 10ms does not work.  100ms does.  Is 10<d<100 possible?
+  delay(10); // Without this delay, the second packet is never issued.  Why? 10ms does not work.  100ms does.  Is 10<d<100 possible?
   
   cmd=-1;
   
@@ -165,7 +166,7 @@ void loop()
 	}
     }
 
-  //delay(100); // With the receiver ON, this delay is necessary for the second packet to be issued.  What's the minimum delay?
+  delay(10); // With the receiver ON, this delay is necessary for the second packet to be issued.  What's the minimum delay?
 
   // rfwrite(1) puts RFM69 to sleep.  loseSomeTime() below puts the MCU to sleep for the specified length of time.
 
