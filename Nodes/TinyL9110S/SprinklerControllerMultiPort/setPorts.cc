@@ -11,6 +11,8 @@ static const byte port2BitMap[N_PORTS]={0,1,2,3,7}; //Pins: A0, A1,A2,A3,A7
 #define getPORTA() (0b10001111)
 #define getPORTB() (0b00000001)
 
+#define CMDPORT(c,p) ({setSolenoid(c,p);printf("Insert 10ms delay\n");setSolenoid(SHUT,p);})
+
 // These can go when this code is used in a ATT84 sketch.
 #define HIGH 1
 #define LOW 0
@@ -39,7 +41,14 @@ void setPortB(byte& port,const byte& val)
   port = (port & ~MASK_PORTB) | (val & MASK_PORTB);
 }
 
-void cmdPort(const byte& cmd, const byte& port)
+// The following sets the PORTA and PORTB to command the given port
+// and SHUT all other ports. In the end, it SHUTs all ports after a
+// 10ms delay.  Since it leaves all ports in SHUT state and setPortA()
+// and setPortB() will only change the bits allowed by the respective
+// masks, it may be OK to directly set the PORTA and PORTB registers
+// in this function.  That will save two bytes on the
+// stack and elimiate some code. RE-EVALUATE THIS.
+void setSolenoid(const byte& cmd, const byte& port)
 {
   byte CommonPin=0, Pin1=0;
   // portA and portB values should be set to whatever is the current
@@ -73,9 +82,8 @@ void cmdPort(const byte& cmd, const byte& port)
   printf("B: "); showbits(PORTB);
   printf("A: "); showbits(PORTA);
   printf("Insert 10ms delay\n");
-  // Issue the SHUT command
-  PORTA=0x00;
-  PORTB=0x00;
+  setPortA(PORTA,0x00);
+  CLRBIT(PORTB, 0);//setPortB(PORTB,0x00);
   printf("B: "); showbits(PORTB);
   printf("A: "); showbits(PORTA);
 }
@@ -86,7 +94,8 @@ int main(int argc, char **argv)
     {
       int port, cmd;
       std::cin >> port >> cmd;
-      cmdPort(cmd,port);
+      //CMDPORT(cmd,port);
+      setSolenoid(cmd,port);
       printf("------------------------\n");
     }
 }
