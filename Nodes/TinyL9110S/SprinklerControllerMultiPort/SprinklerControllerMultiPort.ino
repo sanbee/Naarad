@@ -65,14 +65,8 @@ inline static short int getNibble(short int target, short int which)
 #define GET_PARAM1(p)   (getNibble(p.temp,1)) /* Get the parameter for the SET_* commands*/
 #define GET_PARAM0(p)   (getNibble(p.temp,0)) /* Get the parameter for the SET_* commands*/
 
-#define MASK_PORTA 0b10001111 //Only bits with 1 will be modified
-#define MASK_PORTB 0b00000001 //Only bits with 1 will be modified
 #define N_PORTS 5
-#define SETBIT(t,n)  (t |= 1<<n)
-#define CLRBIT(t,n)  (t &= ~(1 << n))
 static const byte port2BitMap[N_PORTS]={0,1,2,3,7}; //Pins: A0, A1,A2,A3,A7
-#define getPORTA() (PORTA)
-#define getPORTB() (PORTB)
 
 
 
@@ -115,6 +109,10 @@ void setup()
   pinMode(PORT3, OUTPUT);
   pinMode(PORT4, OUTPUT);
 
+  // Set A0-3, A7 and B0 to LOW
+  byte tmp;
+  setPortA(tmp,0x00);PORTA=tmp;
+  setPortB(tmp,0x00);PORTB=tmp;
 }
 //#################################################################
 void loop()
@@ -123,11 +121,11 @@ void loop()
 
   for(byte port=0;port<N_PORTS;port++)
     {
-      setSolenoid(OPEN,port);
-      Sleepy::loseSomeTime(60*1000);
-      setSolenoid(CLOSE,port);
-      setSolenoid(SHUT,port);
-      Sleepy::loseSomeTime(5*1000);
+      setSolenoid(OPEN,port); // This generates a 10ms pulse which draws current
+      Sleepy::loseSomeTime(60000);
+      setSolenoid(CLOSE,port);// This generates a 10ms pulse which draws current
+      setSolenoid(SHUT,port); // Set both pins LOW
+      Sleepy::loseSomeTime(5000);
     }
 
   power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
@@ -136,6 +134,13 @@ void loop()
   for(unsigned int i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
     Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
+
+#define MASK_PORTA 0b10001111 //Only bits with 1 will be modified
+#define MASK_PORTB 0b00000001 //Only bits with 1 will be modified
+#define SETBIT(t,n)  (t |= 1<<n)
+#define CLRBIT(t,n)  (t &= ~(1 << n))
+#define getPORTA() (PORTA)
+#define getPORTB() (PORTB)
 void setPortA(byte& port,const byte& val)
 {
   port = (port & ~MASK_PORTA) | (val & MASK_PORTA);
@@ -145,7 +150,6 @@ void setPortB(byte& port,const byte& val)
 {
   port = (port & ~MASK_PORTB) | (val & MASK_PORTB);
 }
-
 
 void setSolenoid(const byte& cmd, const byte& port)
 {
@@ -181,10 +185,13 @@ void setSolenoid(const byte& cmd, const byte& port)
   // printf("B: "); showbits(PORTB);
   // printf("A: "); showbits(PORTA);
   // printf("Insert 10ms delay\n");
-  // setPortA(PORTA,0x00);
-  // CLRBIT(PORTB, 0);//setPortB(PORTB,0x00);
-  // printf("B: "); showbits(PORTB);
-  // printf("A: "); showbits(PORTA);
+
+  // 10ms later, remove the voltage (issue the SHUT command)
+  delay(10);
+  setPortA(portA,0x00);
+  CLRBIT(portB, 0);//setPortB(PORTB,0x00);
+  PORTA=portA;
+  PORTB=portB;
 }
 //
 //#################################################################
