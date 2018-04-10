@@ -30,6 +30,7 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define network        210                   // RF12 Network group
 #define freq           RF12_433MHZ  // Frequency of RFM12B module
 
+#define COMMN  PIN_B0  // B0,    (ATtiny pin 2)
 #define PORT0  PIN_A0  // A0,D10 (ATtiny pin 13)
 #define PORT1  PIN_A1  // A1,D9  (ATtiny pin 12)
 #define PORT2  PIN_A2  // A2,D8  (ATtiny pin 11)
@@ -103,6 +104,7 @@ void setup()
 
   analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
  
+  pinMode(COMMN, OUTPUT);
   pinMode(PORT0, OUTPUT);
   pinMode(PORT1, OUTPUT);
   pinMode(PORT2, OUTPUT);
@@ -113,6 +115,15 @@ void setup()
   byte tmp;
   setPortA(tmp,0x00);PORTA=tmp;
   setPortB(tmp,0x00);PORTB=tmp;
+
+  power_adc_enable();
+  for(byte port=0;port<N_PORTS;port++)
+    {
+      setSolenoid(CLOSE,port); // This generates a 10ms pulse which draws current
+      Sleepy::loseSomeTime(10);
+      setSolenoid(SHUT,port); // Set both pins LOW
+    }
+  power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
 }
 //#################################################################
 void loop()
