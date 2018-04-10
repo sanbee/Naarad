@@ -111,19 +111,14 @@ void setup()
   pinMode(PORT3, OUTPUT);
   pinMode(PORT4, OUTPUT);
 
+  byte port;
+  // CLOSE all ports.  This generates a 10ms pulse which draws current
+  // and therefore must be done one port at a time.
+  for(port=0;port<N_PORTS;port++)
+    setSolenoid(CLOSE,port); 
   // Set A0-3, A7 and B0 to LOW
-  byte tmp;
-  setPortA(tmp,0x00);PORTA=tmp;
-  setPortB(tmp,0x00);PORTB=tmp;
-
-  power_adc_enable();
-  for(byte port=0;port<N_PORTS;port++)
-    {
-      setSolenoid(CLOSE,port); // This generates a 10ms pulse which draws current
-      Sleepy::loseSomeTime(10);
-      setSolenoid(SHUT,port); // Set both pins LOW
-    }
-  power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  setPortA(port,0x00);PORTA=port;
+  setPortB(port,0x00);PORTB=port;
 }
 //#################################################################
 void loop()
