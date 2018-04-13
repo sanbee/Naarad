@@ -119,27 +119,35 @@ void setup()
   // Set A0-3, A7 and B0 to LOW
   setPortA(port,0x00);PORTA=port;
   setPortB(port,0x00);PORTB=port;
+  SYS_SHUTDOWN_INTERVAL_MULTIPLIER=2*24*60; //minutes in 2 days
+  SYS_SHUTDOWN_INTERVAL=60000; // One minute -- close to the maximum possible with looseSomeTime()
+  Sleepy::loseSomeTime(5000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+  
+  //  power_adc_enable();
 }
 //#################################################################
 void loop()
 {
-  power_adc_enable();
-
   for(byte port=0;port<N_PORTS;port++)
     {
       setSolenoid(OPEN,port); // This generates a 10ms pulse which draws current
-      Sleepy::loseSomeTime(60000);
+      hibernate(60000,1);
       setSolenoid(CLOSE,port);// This generates a 10ms pulse which draws current
-      setSolenoid(SHUT,port); // Set both pins LOW
-      Sleepy::loseSomeTime(5000);
+      hibernate(5000,1);
     }
 
-  power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
-  SYS_SHUTDOWN_INTERVAL_MULTIPLIER=2*24*60; //minutes in 2 days
-  SYS_SHUTDOWN_INTERVAL=60000; // One minute -- close to the maximum possible with looseSomeTime()
-  for(unsigned int i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
-    Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
 }
+
+void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
+{
+  power_adc_disable();
+  for(unsigned int i=0;i<multiplier;i++)
+    Sleepy::loseSomeTime(timeout); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+  power_adc_enable();
+}
+
 
 #define MASK_PORTA 0b10001111 //Only bits with 1 will be modified
 #define MASK_PORTB 0b00000001 //Only bits with 1 will be modified
