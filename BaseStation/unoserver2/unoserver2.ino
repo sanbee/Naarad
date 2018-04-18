@@ -19,7 +19,7 @@
 //
 // The parameters are packed in the two integers of the Payload struct:
 //
-//              CMD   NODEID       PARAM1 PARAM0
+//              NODEID CMD        PARAM1 PARAM0
 //    Byte No.   1      0            1     0
 //             Payload.supplyV      Payload.rx1
 //
@@ -115,7 +115,7 @@ static PacketBuffer str;
 
 //####################################################################
 // Flow control varaiables
-unsigned long lastPktSent;
+unsigned long lastPktSent[N_LISTENERS];
 
 //####################################################################
 //####################################################################
@@ -252,11 +252,12 @@ static void initOOKRadio()
   digitalWrite(outputRFTxPin, LOW);
 }
 //####################################################################
-static bool inList(const int& val,const byte list[])
+static byte inList(const int& val,const byte list[])
 {
-  for (byte i=0; i<N_LISTENERS; i++)
-    if (list[i] == val) return true;
-  return false; 
+  byte i;
+  for (i=0; i<N_LISTENERS; i++)
+    if (list[i] == val) break;
+  return i; 
 }
 //####################################################################
 static short int getByte(short int target, short int which)
@@ -311,7 +312,7 @@ static void printJSON(const byte* counter,const int& nodeid)
 		 +String(counter[nodeid])+("\" }\0")); 
 }
 //####################################################################
-static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supplyV)
+static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supplyV, byte& n)
 {
   // An ACK packet is detected using the following logic:
   //
@@ -327,7 +328,7 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
   // sent in the absence of any RFM_SEND command received on the
   // serial port).
   //
-  byte n; for(n=0;n<N_LISTENERS;n++) if (rx_nodeID == listenerNodeIDList[n]) break;
+  for(n=0;n<N_LISTENERS;n++) if (rx_nodeID == listenerNodeIDList[n]) break;
   
   if ((n < N_LISTENERS)  && (rx_nodeID == GET_NODEID(TX_payload[n])) && (rx_rx == TX_payload[n].rx1))
     {
@@ -352,7 +353,7 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
 // NodeID-based caches to global TX_payload
 static void loadTxCmdForNode(const int& nodeID)
 {
-  SET_NODEID(TX_payload[nodeID],nodeID);
+  //  SET_NODEID(TX_payload[nodeID],nodeID);
   return;
 }
 //####################################################################
@@ -364,34 +365,41 @@ static char* readRFM69()
 {
   int payload_nodeID=NOTHING_TO_SEND;
   bool isACK=false;
+  byte listenerNdx=N_LISTENERS;
   if (rf12_recvDone()) 
     {
       if (RX_CRC_OK() && RX_HDR_OK()) // Is the payload valid?
 	{
 	  payload_nodeID = RX_NODEID();   // Extract node ID from the received packet
 	  payload=*(Payload*) rf12_data;  // Get the payload
-	  isACK=processACK(payload_nodeID, payload.rx1, payload.supplyV);
+
+	  // Determine if this is an ACK packet and return the index
+	  // of the listener in the global listenerNodeIDList array
+	  isACK=processACK(payload_nodeID, payload.rx1, payload.supplyV,listenerNdx);
 	}
       
-      if (!isACK && inList(payload_nodeID,listenerNodeIDList))
+      if (!isACK && (listenerNdx<N_LISTENERS))
 	{
 	  // Prepare the Tx payload, enable it for Tx and start a
 	  // timer for re-transmission cadence.
-	  loadTxCmdForNode(payload_nodeID);
-	  ENABLE_TXPKT(payload_nodeID);
-	  lastPktSent=millis();
+
+	  loadTxCmdForNode(listenerNdx); // Is this required now?
+
+	  ENABLE_TXPKT(listenerNdx);
+	  lastPktSent[listenerNdx]=millis();
 	}
     }
   // Transmit the Tx payload if the number of trials is not exhausted
   // and the timer meets the re-transmission cadence.  Update the
   // timer and the number of re-transmissions.
-  if (TXPKT_ENABLED(payload_nodeID) && (millis() - lastPktSent > 200))
-    {
-      printJSON(TX_counter,payload_nodeID);
-      rfwrite(payload_nodeID); // Trasmit the global TX_payload
-      lastPktSent = millis();
-      TX_counter[payload_nodeID]++;
-    }
+  for (listenerNdx=0;listenerNdx<N_LISTENERS;listenerNdx++)
+    if (TXPKT_ENABLED(listenerNdx) && (millis() - lastPktSent[listenerNdx] > 200))
+      {
+	printJSON(TX_counter,listenerNdx);
+	rfwrite(listenerNdx); // Trasmit the global TX_payload
+	lastPktSent[listenerNdx] = millis();
+	TX_counter[listenerNdx]++;
+      }
   return (str.fill==0)?NULL:str.buf;
 }
 //####################################################################
