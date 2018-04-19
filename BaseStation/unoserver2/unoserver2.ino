@@ -252,13 +252,13 @@ static void initOOKRadio()
   digitalWrite(outputRFTxPin, LOW);
 }
 //####################################################################
-static byte inList(const int& val,const byte list[])
-{
-  byte i;
-  for (i=0; i<N_LISTENERS; i++)
-    if (list[i] == val) break;
-  return i; 
-}
+/* static byte inList(const int& val,const byte list[]) */
+/* { */
+/*   byte i; */
+/*   for (i=0; i<N_LISTENERS; i++) */
+/*     if (list[i] == val) break; */
+/*   return i;  */
+/* } */
 //####################################################################
 static short int getByte(short int target, short int which)
 {
@@ -274,16 +274,14 @@ static short int setByte(short int word, short int nibble, short int whichByte)
 //---------------------------------------------
 // Send payload data via RF
 //---------------------------------------------
-static void rfwrite(const int& nodeid)
+static void rfwrite(const int& nodendx)
 {
-  //if (TX_payload.supplyV != NOTHING_TO_SEND)
   {
-    //Serial.println("{\rf_fail:1, \"source\":\"rfwrite\"}\0");
     rf12_sleep(-1);     //wake up RF module
     while (!rf12_canSend()) rf12_recvDone();
-    rf12_sendStart(0, &TX_payload[nodeid], sizeof TX_payload[nodeid]); 
+    rf12_sendStart(0, &TX_payload[nodendx], sizeof TX_payload[nodendx]);
     rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-    rf12_sendStart(0, &TX_payload[nodeid], sizeof TX_payload[nodeid]); 
+    rf12_sendStart(0, &TX_payload[nodendx], sizeof TX_payload[nodendx]);
     rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
     //       rf12_sleep(0);    //put RF module to sleep
   }
