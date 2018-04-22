@@ -20,7 +20,7 @@
 // The parameters are packed in the two integers of the Payload struct:
 //
 //              NODEID CMD        PARAM1 PARAM0
-//    Byte No.   1      0            1     0
+//    Byte No.    1     0            1     0
 //             Payload.supplyV      Payload.rx1
 //
 // The macros SET/GET_{CMD,NODEID,PORT,TIMEOUT} do the packing/unpacking.
@@ -176,38 +176,44 @@ void loop()
 	  //Serial.println(cmdStr);
 	  
 	  // RFM_SEND     NODEID  CMD  PORT TIMEOUT
-	  //                 supplyV          rx1
+	  //                 supplyV      rx1
 	  char *token; char s[2] = " ";const char *D="%d";
 	  int v; byte n;
 	  // NODIED
 	  token=strtok(cmdStr+9, s);
 	  sscanf(token,D,&v);  n=v;
-	  TX_payload[n].supplyV=TX_payload[n].rx1=0;
-	  SET_NODEID(TX_payload[n],v);
-	  //TX_payload.rx1=v;  // The target node ID
+	  n=inList(v,listenerNodeIDList);
+	  if (n < N_LISTENERS)
+	    {
+	      TX_payload[n].supplyV=TX_payload[n].rx1=0;
+	      SET_NODEID(TX_payload[n],v);
+	      //TX_payload.rx1=v;  // The target node ID
 	  
-	  // CMD
-	  token=strtok(NULL,s);
-	  sscanf(token,D,&v);  
-	  SET_CMD(TX_payload[n],v);
-	  //TX_payload.supplyV=v;  // The command
-	  
-	  // PORT
-	  token=strtok(NULL, s);
-	  sscanf(token,D,&v); 
-	  SET_PORT(TX_payload[n],v);
-	  
-	  // TIMEOUT
-	  token=strtok(NULL, s);
-	  sscanf(token,D,&v); 
-	  SET_TIMEOUT(TX_payload[n],v);
-	  // This is a debugging message printed as a JSON string on
-	  // the serial port with rf_fail:1 so that the server
-	  // listening on the serial port need not process it further.
-	  Serial.println("{\"rf_fail\":1,\"source\":\"Got RFM_SEND\",\"cmd\":"+String(GET_CMD(TX_payload[n]))
-			 +(",\"node\":") + String(GET_NODEID(TX_payload[n]))+s
-			 +(",\"port\":") + String(GET_PORT(TX_payload[n]))+s
-			 +(",\"TIMEOUT\":") + ("\"") + String(GET_TIMEOUT(TX_payload[n]))+" " +String(TX_counter[n])+("\" }\0")); 
+	      // CMD
+	      token=strtok(NULL,s);
+	      sscanf(token,D,&v);
+	      SET_CMD(TX_payload[n],v);
+	      //TX_payload.supplyV=v;  // The command
+
+	      // PORT
+	      token=strtok(NULL, s);
+	      sscanf(token,D,&v);
+	      SET_PORT(TX_payload[n],v);
+
+	      // TIMEOUT
+	      token=strtok(NULL, s);
+	      sscanf(token,D,&v);
+	      SET_TIMEOUT(TX_payload[n],v);
+	      // This is a debugging message printed as a JSON string on
+	      // the serial port with rf_fail:1 so that the server
+	      // listening on the serial port need not process it further.
+	      Serial.println("{\"rf_fail\":1,\"source\":\"Got RFM_SEND\",\"cmd\":"+String(GET_CMD(TX_payload[n]))
+			     +(",\"node\":") + String(GET_NODEID(TX_payload[n]))+s
+			     +(",\"port\":") + String(GET_PORT(TX_payload[n]))+s
+			     +(",\"TIMEOUT\":") + ("\"") + String(GET_TIMEOUT(TX_payload[n]))+" " +String(TX_counter[n])+("\" }\0"));
+	    }
+	  else
+	    Serial.println("{\"rf_fail\":1,\"source\":\"ERROR RFM_SEND\",\"node\":"+String(n));
 	}
       // Read a value from sensorTMP36PIN and return the value as
       // temperature in degC
@@ -252,13 +258,13 @@ static void initOOKRadio()
   digitalWrite(outputRFTxPin, LOW);
 }
 //####################################################################
-/* static byte inList(const int& val,const byte list[]) */
-/* { */
-/*   byte i; */
-/*   for (i=0; i<N_LISTENERS; i++) */
-/*     if (list[i] == val) break; */
-/*   return i;  */
-/* } */
+static byte inList(const int& val,const byte list[])
+{
+  byte i;
+  for (i=0; i<N_LISTENERS; i++)
+    if (list[i] == val) break;
+  return i;
+}
 //####################################################################
 static short int getByte(short int target, short int which)
 {
