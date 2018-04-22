@@ -209,8 +209,8 @@ void loop()
 	      // listening on the serial port need not process it further.
 	      Serial.println("{\"rf_fail\":1,\"source\":\"Got RFM_SEND\",\"cmd\":"+String(GET_CMD(TX_payload[n]))
 			     +(",\"node\":") + String(GET_NODEID(TX_payload[n]))+s
-			     +(",\"port\":") + String(GET_PORT(TX_payload[n]))+s
-			     +(",\"TIMEOUT\":") + ("\"") + String(GET_TIMEOUT(TX_payload[n]))+" " +String(TX_counter[n])+("\" }\0"));
+			     +(",\"param0\":") + String(GET_PORT(TX_payload[n]))+s
+			     +(",\"param1\":") + ("\"") + String(GET_TIMEOUT(TX_payload[n]))+" " +String(TX_counter[n])+("\" }\0"));
 	    }
 	  else
 	    Serial.println("{\"rf_fail\":1,\"source\":\"ERROR RFM_SEND\",\"node\":"+String(n));
@@ -311,8 +311,8 @@ static void printJSON(const byte* counter,const int& nodeid)
   Serial.println("{\"rf_fail\":1,\"source\":\"Sending RFM_SEND\""
 		 ",\"cmd\":"+String(GET_CMD(TX_payload[nodeid]))
 		 +(",\"node\":") + String(GET_NODEID(TX_payload[nodeid]))+(" ")
-		 +(",\"port\":") + String(GET_PORT(TX_payload[nodeid]))+(" ")
-		 +(",\"TIMEOUT\":") + ("\"") + String(GET_TIMEOUT(TX_payload[nodeid]))+(" ")
+		 +(",\"param0\":") + String(GET_PORT(TX_payload[nodeid]))+(" ")
+		 +(",\"param1\":") + ("\"") + String(GET_TIMEOUT(TX_payload[nodeid]))+(" ")
 		 +String(counter[nodeid])+("\" }\0")); 
 }
 //####################################################################
@@ -338,8 +338,8 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
     {
       Serial.println("{\"rf_fail\":1,\"source\":\"ACKpkt:\",\"cmd\":"+String(GET_CMD(TX_payload[n]))
 		     +(",\"node\":") + String(GET_NODEID(TX_payload[n]))
-		     +(",\"t2\": ")+String(rx_rx)
-		     +(",\"t3\": ")+String(rx_nodeID)+(" }\0")); 
+		     +(",\"p0\": ")+String(getByte(rx_rx,1))
+		     +(",\"p1\": ")+String(rx_nodeID)+(" }\0")); 
       SET_CMD(TX_payload[n],NOOP);
       DISABLE_TXPKT(n);
       return true;
