@@ -213,7 +213,7 @@ void loop()
 			     +(",\"param1\":") + ("\"") + String(GET_TIMEOUT(TX_payload[n]))+" " +String(TX_counter[n])+("\" }\0"));
 	    }
 	  else
-	    Serial.println("{\"rf_fail\":1,\"source\":\"ERROR RFM_SEND\",\"node\":"+String(n));
+	    Serial.println("{\"rf_fail\":1,\"source\":\"ERROR RFM_SEND\",\"node\":"+String(v)+(" }\0"));
 	}
       // Read a value from sensorTMP36PIN and return the value as
       // temperature in degC
@@ -332,7 +332,8 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
   // sent in the absence of any RFM_SEND command received on the
   // serial port).
   //
-  for(n=0;n<N_LISTENERS;n++) if (rx_nodeID == listenerNodeIDList[n]) break;
+  n = inList(rx_nodeID, listenerNodeIDList);
+  //  for(n=0;n<N_LISTENERS;n++) if (rx_nodeID == listenerNodeIDList[n]) break;
   
   if ((n < N_LISTENERS)  && (rx_nodeID == GET_NODEID(TX_payload[n])) && (rx_rx == TX_payload[n].rx1))
     {
