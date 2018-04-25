@@ -89,7 +89,13 @@ static byte TX_counter[N_LISTENERS]={N_TRIALS+1,N_TRIALS+1};
 #define GET_PORT(p)     (getByte(p.rx1,1))
 #define GET_TIMEOUT(p)  (getByte(p.rx1,0))
 
-#define INIT_TXPKT(n)  {TX_payload[n].supplyV=0;SET_NODEID(TX_payload[n],listenerNodeIDList[n]);SET_CMD(TX_payload[n],NOOP);SET_PORT(TX_payload[n],0);SET_TIMEOUT(TX_payload[n],0);}//Set cmd to NOOP
+#define INIT_TXPKT(n)  {						\
+    TX_payload[n].supplyV=0;						\
+    SET_NODEID(TX_payload[n],listenerNodeIDList[n]);			\
+    SET_CMD(TX_payload[n],NOOP);					\
+    SET_PORT(TX_payload[n],0);						\
+    SET_TIMEOUT(TX_payload[n],0);					\
+  }
 #define DISABLE_TXPKT(n) (TX_counter[n]=N_TRIALS+1) // Set the count to > allowed no. of trials
 #define ENABLE_TXPKT(n)  (TX_counter[n]=0) // Set the counter to zero, indicating that the TX pkt. needs is ready to be sent
 #define TXPKT_ENABLED(n)  (TX_counter[n] < N_TRIALS) // Check if TX counter is less than max. allowed trials
