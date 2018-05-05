@@ -18,25 +18,25 @@
 // sending it (the server UNO ID).  The NODE value (arg2 below) is the
 // ID of the target receiver node.
 //
-// ASCII          Arg1    Arg2     Arg3                  Arg4
-//               Nibble1 Nibble0 Nibble1               Nibble0
-// RFM_SEND         CMD    NODE    P1                      P0
+// ASCII            Arg1     Arg2      Arg3               Arg4
+//                Nibble1  Nibble0   Nibble1            Nibble0
+// RFM_SEND        NODE      CMD       P1                 P0
 //--------------------------------------------------------------------------------
-// VALVE CLOSE       0      N     PORT           TIMEOUT in minutes (default 30min)
+// VALVE CLOSE       N        0       PORT          TIMEOUT in minutes (default 30min)
 //
-// VALVE OPEN        1      N     PORT           TIMEOUT in minutes (default 30min)
+// VALVE OPEN        N        1       PORT          TIMEOUT in minutes (default 30min)
 //
-// VALVE SHUT        2      N     PORT           N/A
+// VALVE SHUT        N        2       PORT          N/A
 //
-// Set RX TO         3      N     N/A            TIMEOUT in  sec. (default 3sec)
+// Set RX TO         N        3        N/A          TIMEOUT in  sec. (default 3sec)
 //
-// Set TX interval   4      N     TO in sec.     Multiplier (default 1)
-//                                (default 60s)
+// Set TX interval   N        4      TO in sec.     Multiplier (default 1)
+//                                   (default 60s)
 //
-// Set valve pulse   5      N     Multiplier     Pulse width in milli sec.
-// width                                         (default 10ms)
+// Set valve pulse   N        5     Multiplier     Pulse width in milli sec.
+// width                                           (default 10ms)
 //
-// NOOP             255     N     N/A            N/A
+// NOOP              N       255       N/A         N/A
 //
 //
 // Cmd-0,1 (CLOSE,OPEN) raises the appropriate DIO pins to LOW/HIGH

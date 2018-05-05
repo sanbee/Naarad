@@ -29,3 +29,5 @@ The communication with the RFM is done using the
 
 The communication hardware on the remote Nodes is derived from the
 [TinyTx](https://nathan.chantrell.net/tinytx-wireless-sensor) design.
+For programming the ATTiny84 using an Arduino, I followed the
+instructions from [here](https://nathan.chantrell.net/20120225/an-attiny-based-wireless-temperature-sensor/).

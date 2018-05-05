@@ -11,6 +11,9 @@
 #include <JeeLib.h> // https://github.com/jcw/jeelib
 
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
+// Utility macros
+#define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
+#define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
 
 #define myNodeID 3      // RF12 node ID in the range 1-30
 #define network 210      // RF12 Network group
@@ -47,6 +50,7 @@ void setup() {
 
 void loop() {
   
+  adc_enable();
   digitalWrite(tempPower, HIGH); // turn TMP36 sensor on
 
   delay(10); // Allow 10ms for the sensor to be ready
@@ -73,6 +77,7 @@ void loop() {
 
   rfwrite(); // Send data via RF 
 
+  adc_disable();
   Sleepy::loseSomeTime(60000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
   //Sleepy::loseSomeTime(5000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
     
