@@ -44,6 +44,7 @@ int RFM69_READ_TIMEOUT = 3000, // 3 sec
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
 #define RCV_GOT_VALID_PKT 30
+#define MAX_RX_ATTEMPTS 10000
 
 // Macros to extrat NodeID, Port No., Command and Timeout values
 // packed in the int-elements of the PayLoad struct.
@@ -86,6 +87,7 @@ typedef struct
  } Payload;
 
 int tempReading,cmd=-1, port=0;
+unsigned int MaxRxCounter=0;
 unsigned long valveTimeout=60000,TimeOfLastValveCmd=0; /*1 min*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
@@ -156,13 +158,18 @@ void loop()
   // it did not get a packet or if the packet was not from the server
   // node or not meant for this node).
   cmd=-1;
+  MaxRxCounter=0;
   while ((cmd=readRFM69())==-1)
     {
-      if ((millis() - lastRF) > RFM69_READ_TIMEOUT)
+      if (
+	  ((millis() - lastRF) > (unsigned long)RFM69_READ_TIMEOUT) ||
+	  (MaxRxCounter > MAX_RX_ATTEMPTS)
+	  )
 	{
 	  dataReady=RCV_TIMEDOUT;
 	  break;
 	}
+      MaxRxCounter++;
     }
 
   delay(10); // With the receiver ON, this delay is necessary for the second packet to be issued.  What's the minimum delay?
