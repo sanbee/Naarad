@@ -44,7 +44,7 @@ int RFM69_READ_TIMEOUT = 3000, // 3 sec
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
 #define RCV_GOT_VALID_PKT 30
-#define MAX_RX_ATTEMPTS 10000
+#define MAX_RX_ATTEMPTS 50000  // Keep it <= 65535
 
 // Macros to extrat NodeID, Port No., Command and Timeout values
 // packed in the int-elements of the PayLoad struct.
