@@ -221,23 +221,25 @@ static void controlSolenoid(const int cmd)
     {
       digitalWrite(SOLENOID_CTL0, HIGH);
       digitalWrite(SOLENOID_CTL1, LOW);
-      for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+      //for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
       TimeOfLastValveCmd=millis(); // Record the time when OPEN command is issued.
     }
   else if (cmd==CLOSE)
     {
       digitalWrite(SOLENOID_CTL0, LOW);
       digitalWrite(SOLENOID_CTL1, HIGH);
-      for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
-      TimeOfLastValveCmd=0; // Record that the valve is off now
+      //for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+      //TimeOfLastValveCmd=0; // Record that the valve is off now
     }
-  //  else //Comment this line, and uncomment the delays in above blocks
-       //to ensure that OPEN and CLOSE are always followed by a delay
-       //and SHUT
+  //Ensure that OPEN and CLOSE are always followed by a delay to
+  //produce a finite pulse and then the SHUT command to set the CTL
+  //pins LOW
+  for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+
     {
       digitalWrite(SOLENOID_CTL0, LOW);
       digitalWrite(SOLENOID_CTL1, LOW);
-      TimeOfLastValveCmd=0; // Record that the valve is off now
+      //TimeOfLastValveCmd=0; // Record that the valve is off now
     }
 }
 
