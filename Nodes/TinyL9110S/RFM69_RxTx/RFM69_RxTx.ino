@@ -24,6 +24,9 @@
 #include <avr/power.h>
 #include "RemoteCmd.h" // List of remote commands
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
+// Utility macros
+#define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
+#define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
 
 #define SERVER_NODE_ID 5
 #define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
@@ -36,6 +39,7 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define SOLENOID_CTL1 PIN_A3      // A3,D7 (ATtiny pin 10)
 #define RFM_WAKEUP -1
 #define RFM_SLEEP_FOREVER 0
+
 
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
