@@ -34,6 +34,8 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define tempPower     PIN_A1      //was:9    TMP36 Power pin is connected on pin A1,D9 (ATtiny pin 12)
 #define SOLENOID_CTL0 PIN_A2      // A2,D8 (ATtiny pin 11)
 #define SOLENOID_CTL1 PIN_A3      // A3,D7 (ATtiny pin 10)
+#define RFM_WAKEUP -1
+#define RFM_SLEEP_FOREVER 0
 
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
@@ -111,7 +113,7 @@ uint16_t freqOffset=1600;
 void setup()
 {
   rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
-  rf12_sleep(0);                          // Put the RFM12 to sleep
+  rf12_sleep(RFM_SLEEP_FOREVER);                          // Put the RFM12 to sleep
 
   analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
  
@@ -151,7 +153,7 @@ void loop()
   cmd=-1;
   
   lastRF=millis();
-  rf12_sleep(-1);
+  rf12_sleep(RFM_WAKEUP);
 
   // readRFM69() returns command if it gets a packet from the server
   // node with a target ID of this node.  It returns -1 otherwise (if
@@ -185,6 +187,7 @@ void loop()
       rfwrite(1);
     }
 
+  rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
   power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
     Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
@@ -248,11 +251,11 @@ static void controlSolenoid(const int cmd)
 //--------------------------------------------------------------------------------------------------
 static void rfwrite(const byte wakeup)
  {
-   if (wakeup==1) rf12_sleep(-1);     //wake up RF module
+   if (wakeup==1) rf12_sleep(RFM_WAKEUP);     //wake up RF module
    while (!rf12_canSend()) rf12_recvDone();
    rf12_sendStart(0, &payLoad_RxTx, sizeof payLoad_RxTx); 
    rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-   rf12_sleep(0);    //put RF module to sleep
+   rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
 }
 
 //--------------------------------------------------------------------------------------------------

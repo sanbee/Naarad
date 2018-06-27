@@ -20,35 +20,41 @@
 // static PacketBuffer str;
 // static int NODEID=2;
 // static float VERSION=3.1;
+#include <JeeLib.h> // https://github.com/jcw/jeelib
+ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
+#include <avr/power.h>
 
 #define CLOSE 0
 #define OPEN 1
 #define SHUT -1
 
-int DCNTL0 = PIN_A1; // Physical pin 12
-int DCNTL1 = PIN_A2; // Physical pin 11
+#define CTRLSOLENOID(cmd)   {for(int i=0;i<5;i++) {controlSolenoid(cmd); delay(12);controlSolenoid(SHUT);}}
+
+
+int PIN_PH = PIN_A1; // Physical pin 12 - PH
+int PIN_EN = PIN_A2; // Physical pin 11 - EN
 int PINVCC = PIN_A3; // Physical pin 10
 //
 const void controlSolenoid(int dir)
 {
   if (dir==OPEN)
     {
-      digitalWrite(DCNTL0, HIGH);
-      digitalWrite(DCNTL1, LOW);
+      digitalWrite(PIN_PH, HIGH);
+      digitalWrite(PIN_EN, HIGH);
 
       //Serial.println("OPEN");
     }
   else if (dir==CLOSE)
     {
-      digitalWrite(DCNTL0, LOW);
-      digitalWrite(DCNTL1, HIGH);
+      digitalWrite(PIN_PH, LOW);
+      digitalWrite(PIN_EN, HIGH);
       
       //Serial.println("CLOSE");
     }
   else
     {
-      digitalWrite(DCNTL0, LOW);
-      digitalWrite(DCNTL1, LOW);
+      digitalWrite(PIN_PH, LOW);
+      digitalWrite(PIN_EN, LOW);
 
       //Serial.println("OFF");
     }
@@ -57,32 +63,59 @@ const void controlSolenoid(int dir)
 void setup(void) {
   // We'll send debugging information via the Serial monitor
   Serial.begin(9600);   
-  pinMode(DCNTL0,OUTPUT);
-  pinMode(DCNTL1,OUTPUT);
+  pinMode(PIN_EN,OUTPUT);
+  pinMode(PIN_PH,OUTPUT);
+  //  pinMode(PIN_PH,INPUT);
   pinMode(PINVCC,OUTPUT);
+
+  digitalWrite(PINVCC, LOW);
 
   controlSolenoid(SHUT); 
   delay(100);
 }
 void loop(void) {
-
+  power_adc_enable();
+  delay(5);
   digitalWrite(PINVCC, HIGH);
-  //controlSolenoid(SHUT);
+  delay(2000);  
+
+  controlSolenoid(SHUT);
+  delay(500);
   {
-    controlSolenoid(CLOSE);
-    delay(10);
+    //controlSolenoid(CLOSE);
+    //delay(20);
     //controlSolenoid(SHUT);
+
+    CTRLSOLENOID(CLOSE);
   }
+
   // Wait for 10s before opening the valve
-  delay(10000);
+  delay(2000);
+
   {
-    controlSolenoid(OPEN);
-    delay(10);
+    //controlSolenoid(OPEN);
+    //delay(20);
     //controlSolenoid(SHUT);
+
+    CTRLSOLENOID(OPEN);
+  }
+
+  delay(10000);
+
+  {
+    //controlSolenoid(CLOSE);
+    //delay(20);
+    //controlSolenoid(SHUT);
+
+    CTRLSOLENOID(CLOSE);
   }
   // Wait for 10s before looping back...
   digitalWrite(PINVCC, LOW);
-  delay(10000);
+  controlSolenoid(SHUT);
+  delay(5);
+  power_adc_disable();
+
+  for(;;)  Sleepy::loseSomeTime(64000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
 
 // const char* makePacket(const float val, const char* name, const char* units)
