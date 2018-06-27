@@ -133,14 +133,12 @@ void loop()
   digitalWrite(tempPower, HIGH); // turn TMP36 sensor on
   delay(10); // Allow 10ms for the sensor to be ready
 
-
   analogRead(tempPin); // throw away the first reading
   //payLoad_RxTx.temp=0.0;
   tempReading=0;
   for(byte i = 0; i < 10 ; i++) // take 10 more readings
     //payLoad_RxTx.temp += analogRead(tempPin); // accumulate readings
     tempReading += analogRead(tempPin); // accumulate readings
-    
 
   digitalWrite(tempPower, LOW); // turn TMP36 sensor off
   payLoad_RxTx.temp = int((((double(tempReading/10.0)*0.942382812) - 500)/10)*100);
@@ -149,8 +147,6 @@ void loop()
   
   rfwrite(1); // Send data via RF
   delay(10); // Without this delay, the second packet is never issued.  Why? 10ms does not work.  100ms does.  Is 10<d<100 possible?
-  
-  cmd=-1;
   
   lastRF=millis();
   rf12_sleep(RFM_WAKEUP);
