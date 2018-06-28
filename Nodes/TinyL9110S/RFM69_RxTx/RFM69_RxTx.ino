@@ -21,9 +21,12 @@
 #define RF69_COMPAT 1
 #pragma message("Compiling in RF69_COMPAT mode")
 #include <JeeLib.h> // https://github.com/jcw/jeelib
-#include <avr/power.h>
+//#include <avr/power.h>
 #include "RemoteCmd.h" // List of remote commands
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
+// Utility macros
+#define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
+#define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
 
 #define SERVER_NODE_ID 5
 #define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
@@ -124,7 +127,8 @@ void setup()
 //#################################################################
 void loop()
 {
-  power_adc_enable();
+  //power_adc_enable();
+  adc_enable();
   // Turn-on the temperature sensor, read it and send the data via RF
   //----------------------------------------------------------------------------------------
 
@@ -132,6 +136,7 @@ void loop()
     {controlSolenoid(CLOSE);TimeOfLastValveCmd=0;}
   digitalWrite(tempPower, HIGH); // turn TMP36 sensor on
   delay(10); // Allow 10ms for the sensor to be ready
+
 
   analogRead(tempPin); // throw away the first reading
   //payLoad_RxTx.temp=0.0;
@@ -184,7 +189,8 @@ void loop()
     }
 
   rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
-  power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
     Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
