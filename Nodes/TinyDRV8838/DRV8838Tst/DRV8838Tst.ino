@@ -23,6 +23,9 @@
 #include <JeeLib.h> // https://github.com/jcw/jeelib
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
 #include <avr/power.h>
+#include <avr/sleep.h>
+#define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
+#define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
 
 #define CLOSE 0
 #define OPEN 1
@@ -59,22 +62,36 @@ const void controlSolenoid(int dir)
       //Serial.println("OFF");
     }
 }
+void initPINS(void)
+{
+  pinMode(PIN_EN,OUTPUT);
+  pinMode(PIN_PH,OUTPUT);
+  pinMode(PINVCC,OUTPUT);
+
+  digitalWrite(PINVCC, LOW);
+  controlSolenoid(SHUT); 
+
+  delay(100);
+}
+void disablePINS(void)
+{
+  for (int i=0;i<20;i++)
+    {
+      pinMode(i,INPUT);
+      digitalWrite(i,LOW);
+    }
+}
 // 
 void setup(void) {
   // We'll send debugging information via the Serial monitor
   Serial.begin(9600);   
-  pinMode(PIN_EN,OUTPUT);
-  pinMode(PIN_PH,OUTPUT);
-  //  pinMode(PIN_PH,INPUT);
-  pinMode(PINVCC,OUTPUT);
-
-  digitalWrite(PINVCC, LOW);
-
-  controlSolenoid(SHUT); 
-  delay(100);
+  disablePINS();
+  initPINS();
 }
 void loop(void) {
-  power_adc_enable();
+  //power_adc_enable();
+  initPINS();
+  adc_enable();
   delay(5);
   digitalWrite(PINVCC, HIGH);
   delay(2000);  
@@ -99,7 +116,7 @@ void loop(void) {
 
     CTRLSOLENOID(OPEN);
   }
-
+ 
   delay(10000);
 
   {
@@ -113,10 +130,46 @@ void loop(void) {
   digitalWrite(PINVCC, LOW);
   controlSolenoid(SHUT);
   delay(5);
-  power_adc_disable();
 
-  for(;;)  Sleepy::loseSomeTime(64000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+  disablePINS();
+
+  //power_adc_disable();
+  adc_disable();
+
+  //PRR = 0xFF; // Power off mode
+  // //======================================================TEST CODE
+  // // Power-down board
+  //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+ 
+  // sleep_enable();
+ 
+  // // Disable ADC
+  // ADCSRA = 0;
+
+  // // Power down functions
+  //PRR = 0xFF;
+ 
+  // // Enter sleep mod
+  // //======================================================TEST CODE
+
+
+  //  for(;;)  Sleepy::loseSomeTime(64000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+  //  goToSleep();
+  Sleepy::loseSomeTime(10000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
+void goToSleep ()
+  {
+  set_sleep_mode (SLEEP_MODE_PWR_DOWN);
+  ADCSRA = 0;            // turn off ADC
+  power_all_disable ();  // power off ADC, Timer 0 and 1, serial interface
+  noInterrupts ();       // timed sequence coming up
+  //resetWatchdog ();      // get watchdog ready
+  sleep_enable ();       // ready to sleep
+  interrupts ();         // interrupts are required now
+  // sleep_cpu ();          // sleep                
+  // sleep_disable ();      // precaution
+  // power_all_enable ();   // power everything back on
+  }  // end of goToSleep 
 
 // const char* makePacket(const float val, const char* name, const char* units)
 // {
