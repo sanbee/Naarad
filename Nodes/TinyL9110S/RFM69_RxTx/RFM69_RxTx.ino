@@ -21,9 +21,12 @@
 #define RF69_COMPAT 1
 #pragma message("Compiling in RF69_COMPAT mode")
 #include <JeeLib.h> // https://github.com/jcw/jeelib
-#include <avr/power.h>
+//#include <avr/power.h>
 #include "RemoteCmd.h" // List of remote commands
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
+// Utility macros
+#define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
+#define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
 
 #define SERVER_NODE_ID 5
 #define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
@@ -34,6 +37,8 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define tempPower     PIN_A1      //was:9    TMP36 Power pin is connected on pin A1,D9 (ATtiny pin 12)
 #define SOLENOID_CTL0 PIN_A2      // A2,D8 (ATtiny pin 11)
 #define SOLENOID_CTL1 PIN_A3      // A3,D7 (ATtiny pin 10)
+#define RFM_WAKEUP -1
+#define RFM_SLEEP_FOREVER 0
 
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
@@ -44,6 +49,7 @@ int RFM69_READ_TIMEOUT = 3000, // 3 sec
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
 #define RCV_GOT_VALID_PKT 30
+#define MAX_RX_ATTEMPTS 50000  // Keep it <= 65535
 
 // Macros to extrat NodeID, Port No., Command and Timeout values
 // packed in the int-elements of the PayLoad struct.
@@ -86,6 +92,7 @@ typedef struct
  } Payload;
 
 int tempReading,cmd=-1, port=0;
+unsigned int MaxRxCounter=0;
 unsigned long valveTimeout=60000,TimeOfLastValveCmd=0; /*1 min*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
@@ -109,7 +116,7 @@ uint16_t freqOffset=1600;
 void setup()
 {
   rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
-  rf12_sleep(0);                          // Put the RFM12 to sleep
+  rf12_sleep(RFM_SLEEP_FOREVER);                          // Put the RFM12 to sleep
 
   analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
  
@@ -120,7 +127,8 @@ void setup()
 //#################################################################
 void loop()
 {
-  power_adc_enable();
+  //power_adc_enable();
+  adc_enable();
   // Turn-on the temperature sensor, read it and send the data via RF
   //----------------------------------------------------------------------------------------
 
@@ -136,7 +144,6 @@ void loop()
   for(byte i = 0; i < 10 ; i++) // take 10 more readings
     //payLoad_RxTx.temp += analogRead(tempPin); // accumulate readings
     tempReading += analogRead(tempPin); // accumulate readings
-    
 
   digitalWrite(tempPower, LOW); // turn TMP36 sensor off
   payLoad_RxTx.temp = int((((double(tempReading/10.0)*0.942382812) - 500)/10)*100);
@@ -146,23 +153,26 @@ void loop()
   rfwrite(1); // Send data via RF
   delay(10); // Without this delay, the second packet is never issued.  Why? 10ms does not work.  100ms does.  Is 10<d<100 possible?
   
-  cmd=-1;
-  
   lastRF=millis();
-  rf12_sleep(-1);
+  rf12_sleep(RFM_WAKEUP);
 
   // readRFM69() returns command if it gets a packet from the server
   // node with a target ID of this node.  It returns -1 otherwise (if
   // it did not get a packet or if the packet was not from the server
   // node or not meant for this node).
   cmd=-1;
+  MaxRxCounter=0;
   while ((cmd=readRFM69())==-1)
     {
-      if ((millis() - lastRF) > RFM69_READ_TIMEOUT)
+      if (
+	  ((millis() - lastRF) > (unsigned long)RFM69_READ_TIMEOUT) ||
+	  (MaxRxCounter > MAX_RX_ATTEMPTS)
+	  )
 	{
 	  dataReady=RCV_TIMEDOUT;
 	  break;
 	}
+      MaxRxCounter++;
     }
 
   delay(10); // With the receiver ON, this delay is necessary for the second packet to be issued.  What's the minimum delay?
@@ -178,7 +188,9 @@ void loop()
       rfwrite(1);
     }
 
-  power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
+  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
     Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
@@ -214,23 +226,25 @@ static void controlSolenoid(const int cmd)
     {
       digitalWrite(SOLENOID_CTL0, HIGH);
       digitalWrite(SOLENOID_CTL1, LOW);
-      for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+      //for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
       TimeOfLastValveCmd=millis(); // Record the time when OPEN command is issued.
     }
   else if (cmd==CLOSE)
     {
       digitalWrite(SOLENOID_CTL0, LOW);
       digitalWrite(SOLENOID_CTL1, HIGH);
-      for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
-      TimeOfLastValveCmd=0; // Record that the valve is off now
+      //for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+      //TimeOfLastValveCmd=0; // Record that the valve is off now
     }
-  //  else //Comment this line, and uncomment the delays in above blocks
-       //to ensure that OPEN and CLOSE are always followed by a delay
-       //and SHUT
+  //Ensure that OPEN and CLOSE are always followed by a delay to
+  //produce a finite pulse and then the SHUT command to set the CTL
+  //pins LOW
+  for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+
     {
       digitalWrite(SOLENOID_CTL0, LOW);
       digitalWrite(SOLENOID_CTL1, LOW);
-      TimeOfLastValveCmd=0; // Record that the valve is off now
+      //TimeOfLastValveCmd=0; // Record that the valve is off now
     }
 }
 
@@ -239,11 +253,11 @@ static void controlSolenoid(const int cmd)
 //--------------------------------------------------------------------------------------------------
 static void rfwrite(const byte wakeup)
  {
-   if (wakeup==1) rf12_sleep(-1);     //wake up RF module
+   if (wakeup==1) rf12_sleep(RFM_WAKEUP);     //wake up RF module
    while (!rf12_canSend()) rf12_recvDone();
    rf12_sendStart(0, &payLoad_RxTx, sizeof payLoad_RxTx); 
    rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-   rf12_sleep(0);    //put RF module to sleep
+   rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
 }
 
 //--------------------------------------------------------------------------------------------------
