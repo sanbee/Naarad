@@ -1,0 +1,51 @@
+This dir. has the sketch development for
+ - Program the ATT84 on the RFM69 board to work in both Rx and Tx.
+ - Identify command-packets from the server (NodeID 5) meant for
+   itself (Node ID 15) and process them by LOW/HIGH on (A2,D8, Pin11)
+   and (A3,D7, Pin12) on ATT84.
+
+Branches:
+
+master: Has the first working version
+   SrvTxRetry: o Has ver0 code for pkt. ACK and retry at the server
+                       o Takes only simple command: RFM_SEND NODE CMD
+
+        FullCmd: o Has retry (SrvTxRetry)              [THIS IS THE VERSION ON THE MCU] 03FEB2018
+	               o RFM_SEND CMD NODE PORT TIMEOUT
+		       o SYS commands: Only SYS_SHUTDOWN_INTERVAL
+	                  tested
+
+              FullCmdTO_Untested:  o Has full command support
+                                                     (FullCmd)
+						  o UNTESTED code for
+                                                     SYS_SHUTDOWN_INTERVAL_MULTIPLIER
+						  o UNTESTED code for enabling valveTimeout
+
+
+                                                     SYS_SHUTDOWN_INTERVAL_MULTIPLIER
+                                                     is required since Sleepy::loseSomeTime()
+                                                     can take a maximum of 60000 (60 sec.).  
+                                                     With an 8-bit multiplier, it can remain shut
+                                                     for max. of 60x255 sec.
+
+                                                     Attempt for valveTimeout is to issue a
+						     CLOSE command valveTimeout min. after
+						     a OPEN command was issued. Default
+						     value is 30min (1800000 milli sec).  If a
+						     value of 0 is recevied as part of the
+						     RFM_SEND command, it defaults to 30min.
+	             
+                                                  o unoserver2.ino has the ping command
+ 						     implemented and tested.  This is the
+						     sketch running on Arduino now (5Feb2018).
+TODO:
+-------
+
+0. The temperature reading does not look right.  Fix it.
+
+1. Along with the command, send info. about when to toggle the
+    solenoid.
+
+2. Use an ACK-based communication with the base-station.  Tell the
+    station the state of the solenoid.  This will need parsing of the
+    payload values at the base station as well.
