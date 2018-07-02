@@ -235,7 +235,7 @@ static void controlSolenoid(const int cmd)
   //
   //power_adc_enable();
   adc_enable();
-  digitalWrite(PIN_SLP, HIGH);  delay(5);//Switch ON the MOFSET, that supplies 9V supply to DRV
+  digitalWrite(PIN_SLP, HIGH);  delay(5);//Switch ON the MOFSET that supplies 9V supply to DRV and set DRV8833 to sleep.
 
   if (cmd==OPEN)
     {
@@ -251,12 +251,12 @@ static void controlSolenoid(const int cmd)
       //for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
       //TimeOfLastValveCmd=0; // Record that the valve is off now
     }
-  digitalWrite(PIN_SLP, LOW);  //Switch OFF the MOFSET, that supplies 9V supply to DRV
-
   //Ensure that OPEN and CLOSE are always followed by a delay to
   //produce a finite pulse and then the SHUT command to set the CTL
   //pins LOW
   for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+  digitalWrite(PIN_SLP, LOW);  //Switch OFF the MOFSET that supplies 9V supply to DRV and set DRV8833 to sleep.
+
 
     {
       digitalWrite(PIN_BIN1, LOW);
