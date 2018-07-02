@@ -3,7 +3,7 @@
   * TinyL9110S: Code for the Sprinkler controller node.  This node
     does full duplex communication and uses the L9110S H-bridge to
     control a DC latching solenoid valve.
-
+```
 - From <ROOT>/
 // ATMEL ATTINY84 / ARDUINO
 //
@@ -16,3 +16,4 @@
 //  PWM        (D  3)  PA7  6|    |9   PA4  (D  6) 
 //  PWM        (D  4)  PA6  7|    |8   PA5  (D  5)        PWM
 //                           +----+
+```
