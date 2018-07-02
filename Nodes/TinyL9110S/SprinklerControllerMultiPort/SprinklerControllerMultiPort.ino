@@ -206,6 +206,7 @@ void setSolenoid(const byte& cmd, const byte& port)
   CLRBIT(portB, 0);//setPortB(PORTB,0x00);
   PORTA=portA;
   PORTB=portB;
+  delay(10);
 }
 //
 //#################################################################

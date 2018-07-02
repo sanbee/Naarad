@@ -1,0 +1,74 @@
+
+RFM69_RxTx.ino
+==============
+
+This is the first working sketch.  Tested on the bench with a
+breadboard to trigger a solenoid via commands issued from RPi.
+
+The first working check-in is at b6b2f0c302ddf54e5a320bbd4c90c7f1c3e77ea3
+
+In addition to the RFM69_RxTx.2_Tx_pkt_relay sketch description above,
+the call to turn LOW/HIGH of the A2 and A3 pins of the ATT84 based on
+the command received is also included in this sketch.
+
+
+
+Timing:
+------
+
+The sketch sends out a packet with sensor values every 60sec.  100ms
+after finishing sending, it switches RFM69 to Rx with a timeout of
+3sec.  A packet received in this Rx window is processed to see if (a)
+it was meant for this node (ID=15 sent in payLoad.supplyV), and (b) if
+the sender was the server node (ID=5).  If a valid packet was
+received, it is processed and the RFM69 put to sleep.  ATT84 goes to
+low-power sleep for 60sec.
+
+The BS treats any packet from ID=15 as a heart-beat and responds with
+either a command packet in its cache from RPi, or a self-generated
+command packet with the NOOP command, which ensures that the remote
+radio is in the Rx mode for the shortest possible time.
+
+
+Commands accepted by the remote node:
+------------------------------------
+
+ ASCII          Arg1    Arg2     Arg3                  Arg4
+               Nibble1 Nibble0 Nibble1               Nibble0
+ RFM_SEND         CMD    NODE    P1                      P0
+--------------------------------------------------------------------------------
+ VALVE CLOSE       0      N     PORT           TIMEOUT in minutes (default 30min)
+
+ VALVE OPEN        1      N     PORT           TIMEOUT in minutes (default 30min)
+
+ VALVE SHUT        2      N     PORT           N/A
+
+ Set RX TO         3      N     N/A            TIMEOUT in  sec. (default 3sec)
+
+ Set TX interval   4      N     TO in sec.     Multiplier (default 1)
+                                (default 60s)
+
+ Set valve pulse   5      N     Multiplier     Pulse width in milli sec.
+ width                                         (default 10ms)
+
+ NOOP             255     N     N/A            N/A
+
+
+Cmd-2 (SHUT) puts both the DIO pins connected to the port PORT of
+L9110s to LOW values.
+
+Cmd-3 (SET_RX_TO) sets the max. length of time for which the radio is
+in RX mode.  After this, it is assumed that there is nothing to
+receive.
+
+Cmd-4 (SET_TX_INT) sets the interval for which the remote unit is shut
+(the radio and the MCU in sleep mode).  It is calculated as
+
+  for i=0; i<MULTIPLIER;i++) sleep(TO sec.);
+
+Cmd-5 (SET_VALVE_PULSE_WIDTH) sets the width of the pulse in time sent
+to the solenoid (via L9110s) by keep the DIO pins to HIGH/LOW for this
+length of time.
+
+Cmd-255 (NOOP) is does nothing. It is currently treated as an hint
+that there is nothing to receive for this node.
