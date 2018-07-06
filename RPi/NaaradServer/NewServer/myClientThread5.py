@@ -134,7 +134,7 @@ class ClientThread (Thread):
             except socket.timeout as e:
                 self.closeSock(self.myc1.getSock(),"Timed out.  Closing connection.");
                 break;
-            except SocketError as e:
+            except socket.error as e:
                 self.closeSock(self.myc1.getSock(), "ClientThread: SocketError during receive(). "+str(e));
                 break;
             except RuntimeError as e:
