@@ -205,6 +205,7 @@ static void controlSolenoid(const int cmd)
   // First handle system commands (these modify the internal
   // parameters, but don't control the valve solenoid.  THESE SHOULD
   // IMMEDIATELY RETURN AFTER SERVICING THE COMMANDS.
+
   if (cmd==NOOP) return;
   if (cmd==SET_RX_TO)                          {RFM69_READ_TIMEOUT = 1000*GET_PARAM1(payLoad_RxTx);return;} // Default 3 sec.
   if (cmd==SET_TX_INT)

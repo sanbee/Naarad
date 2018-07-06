@@ -98,7 +98,7 @@ typedef struct
 
 int tempReading,cmd=-1, port=0;
 unsigned int MaxRxCounter=0;
-unsigned long valveTimeout=60000,TimeOfLastValveCmd=0; /*1 min*/
+unsigned long valveTimeout=10000,TimeOfLastValveCmd=0; /*10 sec*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
 //MilliTimer sendTimer;
