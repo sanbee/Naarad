@@ -27,6 +27,7 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 // Utility macros
 #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
 #define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
+#define CTRLSOLENOID(cmd)   {for(int i=0;i<5;i++) {controlSolenoid(cmd); delay(12);controlSolenoid(SHUT);}}
 
 #define SERVER_NODE_ID 5
 #define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
@@ -156,6 +157,7 @@ void loop()
   //   //payLoad_RxTx.temp += analogRead(tempPin); // accumulate readings
   //   tempReading += analogRead(tempPin); // accumulate readings
 
+  adc_enable(); 
   // digitalWrite(tempPower, LOW); // turn TMP36 sensor off
   payLoad_RxTx.temp = int((((double(tempReading/10.0)*0.942382812) - 500)/10)*100);
 
