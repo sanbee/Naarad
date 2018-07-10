@@ -49,8 +49,8 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1,
-  VALVE_PULSE_WIDTH=10,
-  PULSE_WIDTH_MULTIPLIER=1; // 10 ms
+  VALVE_PULSE_WIDTH=50,
+  PULSE_WIDTH_MULTIPLIER=1; // 50 ms
 
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
@@ -121,6 +121,8 @@ uint16_t freqOffset=1600;
 //#################################################################
 void setup()
 {
+  adc_enable(); 
+
   rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
   rf12_sleep(RFM_SLEEP_FOREVER);                          // Put the RFM12 to sleep
 
@@ -131,18 +133,27 @@ void setup()
   pinMode(PIN_BIN2,OUTPUT);
   pinMode(PIN_SLP,OUTPUT);
 
-  adc_enable(); 
-  CTRLSOLENOID(CLOSE);
-  controlSolenoid(SHUT); delay(5);
-  digitalWrite(PIN_SLP, LOW);  
-  delay(100);
-  adc_disable(); 
+  // Initial test sequestion to make sure the hardware is working.
+  // This should turn ON the valve for 10sec and then SHUT on every
+  // MCU reboot/power-up cycle
+  //
+  // Once the software is debugged, this can be removed.
+  //
+  digitalWrite(PIN_SLP, HIGH);  delay(5);
+  CTRLSOLENOID(CLOSE);          delay(2000);
+  CTRLSOLENOID(OPEN);           delay(10000);
+  CTRLSOLENOID(CLOSE);          delay(1000);
+  digitalWrite(PIN_SLP, LOW);
+  controlSolenoid(SHUT);        delay(5000);
+
+  //  adc_disable(); 
 }
 //#################################################################
 void loop()
 {
   // Turn-on the temperature sensor, read it and send the data via RF
   //----------------------------------------------------------------------------------------
+  adc_enable(); 
 
   if ((TimeOfLastValveCmd>0)&&((unsigned long)(millis() - TimeOfLastValveCmd) >= valveTimeout))
     {controlSolenoid(CLOSE);TimeOfLastValveCmd=0;}
@@ -157,7 +168,6 @@ void loop()
   //   //payLoad_RxTx.temp += analogRead(tempPin); // accumulate readings
   //   tempReading += analogRead(tempPin); // accumulate readings
 
-  adc_enable(); 
   // digitalWrite(tempPower, LOW); // turn TMP36 sensor off
   payLoad_RxTx.temp = int((((double(tempReading/10.0)*0.942382812) - 500)/10)*100);
 
@@ -201,7 +211,10 @@ void loop()
       rfwrite(1);
     }
 
+
+
   rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
+
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
@@ -236,7 +249,7 @@ static void controlSolenoid(const int cmd)
   // Service the solenoid control commands
   //
   //power_adc_enable();
-  adc_enable();
+  //  adc_enable();
   digitalWrite(PIN_SLP, HIGH);  delay(5);//Switch ON the MOFSET that supplies 9V supply to DRV and set DRV8833 to sleep.
 
   if (cmd==OPEN)
@@ -259,14 +272,13 @@ static void controlSolenoid(const int cmd)
   for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
   digitalWrite(PIN_SLP, LOW);  //Switch OFF the MOFSET that supplies 9V supply to DRV and set DRV8833 to sleep.
 
-
-    {
-      digitalWrite(PIN_BIN1, LOW);
-      digitalWrite(PIN_BIN2, LOW);
-      //TimeOfLastValveCmd=0; // Record that the valve is off now
-    }
+  {
+    digitalWrite(PIN_BIN1, LOW);
+    digitalWrite(PIN_BIN2, LOW);
+    //TimeOfLastValveCmd=0; // Record that the valve is off now
+  }
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
-  adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  //  adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
 }
 
 //--------------------------------------------------------------------------------------------------
