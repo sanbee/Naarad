@@ -9,9 +9,8 @@ import errno;
 from socket import error;
 
 SERVER="raspberrypi";
-SERVER="192.168.0.66";
 SERVER="localhost";
-PORT=1234;
+PORT=
 
 
 def poll(nsoc, nodeid,polltimeout=10.0):
@@ -24,13 +23,13 @@ def poll(nsoc, nodeid,polltimeout=10.0):
         msg = nsoc.receive();
         nsoc.getSock().settimeout(currentTimeout);
     except socket.timeout as e:
-        print("poll: Timed out during poll");
+#        print("poll: Timed out during poll"+str(e));
         raise;
     except socket.error as e:
-        print("poll: SocketError during receive(). "+str(e));
+#        print("poll: SocketError during receive(). "+str(e));
         raise;
     except RuntimeError as e:
-        print("poll: RuntimeError during receive(). "+str(e));
+#        print("poll: RuntimeError during receive(). "+str(e));
         raise;
     return msg;
 
@@ -46,11 +45,16 @@ def main(argv):
                 soc.connect(SERVER,PORT);
                 soc.send("open");time.sleep(0.1);
 
-                poll(soc,NODEID);
-
-                tt=soc.receive();
-                soc.send("done");time.sleep(0.1);
-                print tt;
+                for i in range(10):
+                    try:
+                        mesg="";
+                        poll(soc,NODEID,1);
+                        mesg=soc.receive();
+                        soc.send("done");time.sleep(0.1);
+                        print mesg;
+                        break;
+                    except socket.timeout as tt:
+                        print("Attempt "+str(i)+" "+str(tt));
             except socket.error as e:
                 if (e.errno == errno.ECONNREFUSED):
                     print ("socket: Connection refused");
