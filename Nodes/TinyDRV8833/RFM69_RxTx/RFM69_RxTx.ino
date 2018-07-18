@@ -56,6 +56,7 @@ int RFM69_READ_TIMEOUT = 3000, // 3 sec
 #define RCV_GOT_SOME_PKT  20
 #define RCV_GOT_VALID_PKT 30
 #define MAX_RX_ATTEMPTS 50000  // Keep it <= 65535
+#define VALVE_DEFAULT_ON_TIME 10000 //10 sec.
 
 // Macros to extrat NodeID, Port No., Command and Timeout values
 // packed in the int-elements of the PayLoad struct.
@@ -99,7 +100,7 @@ typedef struct
 
 int tempReading,cmd=-1, port=0;
 unsigned int MaxRxCounter=0;
-unsigned long valveTimeout=10000,TimeOfLastValveCmd=0; /*10 sec*/
+unsigned long valveTimeout=VALVE_DEFAULT_ON_TIME,TimeOfLastValveCmd=0; /*10 sec*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
 //MilliTimer sendTimer;
@@ -355,7 +356,7 @@ static int readRFM69()
       cmd=GET_CMD(payLoad_RxTx);
       port=GET_PORT(payLoad_RxTx);
       valveTimeout=GET_TIMEOUT(payLoad_RxTx)*60*1000;//Convert user value in min. to milli sec.
-      valveTimeout=(valveTimeout==0?60000:valveTimeout);
+      valveTimeout=(valveTimeout==0?VALVE_DEFAULT_ON_TIME:valveTimeout);
 
       if (cmd == 0)      return CLOSE;
       else if (cmd == 1) return OPEN;
