@@ -83,6 +83,9 @@ def sendCommand(cmd,polltimeout):
 #         print "Usage: "+sys.argv[0]+" NODEID";
 #     else:
 #         #sendCommand("getcpkt",sys.argv[1]);
-
 #         sendCommand(sys.argv);
-#sendCommand(["RFM_SEND", "15", "4", "10", "0"],5)
+
+#sendCommand(["RFM_SEND", "15", "4", "10", "0"],5) # Set the node TO to 10 sec.
+#sendCommand(["RFM_SEND", "15", "1", "0",  "0"],2) # Open the valve
+#sendCommand(["RFM_SEND", "15", "0", "0",  "0"],2) # Stop the valve
+#sendCommand(["RFM_SEND", "15", "4", "60", "0"],2) # Set the node TO to 60 sec.
