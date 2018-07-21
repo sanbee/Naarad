@@ -23,6 +23,7 @@ This repository has the code for the three components of the Naarad system:
   * The code running on the Arduino UNO on the Base Station is in the [BaseStation](BaseStation) directory
   * The code running on the central socket server (Raspberry Pi) is in the [RPi](RPi) directory
 
+### Resources
 The communication with the RFM is done using the
 [JeeLib](https://github.com/jcw/jeelib) library from
 [JeeLabs](https://jeelabs.org).
@@ -31,3 +32,5 @@ The communication hardware on the remote Nodes is derived from the
 [TinyTx](https://nathan.chantrell.net/tinytx-wireless-sensor) design.
 For programming the ATTiny84 using an Arduino, I followed the
 instructions from [here](https://nathan.chantrell.net/20120225/an-attiny-based-wireless-temperature-sensor/).
+
+[This](http://www.gammon.com.au/power) article by [Nick Gammon](http://www.gammon.com.au/forum/bbshowbio.php?bbuser_id=1) is an excellent resource for techniques to reduce power consumption on MCU. While the code here is for Arduino (Atmega328P), some of the techniques apply to other Atmel processors.  A similar article sepecifically for ATTiny84 would be great.  This also has a post with very useful information about batteries (including self-drainage rates etc.).

@@ -10,7 +10,7 @@ PORT=1234;
 
 def main(argv):
         if (len(sys.argv) < 6):
-		print "Usage: "+sys.argv[0]+" RFM_SEND CMD NODEID PORTNO TIMEOUT";
+		print "Usage: "+sys.argv[0]+" RFM_SEND NODEID CMD PORTNO TIMEOUT";
         else:
 		tt=sys.argv[1];
 		for i in range(2,len(sys.argv)):

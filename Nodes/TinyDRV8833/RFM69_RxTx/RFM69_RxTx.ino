@@ -27,6 +27,7 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 // Utility macros
 #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
 #define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
+#define CTRLSOLENOID(cmd)   {for(int i=0;i<5;i++) {executeCommand(cmd); delay(12);executeCommand(SHUT);}}
 
 #define SERVER_NODE_ID 5
 #define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
@@ -37,20 +38,25 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define tempPower     PIN_A1      //was:9    TMP36 Power pin is connected on pin A1,D9 (ATtiny pin 12)
 #define SOLENOID_CTL0 PIN_A2      // A2,D8 (ATtiny pin 11)
 #define SOLENOID_CTL1 PIN_A3      // A3,D7 (ATtiny pin 10)
+
+#define PIN_BIN2   PIN_A1  // Physical pin 12 - BIN2 (PH)
+#define PIN_BIN1   PIN_A2  // Physical pin 11 - BIN1 (EN)
+#define PIN_SLP     PIN_A3  // Physical pin 10 - SLP
+
 #define RFM_WAKEUP -1
 #define RFM_SLEEP_FOREVER 0
-
 
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1,
-  VALVE_PULSE_WIDTH=10,
-  PULSE_WIDTH_MULTIPLIER=1; // 10 ms
+  VALVE_PULSE_WIDTH=50,
+  PULSE_WIDTH_MULTIPLIER=1; // 50 ms
 
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
 #define RCV_GOT_VALID_PKT 30
 #define MAX_RX_ATTEMPTS 50000  // Keep it <= 65535
+#define VALVE_DEFAULT_ON_TIME 10000 //10 sec.
 
 // Macros to extrat NodeID, Port No., Command and Timeout values
 // packed in the int-elements of the PayLoad struct.
@@ -94,7 +100,7 @@ typedef struct
 
 int tempReading,cmd=-1, port=0;
 unsigned int MaxRxCounter=0;
-unsigned long valveTimeout=60000,TimeOfLastValveCmd=0; /*1 min*/
+unsigned long valveTimeout=VALVE_DEFAULT_ON_TIME,TimeOfLastValveCmd=0; /*10 sec*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
 //MilliTimer sendTimer;
@@ -113,46 +119,77 @@ uint16_t freqOffset=1600;
 // };
 // static PacketBuffer str;
 
+void initPins()
+{
+  //pinMode(tempPower, OUTPUT); // set power pin for TMP36 to output
+  pinMode(PIN_BIN1,OUTPUT);
+  pinMode(PIN_BIN2,OUTPUT);
+  pinMode(PIN_SLP,OUTPUT);
+
+  executeCommand(SHUT);
+  digitalWrite(PIN_SLP, LOW);
+}
 //#################################################################
 void setup()
 {
+  adc_enable(); 
+
   rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
   rf12_sleep(RFM_SLEEP_FOREVER);                          // Put the RFM12 to sleep
 
   analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
  
-  pinMode(tempPower, OUTPUT); // set power pin for TMP36 to output
-  pinMode(SOLENOID_CTL0, OUTPUT);
-  pinMode(SOLENOID_CTL1, OUTPUT);
+  initPins();
+
+  // Initial test sequestion to make sure the hardware is working.
+  // This should turn ON the valve for 10sec and then SHUT on every
+  // MCU reboot/power-up cycle
+  //
+  // Once the software is debugged, this can be removed.
+  //
+  // digitalWrite(PIN_SLP, HIGH);  delay(5);
+  // CTRLSOLENOID(CLOSE);          delay(2000);
+  // CTRLSOLENOID(OPEN);           delay(5000);
+  // CTRLSOLENOID(CLOSE);          delay(1000);
+  // digitalWrite(PIN_SLP, LOW);
+  // executeCommand(SHUT);        delay(1000);
+
+  //  adc_disable(); 
 }
 //#################################################################
 void loop()
 {
-  //power_adc_enable();
-  adc_enable();
-  // Turn-on the temperature sensor, read it and send the data via RF
-  //----------------------------------------------------------------------------------------
+  //
+  // Begin radio operations
+  //=============================================================================
+  adc_enable(); 
+
+  initPins();
 
   if ((TimeOfLastValveCmd>0)&&((unsigned long)(millis() - TimeOfLastValveCmd) >= valveTimeout))
-    {controlSolenoid(CLOSE);TimeOfLastValveCmd=0;}
-  digitalWrite(tempPower, HIGH); // turn TMP36 sensor on
-  delay(10); // Allow 10ms for the sensor to be ready
+    {executeCommand(CLOSE);TimeOfLastValveCmd=0;}
 
+  // Turn-on the temperature sensor, read it and send the data via RF
+  //----------------------------------------------------------------------------------------
+  // digitalWrite(tempPower, HIGH); // turn TMP36 sensor on
+  // delay(10); // Allow 10ms for the sensor to be ready
 
-  analogRead(tempPin); // throw away the first reading
-  //payLoad_RxTx.temp=0.0;
-  tempReading=0;
-  for(byte i = 0; i < 10 ; i++) // take 10 more readings
-    //payLoad_RxTx.temp += analogRead(tempPin); // accumulate readings
-    tempReading += analogRead(tempPin); // accumulate readings
+  // analogRead(tempPin); // throw away the first reading
+  // //payLoad_RxTx.temp=0.0;
+  // tempReading=0;
+  // for(byte i = 0; i < 10 ; i++) // take 10 more readings
+  //   //payLoad_RxTx.temp += analogRead(tempPin); // accumulate readings
+  //   tempReading += analogRead(tempPin); // accumulate readings
 
-  digitalWrite(tempPower, LOW); // turn TMP36 sensor off
+  // digitalWrite(tempPower, LOW); // turn TMP36 sensor off
   payLoad_RxTx.temp = int((((double(tempReading/10.0)*0.942382812) - 500)/10)*100);
 
   payLoad_RxTx.supplyV = readVcc(); // Get supply voltage
   
   rfwrite(1); // Send data via RF
-  delay(10); // Without this delay, the second packet is never issued.  Why? 10ms does not work.  100ms does.  Is 10<d<100 possible?
+  delay(10); // Without this delay, the second packet is never issued.
+	     // Why? 10ms does not work.  100ms does.  Is 10<d<100
+	     // possible?
   
   lastRF=millis();
   rf12_sleep(RFM_WAKEUP);
@@ -176,22 +213,32 @@ void loop()
       MaxRxCounter++;
     }
 
-  delay(10); // With the receiver ON, this delay is necessary for the second packet to be issued.  What's the minimum delay?
-
-  // rfwrite(1) puts RFM69 to sleep.  loseSomeTime() below puts the MCU to sleep for the specified length of time.
+  delay(10); // With the receiver ON, this delay is necessary for the
+	     // second packet to be issued.  What's the minimum delay?
 
   if (dataReady != RCV_TIMEDOUT)
     {
       dataReady=RCV_GOT_VALID_PKT;
-      controlSolenoid(cmd);
-      
-      // Following is an ACK packet which is captured by the base station (acutully right now by all listeners).
+      // Following is an ACK packet which is captured by all listener
+      // stations (but currently processed only by the base station)
       rfwrite(1);
     }
-
   rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
+  //=============================================================================
+  // End radio operations
+  //
+
+  // If cmd has valid value, process it.
+  if (cmd >=0 ) 
+    {
+      executeCommand(cmd);
+    }
+
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+
+  // loseSomeTime() below puts the MCU to sleep for the specified length of time.
+
   for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
     Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
@@ -200,12 +247,11 @@ void loop()
 //#################################################################
 //
 // Application specific functions
-static void controlSolenoid(const int cmd)
+static void executeCommand(const int cmd)
 {
   // First handle system commands (these modify the internal
   // parameters, but don't control the valve solenoid.  THESE SHOULD
   // IMMEDIATELY RETURN AFTER SERVICING THE COMMANDS.
-
   if (cmd==NOOP) return;
   if (cmd==SET_RX_TO)                          {RFM69_READ_TIMEOUT = 1000*GET_PARAM1(payLoad_RxTx);return;} // Default 3 sec.
   if (cmd==SET_TX_INT)
@@ -224,30 +270,41 @@ static void controlSolenoid(const int cmd)
   //
   // Service the solenoid control commands
   //
+  //power_adc_enable();
+  //  adc_enable();
+
+  if (cmd == SHUT)
+  {
+    digitalWrite(PIN_BIN1, LOW);
+    digitalWrite(PIN_BIN2, LOW);
+    return;
+  }
+  //
+  // The following commands need to switch-on the MOSFET.
+  //
+  digitalWrite(PIN_SLP, HIGH);  delay(100);//Switch ON the MOFSET that supplies 9V supply to DRV and set DRV8833 to sleep.
+
   if (cmd==OPEN)
     {
-      digitalWrite(SOLENOID_CTL0, HIGH);
-      digitalWrite(SOLENOID_CTL1, LOW);
-      //for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+      digitalWrite(PIN_BIN1, HIGH);
+      digitalWrite(PIN_BIN2, LOW);
+
       TimeOfLastValveCmd=millis(); // Record the time when OPEN command is issued.
     }
   else if (cmd==CLOSE)
     {
-      digitalWrite(SOLENOID_CTL0, LOW);
-      digitalWrite(SOLENOID_CTL1, HIGH);
-      //for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
-      //TimeOfLastValveCmd=0; // Record that the valve is off now
+      digitalWrite(PIN_BIN1, LOW);
+      digitalWrite(PIN_BIN2, HIGH);
     }
   //Ensure that OPEN and CLOSE are always followed by a delay to
   //produce a finite pulse and then the SHUT command to set the CTL
   //pins LOW
   for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
-
-    {
-      digitalWrite(SOLENOID_CTL0, LOW);
-      digitalWrite(SOLENOID_CTL1, LOW);
-      //TimeOfLastValveCmd=0; // Record that the valve is off now
-    }
+  digitalWrite(PIN_SLP, LOW);  //Switch OFF the MOFSET that supplies 9V supply to DRV and set DRV8833 to sleep.
+  {
+    digitalWrite(PIN_BIN1, LOW);
+    digitalWrite(PIN_BIN2, LOW);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,7 +356,7 @@ static int readRFM69()
       cmd=GET_CMD(payLoad_RxTx);
       port=GET_PORT(payLoad_RxTx);
       valveTimeout=GET_TIMEOUT(payLoad_RxTx)*60*1000;//Convert user value in min. to milli sec.
-      valveTimeout=(valveTimeout==0?60000:valveTimeout);
+      valveTimeout=(valveTimeout==0?VALVE_DEFAULT_ON_TIME:valveTimeout);
 
       if (cmd == 0)      return CLOSE;
       else if (cmd == 1) return OPEN;

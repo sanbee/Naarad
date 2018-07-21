@@ -6,6 +6,7 @@ from mySock import mysocket;
 import time;
 
 SERVER="raspberrypi";
+SERVER="192.168.0.66";
 PORT=1234;
 
 def main(argv):
