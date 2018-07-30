@@ -3,6 +3,14 @@ from threading import Thread;
 import settings5;
 import time;
 import json;
+
+def getNodeID(jdict):
+    if ("node" in jdict.keys()):
+        return jdict['node'];
+    if ("node_id" in jdict.keys()):
+        return jdict['node_id'];
+    raise ValueError("Node ID not found");
+
 # Class to create a topic of type name.  In implementation, this is a
 # thread that listens for in-coming packets on the serial connection
 # to the UNO and conveys them to all sockets in the
@@ -61,9 +69,18 @@ class NaaradTopic (Thread):
                 try:
                     if (("rf_fail" in line)):
                         jdict = json.loads(line);# The JSON parser
-                        #print jdict;
+                        # print jdict;
+
+                        # Always add the packet to the current packet
+                        # cache.
+                        #
+                        # NOTE TO SELF: This cache should become cache
+                        # for ACK packets only.  Currnet packet is the
+                        # right-most packet in the gPacketHistory
+                        # queue.
+                        nodeID=getNodeID(jdict);
+                        settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
-                            settings5.gCurrentPacket[jdict["node_id"]] = line;
                             self.pktHndlr.addPacket(line,jdict);
                             #self.addPacket(line,jdict);
                 except ValueError as e:
