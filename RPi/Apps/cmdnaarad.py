@@ -5,13 +5,11 @@ sys.path.insert(0, '../NaaradServer/NewServer');
 from mySock import mysocket;
 import time;
 
-SERVER=
-SERVER=
-PORT=
+SERVER="raspberrypi";
+SERVER="192.168.0.66";
+PORT=1234;
 helpmsg="\n\
-     ASCII          Arg1     Arg2      Arg3               Arg4\n\
-                  Nibble1  Nibble0   Nibble1            Nibble0\n\
-    RFM_SEND        NODE      CMD       P1                 P0\n\
+   Operation       NODEID    CMD       P1                 P0\n\
   --------------------------------------------------------------------------------\n\
    VALVE CLOSE       N        0       PORT          TIMEOUT in minutes (default 30min)\n\
   \n\
@@ -21,13 +19,13 @@ helpmsg="\n\
   \n\
    Set RX TO         N        3        N/A          TIMEOUT in  sec. (default 3sec)\n\
   \n\
-   Set TX interval   N        4      TO in sec.     Multiplier (default 1)\n\
-                                     (default 60s)\n\
+   Set TX interval   N        4     TO in sec.      Multiplier (default 1)\n\
+                                    (default 60s)\n\
   \n\
-   Set valve pulse   N        5     Multiplier     Pulse width in milli sec.\n\
-   width                                           (default 10ms)\n\
+   Set valve pulse   N        5     Multiplier      Pulse width in milli sec.\n\
+   width                                            (default 10ms)\n\
   \n\
-   NOOP              N       255       N/A         N/A"
+   NOOP              N       255       N/A          N/A"
 
 
 def neumonic(cmd):
@@ -40,7 +38,7 @@ def neumonic(cmd):
 
 def main(argv):
         if (len(sys.argv) < 6):
-		print "Usage: "+sys.argv[0]+" RFM_SEND NODEID CMD PORTNO TIMEOUT\n";
+		print "Usage: "+sys.argv[0]+" RFM_SEND NODEID CMD P1 P0\n";
                 print helpmsg;
         else:
 		tt=sys.argv[1];
