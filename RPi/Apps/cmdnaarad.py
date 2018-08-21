@@ -28,6 +28,9 @@ helpmsg="\n\
    NOOP              N       255       N/A          N/A"
 
 
+class MyException(Exception):
+    pass;
+
 def neumonic(cmd):
         if (cmd == "CLOSE"): return 0;
         if (cmd == "OPEN"): return 1;
@@ -35,31 +38,34 @@ def neumonic(cmd):
         if (cmd == "RX_TO"): return 3;
         if (cmd == "POLL_TO"): return 4;
         if (cmd == "PULSE_WIDTH"): return 5;
+        raise MyException("Incorrect command string \""+cmd+"\"");
 
 def main(argv):
         if (len(sys.argv) < 6):
 		print "Usage: "+sys.argv[0]+" RFM_SEND NODEID CMD P1 P0\n";
                 print helpmsg;
         else:
-		tt=sys.argv[1];
-		for i in range(2,len(sys.argv)):
-			tt=tt+" "+sys.argv[i]
-		#CMD=sys.argv[1];
-		#OP=sys.argv[2];
-		#ID=sys.argv[3];
-		#PORTNO=sys.argv[4];
-		#TIMEOUT=sys.argv[5];
-		#FULLCMD=CMD+" "+OP+" "+ID+" "+PORTNO+" "+TIMEOUT;
+                try:
+		        tt=sys.argv[1];
+                        cmd=sys.argv[2];
+		        for i in range(2,len(sys.argv)):
+                                if ((i==3) and (not sys.argv[i].isdigit())):
+                                        cmd = neumonic(sys.argv[3]);
+                                        if (cmd >= 0):
+                                                tt=tt+" "+str(cmd);
+                                else:
+			                tt=tt+" "+sys.argv[i]
 
-		FULLCMD=tt;
+		        FULLCMD=tt;
 
-		print FULLCMD;
-		naaradSoc=mysocket();
-		naaradSoc.connect(SERVER,PORT);
-		naaradSoc.send("open");time.sleep(0.1);
-		naaradSoc.send(FULLCMD);#time.sleep(1);
-		naaradSoc.send("done");time.sleep(0.1);
-		naaradSoc.close();
-
+		        print FULLCMD;
+		        naaradSoc=mysocket();
+		        naaradSoc.connect(SERVER,PORT);
+		        naaradSoc.send("open");time.sleep(0.1);
+		        naaradSoc.send(FULLCMD);#time.sleep(1);
+		        naaradSoc.send("done");time.sleep(0.1);
+		        naaradSoc.close();
+                except MyException as e:
+                        print str(e);
 if __name__ == "__main__":
     main(sys.argv)
