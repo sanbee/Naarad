@@ -10,9 +10,9 @@ import json;
 from socket import error;
 
 SERVER="raspberrypi";
-
+SERVER="192.168.0.66";
 #SERVER="localhost";
-PORT=
+PORT=1234
 
 
 def poll(nsoc, nodeid,polltimeout=10.0):
@@ -30,9 +30,12 @@ def poll(nsoc, nodeid,polltimeout=10.0):
         raise;
     return msg;
 
-def isACK(jdict, cmdID):
-    return (("source" in jdict.keys()) and ("ACKpkt" in jdict['source']) and
-            (jdict['cmd'] == int(cmdID)));
+def isACK(jdict, cmdID,p0):
+    return (("source" in jdict.keys()) and
+            ("p0" in jdict.keys()) and
+            ("ACKpkt" in jdict['source']) and
+            (jdict['cmd'] == int(cmdID)) and
+            (jdict['p0']==int(p0)));
     return False;
 
 def sendCommand(cmd,polltimeout):
@@ -55,14 +58,15 @@ def sendCommand(cmd,polltimeout):
 
         soc.send(CMD);
 
-        for i in range(10):
+        for i in range(12):
             try:
                 soc.send("getcpkt "+str(nodeID));
                 mesg="";
                 mesg=poll(soc,nodeID,10);
+                print(mesg);
                 jdict = json.loads(mesg);
 
-                if (isACK(jdict, cmdID)):
+                if (isACK(jdict, cmdID, cmd[3])):
                     soc.send("done");time.sleep(0.1);
                     print(mesg);
                     break;
@@ -85,7 +89,7 @@ def sendCommand(cmd,polltimeout):
 #         #sendCommand("getcpkt",sys.argv[1]);
 #         sendCommand(sys.argv);
 
-#sendCommand(["RFM_SEND", "15", "4", "10", "0"],5) # Set the node TO to 10 sec.
+sendCommand(["RFM_SEND", "15", "4", "10", "0"],10) # Set the node TO to 10 sec.
 #sendCommand(["RFM_SEND", "15", "1", "0",  "0"],2) # Open the valve
 #sendCommand(["RFM_SEND", "15", "0", "0",  "0"],2) # Stop the valve
-#sendCommand(["RFM_SEND", "15", "4", "60", "0"],2) # Set the node TO to 60 sec.
+sendCommand(["RFM_SEND", "15", "4", "60", "0"],2) # Set the node TO to 60 sec.
