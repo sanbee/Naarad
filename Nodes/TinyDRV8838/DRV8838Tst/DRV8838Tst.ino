@@ -27,6 +27,11 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
 #define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
 
+#define CLOCK_DIV clock_div_8
+#define DIVBY 8
+//#define DELAY(n)  delay((int)((float)n/DIVBY))
+#define DELAY(n)  delay(n)
+
 #define CLOSE 0
 #define OPEN 1
 #define SHUT -1
@@ -71,7 +76,7 @@ void initPINS(void)
   digitalWrite(PINVCC, LOW);
   controlSolenoid(SHUT); 
 
-  delay(100);
+  DELAY(100);
 }
 void disablePINS(void)
 {
@@ -92,12 +97,12 @@ void loop(void) {
   //power_adc_enable();
   initPINS();
   adc_enable();
-  delay(5);
+  DELAY(5);
   digitalWrite(PINVCC, HIGH);
-  delay(2000);  
+  DELAY(2000);
 
   controlSolenoid(SHUT);
-  delay(500);
+  DELAY(500);
   {
     //controlSolenoid(CLOSE);
     //delay(20);
@@ -107,7 +112,7 @@ void loop(void) {
   }
 
   // Wait for 10s before opening the valve
-  delay(2000);
+  DELAY(2000);
 
   {
     //controlSolenoid(OPEN);
@@ -117,7 +122,7 @@ void loop(void) {
     CTRLSOLENOID(OPEN);
   }
  
-  delay(10000);
+  DELAY(10000);
 
   {
     //controlSolenoid(CLOSE);
@@ -129,7 +134,7 @@ void loop(void) {
   // Wait for 10s before looping back...
   digitalWrite(PINVCC, LOW);
   controlSolenoid(SHUT);
-  delay(5);
+  DELAY(5);
 
   disablePINS();
 
@@ -155,6 +160,7 @@ void loop(void) {
 
   //  for(;;)  Sleepy::loseSomeTime(64000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
   //  goToSleep();
+  //clock_prescale_set (CLOCK_DIV);
   Sleepy::loseSomeTime(10000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
 void goToSleep ()
