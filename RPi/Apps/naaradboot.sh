@@ -19,6 +19,6 @@ cd /mnt/flash1/Arduino/Git/Arduino/unoserver2/NewServer
 # Start the socket server
 # This has the latest getcpkt and gethpkt protocol
 #python serversoc4.py
-screen -d -m -t Naarad python naarad.py
+screen -d -m -t Naarad python -B naarad.py
 
 # Can also use python serversock5.py as of Jan 5, 2017
