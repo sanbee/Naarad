@@ -148,9 +148,9 @@ void setup()
 #endif
 #endif
   delay(10);
-  /* rf12_initialize(MYNODE, freq,group,1600 /\*freqOffset*\/); */
+  //rf12_initialize(MYNODE, freq,group,1600 /\*freqOffset*\/); //Sim code
   
-  /* initOOKRadio(); */
+  //initOOKRadio(); // Sim code
   Serial.println(F("Receiver ready"));
   
   // Set the node ID in the TX_payload to invalid value to indicate
@@ -253,12 +253,14 @@ void loop()
 	  //Serial.println(val);
 	  //delay(10);
 	}
+      // Sim code
       /* else if (strncmp(cmdStr, "GETR",4)==0) */
       /* 	{ */
       /* 	  char *msg=NULL; */
       /* 	  while ((msg = readRFM69())==NULL); */
       /* 	  Serial.println(msg); */
       /* 	} */
+      // Sim code
       else if (strncmp(cmdStr, "RF12",4)==0)
 	{
 	  char *token; char s[2] = " ";const char *D="%d";
