@@ -94,11 +94,8 @@ static byte TX_counter[N_LISTENERS];
 
 // Disable the front of the cmd queue for the nth listener.  This is done by pop'ing the
 // queue if it is not empty and setting the TX retry counter to the max. re-trial value.
-// If the queue is empty, push a Payload with NOOP command.  This will be the default
-// command sent when there is no command waiting in the queue.
 #define DISABLE_TXPKT(n) {						\
-    if (TX_payload_q[n].isEmpty()) initTXPkt(n);			\
-    else TX_payload_q[n].pop();						\
+    if (!TX_payload_q[n].isEmpty()) TX_payload_q[n].pop();		\
     TX_counter[n]=N_TRIALS+1;						\
   }
 #define ENABLE_TXPKT(n)  (TX_counter[n]=0) // Set the counter to zero, indicating that the TX pkt. needs is ready to be sent
@@ -160,12 +157,13 @@ void setup()
     {
       initTXPkt(i);
       Serial.println("INIT Q DONE "+String(i)+" "+String(TX_payload_q[i].count()));
-      DISABLE_TXPKT(i);        // TX_counter=N_TRIALS+1;
+      TX_counter[i]=N_TRIALS+1;
+      //      DISABLE_TXPKT(i);  
     }
   str.reset();            // Reset json string       
 
-  for (int i=0;i<N_LISTENERS;i++)
-      TX_counter[i]=N_TRIALS+1;
+  // for (int i=0;i<N_LISTENERS;i++)
+  //     TX_counter[i]=N_TRIALS+1;
 }
 //####################################################################
 void loop() 
@@ -225,6 +223,9 @@ void loop()
 	      sscanf(token,D,&v);
 	      SET_TIMEOUT(P,v);
 
+	      // If the front of the queue has the NOOP packet, remove it.
+	      if (!TX_payload_q[n].isEmpty() && GET_CMD(TX_payload_q[n].front()) == NOOP) 
+		TX_payload_q[n].pop();
 	      TX_payload_q[n].push(P);
 	      Serial.println("Q len: "+String(n)+" "+String(TX_payload_q[n].count()));
 	      // This is a debugging message printed as a JSON string on
@@ -378,7 +379,7 @@ static void printJSON(const byte& counterVal,const Payload& P)
 		 +String(counterVal)+("\" }\0")); 
 }
 //####################################################################
-static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supplyV, byte& n)
+static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supplyV, const byte& n)
 {
   // An ACK packet is detected using the following logic:
   //
@@ -394,7 +395,8 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
   // sent in the absence of any RFM_SEND command received on the
   // serial port).
   //
-  n = inList(rx_nodeID, listenerNodeIDList);
+  //  n = inList(rx_nodeID, listenerNodeIDList);
+  Serial.println("ACK Q: "+String(n)+" "+String(TX_payload_q[n].count()));
   //  for(n=0;n<N_LISTENERS;n++) if (rx_nodeID == listenerNodeIDList[n]) break;
   Payload P = TX_payload_q[n].front();
   Serial.println("ACK: "+String(rx_nodeID)+" "+String(GET_NODEID(P))+" "+String(rx_rx)+" "+String(P.rx1));
@@ -404,7 +406,7 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
 		     +(",\"node\":") + String(GET_NODEID(P))
 		     +(",\"p0\": ")+String(getByte(rx_rx,1))
 		     +(",\"p1\": ")+String(rx_nodeID)+(" }\0")); 
-      SET_CMD(P,NOOP);
+      //      SET_CMD(P,NOOP);
       DISABLE_TXPKT(n);
       return true;
     }
@@ -416,16 +418,10 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
       return false;
     }
 }
-//####################################################################
-// If a CMD is available for the nodeID, copy it to TX_payload.  This
-// currently is a place-holder for copying TX payload from
-// NodeID-based caches to global TX_payload
-// static void loadTxCmdForNode(const int& nodeID)
-// {
-//   //  SET_NODEID(TX_payload[nodeID],nodeID);
-//   return;
-// }
-//####################################################################
+//###################################################################################
+// If a CMD is available for the nodeID, copy it to TX_payload.  This currently is a
+// place-holder for copying TX payload from NodeID-based caches to global TX_payload
+//###################################################################################
 #define RX_CRC_OK()  ((rf12_crc == 0))
 #define RX_HDR_OK()  (((rf12_hdr & RF12_HDR_CTL) == 0))
 #define RX_NODEID()  ((rf12_hdr & 0x1F))
@@ -435,38 +431,40 @@ static char* readRFM69_sim()
   int payload_nodeID=NOTHING_TO_SEND;
   bool isACK=false;
   byte listenerNdx=N_LISTENERS;
+  Payload P;
+
   if (RF12_RECVDONE) 
     {
 	{
 	  payload_nodeID = RX_NODEID;   // Extract node ID from the received packet
 	  payload=RF12_DATA;  // Get the payload
 
-	  // Determine if this is an ACK packet and return the index
-	  // of the listener in the global listenerNodeIDList array
+	  Serial.println("RX_NODEID: "+String(RX_NODEID));
+
+	  // Determine if this is an ACK packet
+	  listenerNdx = inList(payload_nodeID, listenerNodeIDList);
+	  // If the queue is empty, add a NOOP packet.
+	  if (TX_payload_q[listenerNdx].isEmpty()) initTXPkt(listenerNdx);
+
 	  isACK=processACK(payload_nodeID, payload.rx1, payload.supplyV,listenerNdx);
 	}
       
       if (!isACK && (listenerNdx<N_LISTENERS))
 	{
 	  Serial.println("Listener: "+String(listenerNdx));
-	  // Prepare the Tx payload, enable it for Tx and start a
-	  // timer for re-transmission cadence.
-
-	  //	  loadTxCmdForNode(listenerNdx); // Is this required now?
-
+	  // Prepare the Tx payload, enable it for Tx and start a timer for
+	  // re-transmission cadence.
 	  ENABLE_TXPKT(listenerNdx);
 	  lastPktSent[listenerNdx]=millis();
 	}
       RF12_RECVDONE=false;
     }
-  // Transmit the Tx payload if the number of trials is not exhausted
-  // and the timer meets the re-transmission cadence.  Update the
-  // timer and the number of re-transmissions.
+  // Transmit the Tx payload if the number of trials is not exhausted and the timer meets
+  // the re-transmission cadence.  Update the timer and the number of re-transmissions.
   for (listenerNdx=0;listenerNdx<N_LISTENERS;listenerNdx++)
     {
       if (TXPKT_ENABLED(listenerNdx) && (millis() - lastPktSent[listenerNdx] > 200))
 	{
-	  Payload P={0,0};
 	  P=TX_payload_q[listenerNdx].front(); 
 
 	  printJSON(TX_counter[listenerNdx],P);
