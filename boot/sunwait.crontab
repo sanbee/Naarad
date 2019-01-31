@@ -1,0 +1,6 @@
+# Start sunwait at 4pm (16h + 7h to get to MST) each day. It will exit at civil twilight time for Socorro, NM and thus
+# turn on the lamp 0
+00 23 * * * ~pi/bin/sunwait sun down 34.058400N 106.891417W; (/usr/bin/python ~pi/bin/lightOn.py 0 1; sleep 5;/usr/bin/python ~pi/bin/lightOn.py 1 1; sleep 5;/usr/bin/python ~pi/bin/lightOn.py 2 1)
+# Switch off lamp 0 at 8:30pm (20h30m + 7h) every day
+00 03 * * * (/usr/bin/python ~pi/bin/lightOn.py 0 0; sleep 5;/usr/bin/python ~pi/bin/lightOn.py 1 0; sleep 5;/usr/bin/python ~pi/bin/lightOn.py 2 0)
+
