@@ -52,6 +52,7 @@ char serialCount;
 
 #include "RemoteCmd.h"// The remote commands for sprinkler controller
 #include <QueueArray.h>
+#include <Queue.h>
 //MilliTimer sendTimer;
 
 // Fixed RFM69CW settings
@@ -78,7 +79,7 @@ typedef struct
   int supplyV;              // payload voltage
 } Payload;
 
-static QueueArray<Payload> TX_payload_q[N_LISTENERS];
+static Queue<Payload> TX_payload_q[N_LISTENERS] = Queue<Payload>(TX_CMD_Q_LEN);
 static Payload payload;//, TX_payload[N_LISTENERS][TX_CMD_Q_LEN];
 static byte rssi2, rssi1, rssiMantisa;
 static byte TX_counter[N_LISTENERS];
@@ -219,7 +220,7 @@ void loop()
 	      SET_TIMEOUT(P,v);
 
 	      // If the front of the queue has the NOOP packet, remove it.
-	      if (!TX_payload_q[n].isEmpty() && GET_CMD(TX_payload_q[n].front()) == NOOP) 
+	      if (!TX_payload_q[n].isEmpty() && GET_CMD(TX_payload_q[n].peek()) == NOOP) 
 		TX_payload_q[n].pop();
 	      TX_payload_q[n].push(P);
 
@@ -387,7 +388,7 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
   // serial port).
   //
   //  n = inList(rx_nodeID, listenerNodeIDList);
-  Payload P = TX_payload_q[n].front();
+  Payload P = TX_payload_q[n].peek();
 
   if ((n < N_LISTENERS)  && (rx_nodeID == GET_NODEID(P)) && (rx_rx == P.rx1))
     {
@@ -452,7 +453,7 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
 //     {
 //       if (TXPKT_ENABLED(listenerNdx) && (millis() - lastPktSent[listenerNdx] > 200))
 // 	{
-// 	  P=TX_payload_q[listenerNdx].front(); 
+// 	  P=TX_payload_q[listenerNdx].peek(); 
 
 // 	  printJSON(TX_counter[listenerNdx],P);
 // 	  rfwrite_sim(P); // Trasmit the global TX_payload
@@ -503,7 +504,7 @@ static char* readRFM69()
   for (listenerNdx=0;listenerNdx<N_LISTENERS;listenerNdx++)
     if (TXPKT_ENABLED(listenerNdx) && (millis() - lastPktSent[listenerNdx] > 200))
       {
-	  P=TX_payload_q[listenerNdx].front(); 
+	  P=TX_payload_q[listenerNdx].peek(); 
 
 	  printJSON(TX_counter[listenerNdx],P);
 	  rfwrite(P); // Trasmit the global TX_payload
