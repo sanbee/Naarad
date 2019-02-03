@@ -51,7 +51,6 @@ char serialCount;
 
 
 #include "RemoteCmd.h"// The remote commands for sprinkler controller
-#include <QueueArray.h>
 #include <Queue.h>
 //MilliTimer sendTimer;
 
