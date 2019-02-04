@@ -372,7 +372,7 @@ static void printJSON(const byte& counterVal,const Payload& P)
 //####################################################################
 static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supplyV, const byte& n)
 {
-  // An ACK packet is detected using the following logic:
+  // Following logic determines if a packet is ACK packet:
   //
   //   1. If the nodeID from which the current packet was received is
   //      the same as the nodeID in the TX_payload (the target nodeID
@@ -406,65 +406,11 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
     }
 }
 //###################################################################################
-// If a CMD is available for the nodeID, copy it to TX_payload.  This currently is a
-// place-holder for copying TX payload from NodeID-based caches to global TX_payload
+// Macros used on packets from RF12/RFM69CW
 //###################################################################################
 #define RX_CRC_OK()  ((rf12_crc == 0))
 #define RX_HDR_OK()  (((rf12_hdr & RF12_HDR_CTL) == 0))
 #define RX_NODEID()  ((rf12_hdr & 0x1F))
-
-// static char* readRFM69_sim() 
-// {
-//   int payload_nodeID=NOTHING_TO_SEND;
-//   bool isACK=false;
-//   byte listenerNdx=N_LISTENERS;
-//   Payload P;
-
-//   if (RF12_RECVDONE) 
-//     {
-// 	{
-// 	  payload_nodeID = RX_NODEID;   // Extract node ID from the received packet
-// 	  payload=RF12_DATA;  // Get the payload
-
-// 	  Serial.println("RX_NODEID: "+String(RX_NODEID));
-
-// 	  // Determine if this is an ACK packet
-// 	  listenerNdx = inList(payload_nodeID, listenerNodeIDList);
-// 	  // If the queue is empty, add a NOOP packet.
-// 	  if (TX_payload_q[listenerNdx].isEmpty()) initTXPkt(listenerNdx);
-
-// 	  isACK=processACK(payload_nodeID, payload.rx1, payload.supplyV,listenerNdx);
-// 	}
-      
-//       if (!isACK && (listenerNdx<N_LISTENERS))
-// 	{
-// 	  Serial.println("Listener: "+String(listenerNdx));
-// 	  // Prepare the Tx payload, enable it for Tx and start a timer for
-// 	  // re-transmission cadence.
-// 	  ENABLE_TXPKT(listenerNdx);
-// 	  lastPktSent[listenerNdx]=millis();
-// 	}
-//       RF12_RECVDONE=false;
-//     }
-//   // Transmit the Tx payload if the number of trials is not exhausted and the timer meets
-//   // the re-transmission cadence.  Update the timer and the number of re-transmissions.
-//   for (listenerNdx=0;listenerNdx<N_LISTENERS;listenerNdx++)
-//     {
-//       if (TXPKT_ENABLED(listenerNdx) && (millis() - lastPktSent[listenerNdx] > 200))
-// 	{
-// 	  P=TX_payload_q[listenerNdx].peek(); 
-
-// 	  printJSON(TX_counter[listenerNdx],P);
-// 	  rfwrite_sim(P); // Trasmit the global TX_payload
-// 	  lastPktSent[listenerNdx] = millis();
-// 	  TX_counter[listenerNdx]++;
-// 	  // Sim code
-// 	  if (!TXPKT_ENABLED(listenerNdx)) {RF12_DATA=P;RF12_RECVDONE=true;}
-// 	  // Sim code
-// 	}
-//     }  
-//   return (str.fill==0)?NULL:str.buf;
-// }
 
 static char* readRFM69()
 {
