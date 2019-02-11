@@ -4,7 +4,6 @@ import signal
 import threading;
 from threading import Thread, Condition, Event, RLock;
 
-condition = Condition();
 counter=0;
 
 class MyList(list):
@@ -42,6 +41,7 @@ class MyList(list):
 #
 class ClientList():
     def __init__(self):
+        # Lists with thread-safe methods
         self.IDList = MyList();
         self.CondList = MyList();
         self.rlock = RLock();
@@ -60,19 +60,17 @@ class ClientList():
                 n=len(self.CondList);
                 for i in range(n):
                     c=self.CondList[i];
-                    c.acquire();
-                    c.notify();
-                    c.release();
+                    with c:
+                        c.notify();
         else:
             #Notify all registered threads with nodeid;
             with self.rlock:
-                ndx=self.IDList.findItem(nodeid);
-                n = len(ndx);
+                threadIndices=self.IDList.findItem(nodeid);
+                n = len(threadIndices);
                 for i in range(0,n):
-                    c=self.CondList[ndx[i]];
-                    c.acquire();
-                    c.notify();
-                    c.release();
+                    c=self.CondList[threadIndices[i]];
+                    with c:
+                        c.notify();
         
     def register(self,thisID,cond):
         myIndex=-1;
@@ -82,6 +80,9 @@ class ClientList():
             self.CondList.append(cond);
         return myIndex;
 
+    # Using the lock of the thread calling this method to uniquely identify the thread in
+    # the list of threads.  This assumes that the private lock of each thread will not be
+    # equal to the similar private lock of any other thread.
     def unregister(self,myCond):
         with self.rlock:
             try:
@@ -139,13 +140,14 @@ class mainThread(Thread):
 
 
 class clientThread(Thread):
-    def __init__(self,id):
+    def __init__(self,id,nn):
         global ClientList;
         Thread.__init__(self)
         self.cond=Condition();
         self.myid=id;
         self.myIndex = -1;
         self.myIndex = NotifyClient.register(self.myid,self.cond);
+        self.nn=nn;
 
     def getCondition(self):
         return self.cond;
@@ -153,24 +155,20 @@ class clientThread(Thread):
     def run(self):
         global counter, ClientList;
         while(True):
-            self.cond.acquire();
-            self.cond.wait();
-            print "CT: ",self.myid,counter;
-            self.cond.release();
+            with self.cond:
+                self.cond.wait();
+                print "CT: ",self.myid,counter;
 
-            # self.conditionEvent.acquire();
-            # self.conditionEvent.wait();
-            # print "CT: ",counter;
-            # self.conditionEvent.release();
-            if ((counter<0) or (counter>=20)):
-                print "CT exiting ",self.myid;
+            if (counter%self.nn == 0):
+#            if ((counter<0) or (counter>=20)):
+                print "CT exiting ",self.myid,self.nn;
                 break;
         NotifyClient.unregister(self.cond);
 
 t0=mainThread();
-t1=clientThread(10);
-t2=clientThread(20);
-t3=clientThread(20);
+t1=clientThread(10,10);
+t2=clientThread(15,3);
+t3=clientThread(15,2);
 
 t0.start();t1.start();t2.start();t3.start();
 
