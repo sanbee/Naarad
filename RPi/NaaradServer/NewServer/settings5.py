@@ -1,8 +1,11 @@
+from ClientList import ClientList;
+
 def init():
     global NAARAD_COMPORT,NAARAD_PORT,NAARAD_MAXCONNECTIONS ;
     global NAARAD_TOPIC_SENSORDATA,topicsSubscriberList,gCurrentPacket;
     global gPacketHistory, gTimeStamp0Cache,gTimeStamp1Cache,gValueCache;
     global NAARAD_NAMELESS_PACKETS;
+    global gClientList;
 
     NAARAD_COMPORT = "/dev/ttyACM0";
     # Port number for the socket listening for incoming requests
@@ -32,3 +35,4 @@ def init():
     gTimeStamp1Cache={}; # Youngest
     gValueCache={};
     
+    gClientList = ClientList();
