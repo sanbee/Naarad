@@ -57,18 +57,15 @@ class ClientList():
         #Notify all register threads
         if (nodeid < 0):
             with self.rlock:
-                n=len(self.CondList);
-                for i in range(n):
-                    c=self.CondList[i];
+                for c in self.CondList:
                     with c:
                         c.notify();
         else:
             #Notify all registered threads with nodeid;
             with self.rlock:
                 threadIndices=self.IDList.findItem(nodeid);
-                n = len(threadIndices);
-                for i in range(0,n):
-                    c=self.CondList[threadIndices[i]];
+                for i in threadIndices:
+                    c=self.CondList[i];
                     with c:
                         c.notify();
         
@@ -159,8 +156,8 @@ class clientThread(Thread):
                 self.cond.wait();
                 print "CT: ",self.myid,counter;
 
-            if (counter%self.nn == 0):
-#            if ((counter<0) or (counter>=20)):
+#            if (counter%self.nn == 0):
+            if ((counter<0) or (counter>=20)):
                 print "CT exiting ",self.myid,self.nn;
                 break;
         NotifyClient.unregister(self.cond);
@@ -168,9 +165,10 @@ class clientThread(Thread):
 t0=mainThread();
 t1=clientThread(10,10);
 t2=clientThread(15,3);
-t3=clientThread(15,2);
+t3=clientThread(15,3);
 
-t0.start();t1.start();t2.start();t3.start();
+def init():
+    t0.start();t1.start();t2.start();t3.start();
 
 # try:
 #     t0.start(); t1.start();

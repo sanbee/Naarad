@@ -7,6 +7,7 @@ class ClientList():
         # Lists with thread-safe methods
         self.IDList = ThreadSafeList();
         self.CondList = ThreadSafeList();
+        self.PacketIDList = ThreadSafeList();
         self.rlock = RLock();
 
     def getIDList(self):
@@ -15,32 +16,38 @@ class ClientList():
     def getCondList(self):
         return self.CondList;
 
-    def NaaradNotify(self,nodeid=-1):
-        global NotifyClient;
+    def getPktIDList(self):
+        return self.PacketIDList;
+
+    def isValid(self,index, cmd, src):
+        return ((cmd == self.PacketIDList[index][0]) and
+                (src == self.PacketIDList[index][1]));
+    
+
+    def NaaradNotify(self,nodeid=-1,cmd=-1,src=''):
         #Notify all register threads
         if (nodeid < 0):
             with self.rlock:
-                n=len(self.CondList);
-                for i in range(n):
-                    c=self.CondList[i];
+                for c in self.CondList:
                     with c:
                         c.notify();
         else:
             #Notify all registered threads with nodeid;
             with self.rlock:
                 threadIndices=self.IDList.findItem(nodeid);
-                n = len(threadIndices);
-                for i in range(0,n):
-                    c=self.CondList[threadIndices[i]];
-                    with c:
-                        c.notify();
+                for i in threadIndices:
+                    if (isValid(i,cmd,src)):
+                        c=self.CondList[i];
+                        with c:
+                            c.notify();
         
-    def register(self,thisID,cond):
+    def register(self,thisID,cond, pktID):
         myIndex=-1;
         with self.rlock:
             myIndex=len(self.IDList);
             self.IDList.append(thisID);
             self.CondList.append(cond);
+            self.PacketIDList.append(pktID);
         return myIndex;
 
     # Using the lock of the thread calling this method to uniquely identify the thread in

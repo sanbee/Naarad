@@ -43,8 +43,10 @@ class PacketHandler():
         if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid,paramName]) > self.historyLength)):#1800000):
             settings5.gTimeStamp0Cache[nodeid,paramName] = -1;
 
+
     def addPacket(self,packet,thisJSON):
         keys=thisJSON.keys();
+
         if 'version' in keys:
             ver=str(thisJSON['version']);
             if (ver=="3.1"):
@@ -56,6 +58,8 @@ class PacketHandler():
         else:
             self.addPacket0(packet,thisJSON);
 #            print "V0->3.1: ",self.convertV0ToV31(thisJSON);
+
+        settings5.gClientList.NaaradNotify(thisJSON['node_id'],thisJSON['cmd'],thisJSON['source']);
             
     def addPacket0(self,packet,thisJSON):
         nodeid=thisJSON["node_id"];
