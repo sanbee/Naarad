@@ -46,7 +46,6 @@ class PacketHandler():
 
     def addPacket(self,packet,thisJSON):
         keys=thisJSON.keys();
-
         if 'version' in keys:
             ver=str(thisJSON['version']);
             if (ver=="3.1"):
@@ -57,9 +56,9 @@ class PacketHandler():
                 print("Param name: \""+thisJSON['name']+"\"");
         else:
             self.addPacket0(packet,thisJSON);
-#            print "V0->3.1: ",self.convertV0ToV31(thisJSON);
-
-        settings5.gClientList.NaaradNotify(thisJSON['node_id'],thisJSON['cmd'],thisJSON['source']);
+            #            print "V0->3.1: ",self.convertV0ToV31(thisJSON);
+        if (('cmd' in thisJSON.keys()) and ('source' in thisJSON.keys()):
+            settings5.gClientList.NaaradNotify(thisJSON['node_id'],thisJSON['cmd'],thisJSON['source']);
             
     def addPacket0(self,packet,thisJSON):
         nodeid=thisJSON["node_id"];
