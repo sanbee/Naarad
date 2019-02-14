@@ -51,6 +51,12 @@ class PacketHandler():
             settings5.gTimeStamp0Cache[nodeid,paramName] = -1;
 
 
+    def processInfoPacket(self, packet, thisJSON):
+        keys=thisJSON.keys();
+        if 'cmd' in keys:
+            thisNodeID=getNodeID(thisJSON);
+            settings5.gClientList.NaaradNotify(thisNodeID,thisJSON['cmd'],thisJSON['source']);
+        
     def addPacket(self,packet,thisJSON):
         keys=thisJSON.keys();
         if 'version' in keys:
@@ -64,9 +70,6 @@ class PacketHandler():
         else:
             self.addPacket0(packet,thisJSON);
             #            print "V0->3.1: ",self.convertV0ToV31(thisJSON);
-        if 'cmd' in keys:
-            thisNodeID=getNodeID(thisJSON);
-            settings5.gClientList.NaaradNotify(thisNodeID,thisJSON['cmd'],thisJSON['source']);
             
     def addPacket0(self,packet,thisJSON):
         nodeid=thisJSON["node_id"];

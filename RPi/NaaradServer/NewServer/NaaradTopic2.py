@@ -82,6 +82,8 @@ class NaaradTopic (Thread):
                         settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
                             self.pktHndlr.addPacket(line,jdict);
+                        else:
+                            self.pktHndlr.processInfoPacket(line,jdict);
                             #self.addPacket(line,jdict);
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());

@@ -1,5 +1,5 @@
 import os, tempfile;#, threading;
-from threading import Thread;
+from threading import Thread,Condition;
 import settings5;
 import select;
 import socket;
@@ -220,9 +220,11 @@ class ClientThread (Thread):
                         notifyForNodeID=int(tok[1]);
                         notifyForPktID=[int(tok[2]),str(tok[3])]; #[cmd,src]
                         notifyOnCond=Condition();
-                        print ("Registerd: ",notfiyForNodeID,notifyForPktID);
+                        print ("Registerd: ",notifyForNodeID,notifyForPktID);
                         settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
-                        self.myc1.send(settings5.gCurrentPacket[notifyForNodeID]);
+                        with notifyOnCond:
+                            print "Got it:"
+                            self.myc1.send(settings5.gCurrentPacket[notifyForNodeID]);
                     else:
                         print ("Command ",msg," not understood");
             except (RuntimeError):#, socket.error as e):
