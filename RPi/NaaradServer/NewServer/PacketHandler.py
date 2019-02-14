@@ -3,6 +3,13 @@ import json;
 import settings5;
 from collections import deque;
 
+def getNodeID(jdict):
+    if ("node" in jdict.keys()):
+        return jdict['node'];
+    if ("node_id" in jdict.keys()):
+        return jdict['node_id'];
+    raise ValueError("Node ID not found");
+
 class PacketHandler():
     def __init__(self,hLength):
         self.historyLength=hLength;
@@ -58,7 +65,8 @@ class PacketHandler():
             self.addPacket0(packet,thisJSON);
             #            print "V0->3.1: ",self.convertV0ToV31(thisJSON);
         if 'cmd' in keys:
-            settings5.gClientList.NaaradNotify(thisJSON['node_id'],thisJSON['cmd'],thisJSON['source']);
+            thisNodeID=getNodeID(thisJSON);
+            settings5.gClientList.NaaradNotify(thisNodeID,thisJSON['cmd'],thisJSON['source']);
             
     def addPacket0(self,packet,thisJSON):
         nodeid=thisJSON["node_id"];

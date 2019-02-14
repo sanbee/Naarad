@@ -216,6 +216,13 @@ class ClientThread (Thread):
                         if (len(tok) < 5):
                             raise(NaaradClientException("Usage: "+tok[0]+" CMD NODEID PORT TIMEOUT"));
                         self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]+" "+tok[3]+" "+tok[4]);
+                    elif (cmd=="notify"):
+                        notifyForNodeID=int(tok[1]);
+                        notifyForPktID=[int(tok[2]),str(tok[3])]; #[cmd,src]
+                        notifyOnCond=Condition();
+                        print ("Registerd: ",notfiyForNodeID,notifyForPktID);
+                        settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
+                        self.myc1.send(settings5.gCurrentPacket[notifyForNodeID]);
                     else:
                         print ("Command ",msg," not understood");
             except (RuntimeError):#, socket.error as e):
