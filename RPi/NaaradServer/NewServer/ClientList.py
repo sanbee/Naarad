@@ -36,7 +36,7 @@ class ClientList():
             with self.rlock:
                 threadIndices=self.IDList.findItem(nodeid);
                 for i in threadIndices:
-                    if (isValid(i,cmd,src)):
+                    if (self.isValid(i,cmd,src)):
                         c=self.CondList[i];
                         with c:
                             c.notify();
@@ -57,9 +57,10 @@ class ClientList():
         with self.rlock:
             try:
                 myIndex=self.CondList.findItem(myCond);
-                print 'Unregistering ',self.IDList[myIndex[0]];
+                print 'Unregistering ',self.IDList[myIndex[0]],self.PacketIDList[myIndex[0]];
                 self.IDList.remove(myIndex[0]);
                 self.CondList.remove(myIndex[0]);
+                self.PacketIDList.remove(myIndex[0]);
             except IndexError:
                 print "IndexError: ",self.IDList, myIndex;
 

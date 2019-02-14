@@ -223,8 +223,10 @@ class ClientThread (Thread):
                         print ("Registerd: ",notifyForNodeID,notifyForPktID);
                         settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
                         with notifyOnCond:
-                            print "Got it:"
+                            notifyOnCond.wait();
                             self.myc1.send(settings5.gCurrentPacket[notifyForNodeID]);
+                        settings5.gClientList.unregister(notifyOnCond);
+                        #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
                     else:
                         print ("Command ",msg," not understood");
             except (RuntimeError):#, socket.error as e):
