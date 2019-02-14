@@ -35,4 +35,14 @@ def init():
     gTimeStamp1Cache={}; # Youngest
     gValueCache={};
     
+    # Container of list of client threads (from myClientList)
+    # requesting notification of arrival of packets with particular
+    # signature.  The signature of the requested packets is a
+    # combination of the "node_id", "cmd" and "source" fields in the
+    # packet.  These values for these are also in this container per
+    # client.  Each client also has threading.Condition() object to
+    # receive the notification from the PacketHandler.
+    # PacketHandler.processInfoPackets() uses the
+    # ClientList.NaaradNotify() to deliver the notification for the
+    # relevant packets.
     gClientList = ClientList();
