@@ -1,5 +1,6 @@
 #! /usr/bin/python
 import sys
+import json;
 sys.path.insert(0, '../NaaradServer/NewServer');
 
 from mySock import mysocket;
@@ -14,8 +15,8 @@ class MyException(Exception):
 
 
 def main(argv):
-        if (len(sys.argv) < 5):
-		print "Usage: "+sys.argv[0]+" notify NODEID CMD SOURCE\n";
+        if (len(sys.argv) < 7):
+		print "Usage: "+sys.argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n";
         else:
                 try:
 		        naaradcmd=sys.argv[1];
@@ -29,13 +30,18 @@ def main(argv):
 
 		        print FULLCMD;
 		        naaradSoc=mysocket();
-		        naaradSoc.connect(SERVER,PORT);
-		        naaradSoc.send("open");time.sleep(0.1);
-		        naaradSoc.send(FULLCMD);time.sleep(0.1);
-                        tt=naaradSoc.receive();
-			print tt;
-		        naaradSoc.send("done");time.sleep(0.1);
-		        naaradSoc.close();
+                        Retry=0;
+                        while (Retry < nRETRIALS):
+                            naaradSoc.connect(SERVER,PORT);
+                            naaradSoc.send("open");time.sleep(0.1);
+                            naaradSoc.send(FULLCMD);time.sleep(0.1);
+                            tt=naaradSoc.receive();
+                            print tt,"   : Trial ",Retry;
+                            jdict=json.loads(tt);
+                            if ((time.time()*1000 - jdict['time']) > 1000.0):
+                                Retry += 1;
+                            naaradSoc.send("done");time.sleep(0.1);
+                            naaradSoc.close();
                 except MyException as e:
                         print str(e);
 if __name__ == "__main__":
