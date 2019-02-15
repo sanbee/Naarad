@@ -219,11 +219,16 @@ class ClientThread (Thread):
                     elif (cmd=="notify"):
                         notifyForNodeID=int(tok[1]);
                         notifyForPktID=[int(tok[2]),str(tok[3])]; #[cmd,src]
+                        if (len(tok)<5):
+                            timeOut=None;
+                        else:
+                            timeOut = float(tok[4]);
                         notifyOnCond=Condition();
+
                         print ("Registerd: ",notifyForNodeID,notifyForPktID);
                         settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
                         with notifyOnCond:
-                            notifyOnCond.wait();
+                            notifyOnCond.wait(timeOut);
                             self.myc1.send(settings5.gCurrentPacket[notifyForNodeID]);
                         settings5.gClientList.unregister(notifyOnCond);
                         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()

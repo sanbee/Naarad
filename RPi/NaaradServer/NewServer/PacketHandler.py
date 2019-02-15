@@ -2,13 +2,7 @@ import time;
 import json;
 import settings5;
 from collections import deque;
-
-def getNodeID(jdict):
-    if ("node" in jdict.keys()):
-        return jdict['node'];
-    if ("node_id" in jdict.keys()):
-        return jdict['node_id'];
-    raise ValueError("Node ID not found");
+import NaaradUtils as Utils;
 
 class PacketHandler():
     def __init__(self,hLength):
@@ -51,10 +45,9 @@ class PacketHandler():
             settings5.gTimeStamp0Cache[nodeid,paramName] = -1;
 
 
-    def processInfoPacket(self, packet, thisJSON):
+    def processInfoPacket(self, thisNodeID, thisJSON):
         keys=thisJSON.keys();
         if 'cmd' in keys:
-            thisNodeID=getNodeID(thisJSON);
             settings5.gClientList.NaaradNotify(thisNodeID,thisJSON['cmd'],thisJSON['source']);
         
     def addPacket(self,packet,thisJSON):

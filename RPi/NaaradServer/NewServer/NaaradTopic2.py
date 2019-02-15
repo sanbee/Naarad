@@ -3,13 +3,7 @@ from threading import Thread;
 import settings5;
 import time;
 import json;
-
-def getNodeID(jdict):
-    if ("node" in jdict.keys()):
-        return jdict['node'];
-    if ("node_id" in jdict.keys()):
-        return jdict['node_id'];
-    raise ValueError("Node ID not found");
+import NaaradUtils as Utils;
 
 # Class to create a topic of type name.  In implementation, this is a
 # thread that listens for in-coming packets on the serial connection
@@ -78,12 +72,12 @@ class NaaradTopic (Thread):
                         # for ACK packets only.  Currnet packet is the
                         # right-most packet in the gPacketHistory
                         # queue.
-                        nodeID=getNodeID(jdict);
+                        nodeID=Utils.getNodeID(jdict);
                         settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
                             self.pktHndlr.addPacket(line,jdict);
                         else:
-                            self.pktHndlr.processInfoPacket(line,jdict);
+                            self.pktHndlr.processInfoPacket(nodeID, jdict);
                             #self.addPacket(line,jdict);
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());

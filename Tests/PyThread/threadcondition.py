@@ -153,7 +153,7 @@ class clientThread(Thread):
         global counter, ClientList;
         while(True):
             with self.cond:
-                self.cond.wait();
+                self.cond.wait(None);
                 print "CT: ",self.myid,counter;
 
 #            if (counter%self.nn == 0):
