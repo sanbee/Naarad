@@ -47,7 +47,7 @@ class mysocket:
         snd_msg = str(msglen)+' '+msg;
         snd_msg = snd_msg.strip()+postfix;
         msglen = len(snd_msg);
-#        print "Sending: \""+snd_msg+"\"";
+        #print "Sending: \""+snd_msg+"\"";
         totalsent = 0;
         try:
             while (totalsent < msglen):
@@ -72,7 +72,7 @@ class mysocket:
             if (bytes_recd == 0):
                 return "";
             preamble = preamble.strip();
-            #print("### "+preamble);
+            #print("Preamble: "+preamble);
             pktlen_str = preamble.split(' ')[0];
             len_len    = len(pktlen_str);
             if (len(pktlen_str) == 0):
@@ -91,7 +91,8 @@ class mysocket:
                     raise RuntimeError("socket connection broken")
                 #print(chunks,'+',chunk0);
                 chunk0 = chunk0.decode('utf-8').rstrip();
-                chunks = chunks + '  '+chunk0;
+                #chunks = chunks + '  '+chunk0;
+                chunks = chunks + chunk0;
                 bytes_recd = bytes_recd + len(chunks)
         except SocketError as e:
             if e.errno == errno.ECONNRESET:
