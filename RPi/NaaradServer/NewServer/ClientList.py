@@ -5,8 +5,18 @@ from ThreadSafeList import *;
 class ClientList():
     def __init__(self):
         # Lists with thread-safe methods
+
+        # List of node IDs for which some cleint thread is awaiting notification.  The
+        # IDs need not be unique in this list.  E.g. if two separate threads are awaiting
+        # notification of packets from the same node ID, there will to entries in this
+        # list.  The discriminator for the two clients wil be the associated entires in
+        # the CondList.
         self.IDList = ThreadSafeList();
+        # List of threading.Condition objects associated with each entry in the IDList
         self.CondList = ThreadSafeList();
+        # List of packet signatures assocaited with each entry in the IDList.  This
+        # determines if the packet from the assocaited node ID is valid for issuing a
+        # notification via the associated Condition in the CondLIst.
         self.PacketIDList = ThreadSafeList();
         self.rlock = RLock();
 
@@ -50,9 +60,10 @@ class ClientList():
             self.PacketIDList.append(pktID);
         return myIndex;
 
-    # Using the lock of the thread calling this method to uniquely identify the thread in
-    # the list of threads.  This assumes that the private lock of each thread will not be
-    # equal to the similar private lock of any other thread.
+    # Using the lock of the thread (entry in the CondList) calling this method to
+    # uniquely identify the thread in the list of threads.  This assumes that the private
+    # lock of each thread will not be equal to the similar private lock of any other
+    # thread.
     def unregister(self,myCond):
         with self.rlock:
             try:
