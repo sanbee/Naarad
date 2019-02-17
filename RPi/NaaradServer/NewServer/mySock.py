@@ -54,7 +54,9 @@ class mysocket:
                 sent = self.sock.send(snd_msg[totalsent:].encode("UTF-8"))
                 if sent == 0:
                     raise RuntimeError("socket connection broken")
+                #print "\'",snd_msg[totalsent:],"\'",totalsent;
                 totalsent = totalsent + sent
+                #print totalsent;
         except SocketError as e:
             if e.errno != errno.ECONNRESET:
                 raise RuntimeError("mySock::send: connection reset by peer")
@@ -66,14 +68,15 @@ class mysocket:
         #bytes_recd = 0
         try:
             preamble   = self.sock.recv(16);
-            preamble = preamble.decode('utf-8').rstrip();
-
             bytes_recd = len(preamble);
+            #print("Preamble: \'"+preamble+"\'");
+            preamble = preamble.decode('utf-8');#.rstrip();
+
             if (bytes_recd == 0):
                 return "";
-            preamble = preamble.strip();
-            #print("Preamble: "+preamble);
+            #preamble = preamble.strip();
             pktlen_str = preamble.split(' ')[0];
+            #print("Preamble: \'"+preamble+"\'",pktlen_str);
             len_len    = len(pktlen_str);
             if (len(pktlen_str) == 0):
                 return "";
@@ -90,7 +93,9 @@ class mysocket:
                 if chunk0 == '':
                     raise RuntimeError("socket connection broken")
                 #print(chunks,'+',chunk0);
-                chunk0 = chunk0.decode('utf-8').rstrip();
+                #chunk0 = chunk0.decode('utf-8').rstrip();
+                chunk0 = chunk0.decode('utf-8');
+                #print(chunks,chunk0);
                 #chunks = chunks + '  '+chunk0;
                 chunks = chunks + chunk0;
                 bytes_recd = bytes_recd + len(chunks)
