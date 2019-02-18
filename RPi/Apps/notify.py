@@ -38,17 +38,21 @@ def main(argv):
                     naaradSoc.send("open");time.sleep(0.1);
                     naaradSoc.send(FULLCMD);time.sleep(0.1);
                     tt=naaradSoc.receive();
-                    print tt,"   : Trial ",Retry;
                     jdict=json.loads(tt);
-                    print time.time()*1000 - jdict['time'];
+                    dt=time.time()*1000 - jdict['time'];
+                    naaradSoc.send("done");time.sleep(0.1);
+                    naaradSoc.close();
 
-                    if ((time.time()*1000 - jdict['time']) > 1500.0):
+                    if (dt > 1500.0):
                         Retry += 1;
                     else:
-                        Retry = nRETRIALS+1;
+                        break;
 
-                        naaradSoc.send("done");time.sleep(0.1);
-                        naaradSoc.close();
+                if ((Retry >= nRETRIALS) or (dt > 1500.0)):
+                    print "FAILED: ",tt,"   : Trial ",Retry,dt
+                else:
+                    print tt,"   : Trial ",Retry,dt
+
             except MyException as e:
                 print str(e);
 
