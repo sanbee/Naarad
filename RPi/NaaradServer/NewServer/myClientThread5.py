@@ -1,6 +1,7 @@
 import os, tempfile;#, threading;
 from threading import Thread,Condition;
 import settings5;
+import NaaradUtils as Utils;
 import select;
 import socket;
 
@@ -229,7 +230,9 @@ class ClientThread (Thread):
                         settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
                         with notifyOnCond:
                             notifyOnCond.wait(timeOut);
-                            self.myc1.send(settings5.gCurrentPacket[notifyForNodeID]);
+                            cpkt=settings5.gCurrentPacket[notifyForNodeID];
+                            # Utils.modifyJSON(jdict,keyword,value,op=0):
+                            self.myc1.send(cpkt);
                         settings5.gClientList.unregister(notifyOnCond);
                         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
                     else:

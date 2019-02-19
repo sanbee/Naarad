@@ -106,31 +106,20 @@ class PacketHandler():
         if ((settings5.gTimeStamp0Cache[nodeid] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > self.historyLength)):#1800000):
             settings5.gTimeStamp0Cache[nodeid] = -1;
 
-    def modifyJSON(self,jdict,keyword,value,op=0):
-        #        jdict=json.loads(jsonStr);
-        if (op == 0): # add
-            for i in range(len(keyword)):
-                jdict[keyword[i]]=value[i];
-        if (op == 1): # delete
-            for i in range(len(keyword)):
-                del jdict[keyword[i]];
-        return jdict;
-       #   return json.dumps(jdict);
-
     def convertV0ToV31(self,jsonDict):
 #        jdict=json.loads(jsonStr);
 
         keywords=["name",             "unit",    "value"]; # Added these keywords....
         values     =["temperature",  "C",        jsonDict["degc"]]; #...with these values.
 
-        xx=self.modifyJSON(jsonDict,keywords,values,0);
+        xx=Utils.modifyJSON(jsonDict,keywords,values,0);
         return json.dumps(jsonDict);
         
     def addTimeStamp(self,jsonStr):
         try:
             jdict=json.loads(jsonStr);
             keywords=["time"]; values=[time.time()*1000.0];
-            self.modifyJSON(jdict,keywords,values,0); # Add time=value
+            Utils.modifyJSON(jdict,keywords,values,0); # Add time=value
             return json.dumps(jdict);
         except(ValueError) as excpt:
             print("Not a JSON string: %s"%jsonStr);
