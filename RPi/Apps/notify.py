@@ -18,7 +18,7 @@ def NaaradSend(mesg):
     naaradSoc=mysocket();
     naaradSoc.connect(SERVER,PORT);
     naaradSoc.send("open");time.sleep(0.1);
-    naaradSoc.send(FULLCMD);time.sleep(0.1);
+    naaradSoc.send(mesg);time.sleep(0.1);
     packet=naaradSoc.receive();
     naaradSoc.send("done");time.sleep(0.1);
     naaradSoc.close();
