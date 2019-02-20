@@ -19,10 +19,10 @@ def modifyJSON(jdict,keyword,value,op=0):
     return jdict;
     #   return json.dumps(jdict);
 
-def addTimeStamp(jsonStr):
+def addTimeStamp(name,jsonStr):
     try:
         jdict=json.loads(jsonStr);
-        keywords=["time"]; values=[time.time()*1000.0];
+        keywords=[name]; values=[time.time()*1000.0];
         modifyJSON(jdict,keywords,values,0); # Add time=value
         return json.dumps(jdict);
     except(ValueError) as excpt:
