@@ -1,3 +1,6 @@
+import json;
+import time;
+
 def getNodeID(jdict):
     if ("node" in jdict.keys()):
         return jdict['node'];
@@ -20,7 +23,7 @@ def addTimeStamp(jsonStr):
     try:
         jdict=json.loads(jsonStr);
         keywords=["time"]; values=[time.time()*1000.0];
-        Utils.modifyJSON(jdict,keywords,values,0); # Add time=value
+        modifyJSON(jdict,keywords,values,0); # Add time=value
         return json.dumps(jdict);
     except(ValueError) as excpt:
         print("Not a JSON string: %s"%jsonStr);
