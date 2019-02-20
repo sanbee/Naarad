@@ -231,7 +231,7 @@ class ClientThread (Thread):
                         with notifyOnCond:
                             notifyOnCond.wait(timeOut);
                             cpkt=settings5.gCurrentPacket[notifyForNodeID];
-                            Utils.addTimeStamp("tnot",cpkt);
+                            cpkt=Utils.addTimeStamp("tnot",cpkt);
                             self.myc1.send(cpkt);
                         settings5.gClientList.unregister(notifyOnCond);
                         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
