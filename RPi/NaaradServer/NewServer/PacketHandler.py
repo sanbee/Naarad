@@ -115,15 +115,15 @@ class PacketHandler():
         xx=Utils.modifyJSON(jsonDict,keywords,values,0);
         return json.dumps(jsonDict);
         
-    def addTimeStamp(self,jsonStr):
-        try:
-            jdict=json.loads(jsonStr);
-            keywords=["time"]; values=[time.time()*1000.0];
-            Utils.modifyJSON(jdict,keywords,values,0); # Add time=value
-            return json.dumps(jdict);
-        except(ValueError) as excpt:
-            print("Not a JSON string: %s"%jsonStr);
-            return jsonStr;
+    # def addTimeStamp(self,jsonStr):
+    #     try:
+    #         jdict=json.loads(jsonStr);
+    #         keywords=["time"]; values=[time.time()*1000.0];
+    #         Utils.modifyJSON(jdict,keywords,values,0); # Add time=value
+    #         return json.dumps(jdict);
+    #     except(ValueError) as excpt:
+    #         print("Not a JSON string: %s"%jsonStr);
+    #         return jsonStr;
         
     def addTimeStamp_Old(self,jsonStr):
         tok = jsonStr.split()

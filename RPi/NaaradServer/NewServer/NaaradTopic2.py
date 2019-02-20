@@ -55,7 +55,8 @@ class NaaradTopic (Thread):
             line=line.replace(" }}", " }");
 
             print("@@@: "+line);
-            line = self.pktHndlr.addTimeStamp(line);
+            #line = self.pktHndlr.addTimeStamp(line);
+            line = Utils.addTimeStamp(line);
             #print("###: "+line);
                 
             rlock = threading.RLock();
