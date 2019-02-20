@@ -149,7 +149,7 @@ class ClientThread (Thread):
                 tok="";
                 #print("M="+msg);
                 if (len(msg) > 0):
-                    print "MSG: "+msg;
+                    #print "MSG: "+msg;
                     tok=msg.strip().split();
                 if (len(tok) > 0):
                     cmd = tok[0].strip()

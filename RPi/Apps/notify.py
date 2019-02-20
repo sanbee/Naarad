@@ -17,14 +17,18 @@ class MyException(Exception):
 def NaaradSend(mesg):
     naaradSoc=mysocket();
     naaradSoc.connect(SERVER,PORT);
-    naaradSoc.send("open");time.sleep(0.1);
-    naaradSoc.send(mesg);time.sleep(0.1);
+    naaradSoc.send("open");     time.sleep(0.1);
+    naaradSoc.send(mesg);       time.sleep(0.1);
     packet=naaradSoc.receive();
-    naaradSoc.send("done");time.sleep(0.1);
+    naaradSoc.send("done");     time.sleep(0.1);
     naaradSoc.close();
 
     jdict=json.loads(packet);
-    dt=time.time()*1000 - jdict['time'];
+    
+    # "time" is the time-stamp of the arrival of the packet on the server.  "tnot" is the
+    # time-stamp when the notification was issued and the packets sent to the client.
+    # Both time-stamps use the RTC of the server.
+    dt=jdict["tnot"] - jdict['time'];
     return packet,dt;
 
 def notify(argv):
@@ -36,7 +40,7 @@ def notify(argv):
     The argument is a sys.argv styled list of strings.  The first
     string (argv[0]) is typically the name of the script calling this
     function (here, "notify.py").  It is ignored and therefore can be
-    any string.  The rest of the string are in the following order:
+    any string.  The rest of the strings are in the following order:
 
        "notify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
 
