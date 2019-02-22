@@ -42,10 +42,13 @@ class mysocket:
     def send(self, msgIn,postfix=""):
         msg = msgIn.strip();
         msglen = len(msg+' ');
-        msglen = msglen+len(str(msglen));
+        msglen_str=format(msglen,'05d');
+        msglen = msglen+len(msglen_str);
+        msglen_str=format(msglen,'05d');
 
-        snd_msg = str(msglen)+' '+msg;
-        snd_msg = snd_msg.strip()+postfix;
+        snd_msg = msglen_str+' '+msg;
+        #snd_msg = snd_msg.strip()+postfix;
+        snd_msg = snd_msg+postfix;
         msglen = len(snd_msg);
         #print "Sending: \""+snd_msg+"\"";
         totalsent = 0;
@@ -81,7 +84,7 @@ class mysocket:
             if (len(pktlen_str) == 0):
                 return "";
         
-            MSGLEN     = eval(pktlen_str);
+            MSGLEN     = int(pktlen_str);
             chunks      = preamble[len_len:];
             # if (len(chunks) == 0):
             #     return "";
