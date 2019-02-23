@@ -19,7 +19,7 @@ def NaaradSend(mesg):
     naaradSoc.connect(SERVER,PORT);
     naaradSoc.send("open");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);
-    packet=naaradSoc.receive();
+    packet=naaradSoc.receive(True); # Do a blocking read
     naaradSoc.send("done");     time.sleep(0.1);
     naaradSoc.close();
 

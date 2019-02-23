@@ -2,9 +2,13 @@ import socket;
 from socket import error as SocketError
 import errno
 
+SOC_MSGLEN_DIGITS=5;
+SOC_RECV_TIMEOUT=1.0;
+SOC_RECV_TRIALS=5;
+SOC_FMT_MSGLEN='0'+str(SOC_MSGLEN_DIGITS)+'d'; # E.g., '05d'
+
 class mysocket:
-    '''demonstration class only
-      - coded for clarity, not efficiency
+    '''Socket wrapper class with robust send and recevie methods
     '''
 
     def __init__(self, sock=None):
@@ -13,7 +17,7 @@ class mysocket:
                 socket.AF_INET, socket.SOCK_STREAM)
         else:
             self.sock = sock
-        self.inactivityLevel=0;
+        #self.inactivityLevel=0;
 
     def fileno(self):
         return self.sock.fileno();
@@ -30,24 +34,26 @@ class mysocket:
     def setblocking(self,mode):
         self.sock.setblocking(mode);
 
-    def incrementInactivityLevel(self):
-        self.inactivityLevel=self.inactivityLevel+1;
+    # def incrementInactivityLevel(self):
+    #     self.inactivityLevel=self.inactivityLevel+1;
 
-    def resetInactivityLevel(self):
-        self.inactivityLevel=0;
+    # def resetInactivityLevel(self):
+    #     self.inactivityLevel=0;
 
-    def getInactivityLevel(self):
-        return self.inactivityLevel;
+    # def getInactivityLevel(self):
+    #     return self.inactivityLevel;
+
+    # Covert the given number to string in a fixed format.
+    def intToStr(self,i):
+        return format(i,SOC_FMT_MSGLEN);
 
     def send(self, msgIn,postfix=""):
-        msg = msgIn.strip();
-        msglen = len(msg+' ');
-        msglen_str=format(msglen,'05d');
+        msglen = len(msgIn+' ');
+        msglen_str=self.intToStr(msglen);
         msglen = msglen+len(msglen_str);
-        msglen_str=format(msglen,'05d');
+        msglen_str=self.intToStr(msglen);
 
-        snd_msg = msglen_str+' '+msg;
-        #snd_msg = snd_msg.strip()+postfix;
+        snd_msg = msglen_str+' '+msgIn;
         snd_msg = snd_msg+postfix;
         msglen = len(snd_msg);
         #print "Sending: \""+snd_msg+"\"";
@@ -57,58 +63,66 @@ class mysocket:
                 sent = self.sock.send(snd_msg[totalsent:].encode("UTF-8"))
                 if sent == 0:
                     raise RuntimeError("socket connection broken")
-                #print "\'",snd_msg[totalsent:],"\'",totalsent;
+
                 totalsent = totalsent + sent
-                #print totalsent;
+
         except SocketError as e:
             if e.errno != errno.ECONNRESET:
                 raise RuntimeError("mySock::send: connection reset by peer")
             else:
                 raise RuntimeError("mySock::send: unknown socket error"); 
     
-    def receive(self):
-        chunks     = []
-        #bytes_recd = 0
+    # Read N chars from the socket with a timeout.  Make
+    # SOC_RECV_TRIALS number of trials.
+    def getNChar(self,n,blocking):
+        bytesRecvd=0;
+        val='';
+        trials=0;
+        if (blocking==False):
+            self.sock.settimeout(SOC_RECV_TIMEOUT);
+        while ((bytesRecvd < n) and (trials < SOC_RECV_TRIALS)):
+            val += self.sock.recv(min(n - bytesRecvd, 2048));
+            bytesRecvd += len(val);
+            trials += 1;
+        self.sock.settimeout(0.0);# Set the socket to blocking
+        return val.decode('utf-8'), bytesRecvd;
+
+    def receive(self,doblocking=True):
+        chunks     = [];
+
         try:
-            preamble   = self.sock.recv(16);
-            bytes_recd = len(preamble);
+            # Get the packet length
+            preamble, bytes_recd = self.getNChar(SOC_MSGLEN_DIGITS,doblocking);
+
+            # Guard against incomplete read of the packet length.  Can't recover from this.
+            if ((bytes_recd > 0) and (bytes_recd < SOC_MSGLEN_DIGITS)):
+                raise RuntimeError("could not read "+str(SOC_MSGLEN_DIGITS)+" chars to get the msg len from socket");
+
             #print("Preamble: \'"+preamble+"\'");
-            preamble = preamble.decode('utf-8');#.rstrip();
 
             if (bytes_recd == 0):
                 return "";
-            #preamble = preamble.strip();
+
             pktlen_str = preamble.split(' ')[0];
-            #print("Preamble: \'"+preamble+"\'",pktlen_str);
             len_len    = len(pktlen_str);
             if (len(pktlen_str) == 0):
                 return "";
         
-            MSGLEN     = int(pktlen_str);
-            chunks      = preamble[len_len:];
-            # if (len(chunks) == 0):
-            #     return "";
-            #bytes_recd = len(chunks);
+            MSGLEN     = int(pktlen_str)-len_len;
+            chunks     = preamble[len_len:];
             #print ("len=",MSGLEN, "bytes_recd=",bytes_recd,"chunks="+chunks, "preamble="+preamble);
 
-            while (bytes_recd < MSGLEN):
-                chunk0 = self.sock.recv(min(MSGLEN - bytes_recd, 2048))
-                if chunk0 == '':
-                    raise RuntimeError("socket connection broken")
-                #print(chunks,'+',chunk0);
-                #chunk0 = chunk0.decode('utf-8').rstrip();
-                chunk0 = chunk0.decode('utf-8');
-                #print(chunks,chunk0);
-                #chunks = chunks + '  '+chunk0;
-                chunks = chunks + chunk0;
-                bytes_recd = bytes_recd + len(chunks)
+            # Now get the rest of the packet who's length is now known.
+            chunk0, N = self.getNChar(MSGLEN,doblocking);
+            if chunk0 == '':
+                raise RuntimeError("socket connection broken");
+            chunks += chunk0;
+
         except SocketError as e:
             if e.errno == errno.ECONNRESET:
                 raise RuntimeError("mySock::receive: connection reset by peer"); 
             else:
                 raise;
-#                raise RuntimeError("mySock::receive: unknown socket error"); 
             return "";
 
-        #print( "All chunks="+chunks);
         return ''.join(chunks)
