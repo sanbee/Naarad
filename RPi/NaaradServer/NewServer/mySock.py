@@ -112,7 +112,10 @@ class mysocket:
         try:
             # Get the packet length
             #preamble, bytes_recd = self.getNChar(SOC_MSGLEN_DIGITS,doblocking);
-            preamble, bytes_recd = self.getNChar(16,doblocking);
+            #preamble, bytes_recd = self.getNChar(16,doblocking);
+            preamble = self.sock.recv(16);
+            preamble = preamble.decode('utf-8');
+            bytes_recd=len(preamble);
 
             # Guard against incomplete read of the packet length.  Can't recover from this.
             if ((bytes_recd > 0) and (bytes_recd < SOC_MSGLEN_DIGITS)):
