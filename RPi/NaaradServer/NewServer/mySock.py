@@ -47,6 +47,25 @@ class mysocket:
     def intToStr(self,i):
         return format(i,SOC_FMT_MSGLEN);
 
+    def send_tst(self,msgIn):
+        snd_msg = msgIn;
+        msglen = len(snd_msg);
+        print "Sending: \""+snd_msg+"\"";
+        totalsent = 0;
+        try:
+            while (totalsent < msglen):
+                sent = self.sock.send(snd_msg[totalsent:].encode("UTF-8"))
+                if sent == 0:
+                    raise RuntimeError("socket connection broken")
+
+                totalsent = totalsent + sent
+
+        except SocketError as e:
+            if e.errno != errno.ECONNRESET:
+                raise RuntimeError("mySock::send: connection reset by peer")
+            else:
+                raise RuntimeError("mySock::send: unknown socket error"); 
+        
     def send(self, msgIn,postfix=""):
         msglen = len(msgIn+' ');
         msglen_str=self.intToStr(msglen);
@@ -56,7 +75,7 @@ class mysocket:
         snd_msg = msglen_str+' '+msgIn;
         snd_msg = snd_msg+postfix;
         msglen = len(snd_msg);
-        #print "Sending: \""+snd_msg+"\"";
+        print "Sending: \""+snd_msg+"\"";
         totalsent = 0;
         try:
             while (totalsent < msglen):
@@ -78,13 +97,13 @@ class mysocket:
         bytesRecvd=0;
         val='';
         trials=0;
-        if (blocking==False):
-            self.sock.settimeout(SOC_RECV_TIMEOUT);
+        # if (blocking==False):
+        #     self.sock.settimeout(SOC_RECV_TIMEOUT);
         while ((bytesRecvd < n) and (trials < SOC_RECV_TRIALS)):
             val += self.sock.recv(min(n - bytesRecvd, 2048));
             bytesRecvd += len(val);
             trials += 1;
-        self.sock.settimeout(0.0);# Set the socket to blocking
+        # self.sock.settimeout(0.0);# Set the socket to blocking
         return val.decode('utf-8'), bytesRecvd;
 
     def receive(self,doblocking=True):
@@ -92,13 +111,14 @@ class mysocket:
 
         try:
             # Get the packet length
-            preamble, bytes_recd = self.getNChar(SOC_MSGLEN_DIGITS,doblocking);
+            #preamble, bytes_recd = self.getNChar(SOC_MSGLEN_DIGITS,doblocking);
+            preamble, bytes_recd = self.getNChar(16,doblocking);
 
             # Guard against incomplete read of the packet length.  Can't recover from this.
             if ((bytes_recd > 0) and (bytes_recd < SOC_MSGLEN_DIGITS)):
                 raise RuntimeError("could not read "+str(SOC_MSGLEN_DIGITS)+" chars to get the msg len from socket");
 
-            #print("Preamble: \'"+preamble+"\'");
+            print("Preamble: \'"+preamble+"\'");
 
             if (bytes_recd == 0):
                 return "";
@@ -108,15 +128,18 @@ class mysocket:
             if (len(pktlen_str) == 0):
                 return "";
         
-            MSGLEN     = int(pktlen_str)-len_len;
             chunks     = preamble[len_len:];
+            MSGLEN     = int(pktlen_str)-bytes_recd;
+            print ("###pktlen_str:",pktlen_str,len_len,chunks,MSGLEN);
+
             #print ("len=",MSGLEN, "bytes_recd=",bytes_recd,"chunks="+chunks, "preamble="+preamble);
 
             # Now get the rest of the packet who's length is now known.
-            chunk0, N = self.getNChar(MSGLEN,doblocking);
-            if chunk0 == '':
-                raise RuntimeError("socket connection broken");
-            chunks += chunk0;
+            if (MSGLEN > 0):
+                chunk0, N = self.getNChar(MSGLEN,doblocking);
+                if chunk0 == '':
+                    raise RuntimeError("socket connection broken");
+                chunks += chunk0;
 
         except SocketError as e:
             if e.errno == errno.ECONNRESET:

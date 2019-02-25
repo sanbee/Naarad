@@ -23,6 +23,6 @@ def startServer():
         connectionType=myc1.receive().strip();
         print ("connection accepted",address,connectionType);
         msg = myc1.receive();
-        print msg;
+        print "\'"+msg+"\'";
 
 startServer();
