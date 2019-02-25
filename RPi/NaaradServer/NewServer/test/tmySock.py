@@ -9,6 +9,7 @@ def start(argv):
     #msg="notify 16 00 ACKpkt: 120";
 
     msg="17 SensorDataSync11 gethpkt 1";
+    msg="00125 {\"node_v\": 2.44, \"node_p\": -45, \"rf_fail\": 0, \"source\": \"RS0\", \"node_id\": 1, \"time\": 1551065118100.7131, \"degc\": 18.22}"
 #    msg="00020 SensorDataSync00014 gethpkt 1";
     mysock.send_tst(msg);
 

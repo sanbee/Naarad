@@ -1,0 +1,34 @@
+                                                             Feb 24, 2019
+1. mySock::send/receive have been made robust.
+   send() sends the length of the message as the initial 5-digits in '05d' format.
+   receive() parses the first 5 characters as the total number of bytes to read. 
+     Reading is done via getNChar(), which can be setup to with a timeout. It makes 
+     a few trials to read the number of chars it has been asked to read.
+
+     receive() then also checks if at least 5 chars are read. Failing which an exception
+     is raised since the process cannot recover if it can't determine the number of bytes
+     to read.
+
+2. This works well with all the RPi Apps.  
+
+3. Does not work with the aNaarad Android app. 
+     - The app has a bug in counting the number of bytes of the message in NaaradUtils.java::mkMessage().
+       The message length n is converted to total message length as:
+
+          lenStr=Integer.toString(n);
+          totalLen =lenStr.length() + n + 1;
+          lenStr=Integer.toString(totalLen);
+          msg = lenStr + " " + message;
+
+       This produces an off-by-one error.  If n=9, lenStr is 1 while totalLen is 11 which requires 2 characters.
+       In this case, totalLen should be 12 to include both the digits.
+
+       The only robust way to handle this is to use fixed number of digits for the lenStr.
+
+4. Attempt is made in mySock::receive() to recreate the current functionality (which works with Android app's 
+   buggy code above) by focing a read of 16 characters in the the initial read in receive() to determine the
+   total length of the message.  This however does not work for reasons I don't yet understand.
+
+     - When the aNaarad app sends the "gethpkt 1" command, that command is received and parsed correctly at RPi.
+     - Send the packets are sent to aNaarad, the app does not respond.  Don't know why.  Perhaps the apps receiver 
+       is not handling the 5-char long lenght-of-message preable in the message.
