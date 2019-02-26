@@ -32,3 +32,7 @@
      - When the aNaarad app sends the "gethpkt 1" command, that command is received and parsed correctly at RPi.
      - Send the packets are sent to aNaarad, the app does not respond.  Don't know why.  Perhaps the apps receiver 
        is not handling the 5-char long lenght-of-message preable in the message.
+
+5. Now using code from RobustSendRecv branch, which works.
+     - The initial recv in receiver() to get the length of the packet is the raw sock.recv(16).  That seems to 
+       work.  Don't know why.
