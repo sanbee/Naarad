@@ -234,6 +234,7 @@ class ClientThread (Thread):
                             cpkt=Utils.addTimeStamp("tnot",cpkt);
                             self.myc1.send(cpkt);
                         settings5.gClientList.unregister(notifyOnCond);
+                        break;
                         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
                     else:
                         print ("Command ",msg," not understood");
