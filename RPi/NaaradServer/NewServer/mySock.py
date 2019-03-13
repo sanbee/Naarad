@@ -50,7 +50,7 @@ class mysocket:
     def send_tst(self,msgIn):
         snd_msg = msgIn;
         msglen = len(snd_msg);
-        print "Sending: \""+snd_msg+"\"";
+        #print "Sending: \""+snd_msg+"\"";
         totalsent = 0;
         try:
             while (totalsent < msglen):
@@ -75,7 +75,7 @@ class mysocket:
         snd_msg = msglen_str+' '+msgIn;
         snd_msg = snd_msg+postfix;
         msglen = len(snd_msg);
-        print "Sending: \""+snd_msg+"\"";
+        #print "Sending: \""+snd_msg+"\"";
         totalsent = 0;
         try:
             while (totalsent < msglen):
@@ -121,7 +121,7 @@ class mysocket:
             if ((bytes_recd > 0) and (bytes_recd < SOC_MSGLEN_DIGITS)):
                 raise RuntimeError("could not read "+str(SOC_MSGLEN_DIGITS)+" chars to get the msg len from socket");
 
-            print("Preamble: \'"+preamble+"\'");
+            #print("Preamble: \'"+preamble+"\'");
 
             if (bytes_recd == 0):
                 return "";
@@ -133,7 +133,7 @@ class mysocket:
         
             chunks     = preamble[len_len:];
             MSGLEN     = int(pktlen_str)-bytes_recd;
-            print ("###pktlen_str:",pktlen_str,len_len,chunks,MSGLEN);
+            #print ("###pktlen_str:",pktlen_str,len_len,chunks,MSGLEN);
 
             #print ("len=",MSGLEN, "bytes_recd=",bytes_recd,"chunks="+chunks, "preamble="+preamble);
 

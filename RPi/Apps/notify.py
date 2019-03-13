@@ -20,8 +20,9 @@ def NaaradSend(mesg):
     naaradSoc.send("open");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);
     packet=naaradSoc.receive(True); # Do a blocking read
-    naaradSoc.send("done");     time.sleep(0.1);
-    naaradSoc.close();
+    time.sleep(1);
+    #naaradSoc.send("done");     time.sleep(1);
+    #naaradSoc.close();
 
     jdict=json.loads(packet);
     
