@@ -20,7 +20,7 @@ def main(argv):
     	naaradSoc=mysocket();
     	naaradSoc.connect(SERVER,PORT);
     	naaradSoc.send("open");time.sleep(0.1);
-    	naaradSoc.send(CMD);#time.sleep(1);
+    	naaradSoc.send(CMD);time.sleep(0.1);
     	naaradSoc.send("done");time.sleep(0.1);
     	naaradSoc.close();
 

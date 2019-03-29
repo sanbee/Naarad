@@ -1,4 +1,4 @@
-/* -*-C-*- */
+/* -*-C++-*- */
 //--------------------------------------------------------------------------------------
 // ATtiny84 based wireless sensor (based on Tiny-Tx) and sprinkler
 // controller for DC latching solenoids.
@@ -51,6 +51,7 @@ char serialCount;
 
 
 #include "RemoteCmd.h"// The remote commands for sprinkler controller
+#include <Queue.h>
 //MilliTimer sendTimer;
 
 // Fixed RFM69CW settings
@@ -66,6 +67,7 @@ char serialCount;
 #define NOTHING_TO_SEND -1
 #define N_TRIALS 5
 #define N_LISTENERS 2
+#define TX_CMD_Q_LEN 5
 byte listenerNodeIDList[N_LISTENERS]={15,16};
 //####################################################################
 //Data Structure to be received 
@@ -76,9 +78,10 @@ typedef struct
   int supplyV;              // payload voltage
 } Payload;
 
-static Payload payload, TX_payload[N_LISTENERS];
+static Queue<Payload> TX_payload_q[N_LISTENERS] = Queue<Payload>(TX_CMD_Q_LEN);
+static Payload payload;//, TX_payload[N_LISTENERS][TX_CMD_Q_LEN];
 static byte rssi2, rssi1, rssiMantisa;
-static byte TX_counter[N_LISTENERS]={N_TRIALS+1,N_TRIALS+1};
+static byte TX_counter[N_LISTENERS];
 #define SET_CMD(p,v)      (p.supplyV = setByte(p.supplyV,v,1))
 #define SET_NODEID(p,v)   (p.supplyV = setByte(p.supplyV,v,0))
 #define SET_PORT(p,v)     (p.rx1 = setByte(p.rx1,v,1))
@@ -89,14 +92,12 @@ static byte TX_counter[N_LISTENERS]={N_TRIALS+1,N_TRIALS+1};
 #define GET_PORT(p)     (getByte(p.rx1,1))
 #define GET_TIMEOUT(p)  (getByte(p.rx1,0))
 
-#define INIT_TXPKT(n)  {						\
-    TX_payload[n].supplyV=0;						\
-    SET_NODEID(TX_payload[n],listenerNodeIDList[n]);			\
-    SET_CMD(TX_payload[n],NOOP);					\
-    SET_PORT(TX_payload[n],0);						\
-    SET_TIMEOUT(TX_payload[n],0);					\
+// Disable the front of the cmd queue for the nth listener.  This is done by pop'ing the
+// queue if it is not empty and setting the TX retry counter to the max. re-trial value.
+#define DISABLE_TXPKT(n) {						\
+    if (!TX_payload_q[n].isEmpty()) TX_payload_q[n].pop();		\
+    TX_counter[n]=N_TRIALS+1;						\
   }
-#define DISABLE_TXPKT(n) (TX_counter[n]=N_TRIALS+1) // Set the count to > allowed no. of trials
 #define ENABLE_TXPKT(n)  (TX_counter[n]=0) // Set the counter to zero, indicating that the TX pkt. needs is ready to be sent
 #define TXPKT_ENABLED(n)  (TX_counter[n] < N_TRIALS) // Check if TX counter is less than max. allowed trials
 
@@ -141,8 +142,8 @@ void setup()
 #endif
   delay(10);
   rf12_initialize(MYNODE, freq,group,1600 /*freqOffset*/);
-  
-  initOOKRadio();
+    
+  initOOKRadio(); 
   Serial.println(F("Receiver ready"));
   
   // Set the node ID in the TX_payload to invalid value to indicate
@@ -150,10 +151,14 @@ void setup()
   // set the TX mode to OFF.
   for (byte i=0;i<N_LISTENERS;i++)
     {
-      INIT_TXPKT(i)
-      DISABLE_TXPKT(i);        // TX_counter=N_TRIALS+1;
+      initTXPkt(i);
+      TX_counter[i]=N_TRIALS+1;
+      //      DISABLE_TXPKT(i);  
     }
   str.reset();            // Reset json string       
+
+  // for (int i=0;i<N_LISTENERS;i++)
+  //     TX_counter[i]=N_TRIALS+1;
 }
 //####################################################################
 void loop() 
@@ -165,6 +170,7 @@ void loop()
       
       // TX the sequence of 25 bits from char. 5 onwards via the RF TX
       // connected on outputRFTXPin
+
       if (strncmp(cmdStr, "SEND",4)==0)
 	{
 	  for (char i = 0; i < 5; i++) 
@@ -191,32 +197,40 @@ void loop()
 	  n=inList(v,listenerNodeIDList);
 	  if (n < N_LISTENERS)
 	    {
-	      TX_payload[n].supplyV=TX_payload[n].rx1=0;
-	      SET_NODEID(TX_payload[n],v);
+	      Payload P;
+	      P.supplyV=P.rx1=0;
+	      SET_NODEID(P,v);
 	      //TX_payload.rx1=v;  // The target node ID
 	  
 	      // CMD
 	      token=strtok(NULL,s);
 	      sscanf(token,D,&v);
-	      SET_CMD(TX_payload[n],v);
+	      SET_CMD(P,v);
 	      //TX_payload.supplyV=v;  // The command
 
 	      // PORT
 	      token=strtok(NULL, s);
 	      sscanf(token,D,&v);
-	      SET_PORT(TX_payload[n],v);
+	      SET_PORT(P,v);
 
 	      // TIMEOUT
 	      token=strtok(NULL, s);
 	      sscanf(token,D,&v);
-	      SET_TIMEOUT(TX_payload[n],v);
+	      SET_TIMEOUT(P,v);
+
+	      // If the front of the queue has the NOOP packet, remove it.
+	      if (!TX_payload_q[n].isEmpty() && GET_CMD(TX_payload_q[n].peek()) == NOOP) 
+		TX_payload_q[n].pop();
+	      TX_payload_q[n].push(P);
+
 	      // This is a debugging message printed as a JSON string on
 	      // the serial port with rf_fail:1 so that the server
 	      // listening on the serial port need not process it further.
-	      Serial.println("{\"rf_fail\":1,\"source\":\"Got RFM_SEND\",\"cmd\":"+String(GET_CMD(TX_payload[n]))
-			     +(",\"node\":") + String(GET_NODEID(TX_payload[n]))+s
-			     +(",\"param0\":") + String(GET_PORT(TX_payload[n]))+s
-			     +(",\"param1\":") + ("\"") + String(GET_TIMEOUT(TX_payload[n]))+" " +String(TX_counter[n])+("\" }\0"));
+	      Serial.println("{\"rf_fail\":1,\"source\":\"Got RFM_SEND\",\"cmd\":"+String(GET_CMD(P))
+			     +(",\"rx1\":")+String(P.rx1)+s
+			     +(",\"node\":") + String(GET_NODEID(P))+s
+			     +(",\"param0\":") + String(GET_PORT(P))+s
+			     +(",\"param1\":") + ("\"") + String(GET_TIMEOUT(P))+" " +String(TX_counter[n])+("\" }\0"));
 	    }
 	  else
 	    Serial.println("{\"rf_fail\":1,\"source\":\"ERROR RFM_SEND\",\"node\":"+String(v)+(" }\0"));
@@ -235,12 +249,31 @@ void loop()
 	  //Serial.println(val);
 	  //delay(10);
 	}
-      else if (strncmp(cmdStr, "GETR",4)==0)
-	{
-	  char *msg=NULL;
-	  while ((msg = readRFM69())==NULL);
-	  Serial.println(msg);
-	}
+      // Sim code
+      /* else if (strncmp(cmdStr, "GETR",4)==0) */
+      /* 	{ */
+      /* 	  char *msg=NULL; */
+      /* 	  while ((msg = readRFM69())==NULL); */
+      /* 	  Serial.println(msg); */
+      /* 	} */
+      // Sim code
+      // else if (strncmp(cmdStr, "RF12",4)==0)
+      // 	{
+      // 	  char *token; char s[2] = " ";const char *D="%d";
+      // 	  int v; byte n;
+
+      // 	  token=strtok(cmdStr+5, s);
+      // 	  sscanf(token,D,&v);  n=v;
+
+      // 	  SET_NODEID(RF12_DATA,v);
+      // 	  RX_NODEID=v;
+
+      // 	  token=strtok(NULL,s);
+      // 	  sscanf(token,D,&v);
+      // 	  SET_CMD(RF12_DATA,v);
+      // 	  SET_PORT(RF12_DATA, 1);
+      // 	  RF12_RECVDONE=true;
+      // 	}
       // Reset the command string
       seqReady = 0;
       serialCount = 0;
@@ -249,6 +282,10 @@ void loop()
   else  
     {
       char *msg=NULL;
+      //
+      // The RFM_SEND switch above loads the RFM_SEND command in
+      // TX_payload queue.  readRFM69() call below is the one which
+      // should POP out the payload from TX_payload (it's a 2D array),
       if ((msg = readRFM69())!=NULL)
         {
 	  Serial.println(msg);
@@ -286,17 +323,28 @@ static short int setByte(short int word, short int nibble, short int whichByte)
 //---------------------------------------------
 // Send payload data via RF
 //---------------------------------------------
-static void rfwrite(const int& nodendx)
+static void rfwrite(const Payload& P)
 {
   {
     rf12_sleep(-1);     //wake up RF module
     while (!rf12_canSend()) rf12_recvDone();
-    rf12_sendStart(0, &TX_payload[nodendx], sizeof TX_payload[nodendx]);
+    rf12_sendStart(0, &P, sizeof P);
     rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-    rf12_sendStart(0, &TX_payload[nodendx], sizeof TX_payload[nodendx]);
+    rf12_sendStart(0, &P, sizeof P);
     rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
     //       rf12_sleep(0);    //put RF module to sleep
   }
+}
+//####################################################################
+static void initTXPkt(const byte& n)
+{
+  Payload P;
+  P.supplyV=0;
+  SET_NODEID(P,listenerNodeIDList[n]);
+  SET_CMD(P,NOOP);
+  SET_PORT(P,0);
+  SET_TIMEOUT(P,0);
+  TX_payload_q[n].push(P);
 }
 //####################################################################
 static void makeJSON(const int& payload_nodeID)
@@ -312,19 +360,19 @@ static void makeJSON(const int& payload_nodeID)
   if (rssiMantisa) str.print(".5");  str.print((",\"source\":\"RS0\" }\0"));
 }
 //####################################################################
-static void printJSON(const byte* counter,const int& nodeid)
+static void printJSON(const byte& counterVal,const Payload& P)
 {
   Serial.println("{\"rf_fail\":1,\"source\":\"Sending RFM_SEND\""
-		 ",\"cmd\":"+String(GET_CMD(TX_payload[nodeid]))
-		 +(",\"node\":") + String(GET_NODEID(TX_payload[nodeid]))+(" ")
-		 +(",\"param0\":") + String(GET_PORT(TX_payload[nodeid]))+(" ")
-		 +(",\"param1\":") + ("\"") + String(GET_TIMEOUT(TX_payload[nodeid]))+(" ")
-		 +String(counter[nodeid])+("\" }\0")); 
+		 ",\"cmd\":"+String(GET_CMD(P))
+		 +(",\"node\":") + String(GET_NODEID(P))+(" ")
+		 +(",\"param0\":") + String(GET_PORT(P))+(" ")
+		 +(",\"param1\":") + ("\"") + String(GET_TIMEOUT(P))+(" ")
+		 +String(counterVal)+("\" }\0")); 
 }
 //####################################################################
-static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supplyV, byte& n)
+static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supplyV, const byte& n)
 {
-  // An ACK packet is detected using the following logic:
+  // Following logic determines if a packet is ACK packet:
   //
   //   1. If the nodeID from which the current packet was received is
   //      the same as the nodeID in the TX_payload (the target nodeID
@@ -338,16 +386,15 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
   // sent in the absence of any RFM_SEND command received on the
   // serial port).
   //
-  n = inList(rx_nodeID, listenerNodeIDList);
-  //  for(n=0;n<N_LISTENERS;n++) if (rx_nodeID == listenerNodeIDList[n]) break;
-  
-  if ((n < N_LISTENERS)  && (rx_nodeID == GET_NODEID(TX_payload[n])) && (rx_rx == TX_payload[n].rx1))
+  //  n = inList(rx_nodeID, listenerNodeIDList);
+  Payload P = TX_payload_q[n].peek();
+
+  if ((n < N_LISTENERS)  && (rx_nodeID == GET_NODEID(P)) && (rx_rx == P.rx1))
     {
-      Serial.println("{\"rf_fail\":1,\"source\":\"ACKpkt:\",\"cmd\":"+String(GET_CMD(TX_payload[n]))
-		     +(",\"node\":") + String(GET_NODEID(TX_payload[n]))
+      Serial.println("{\"rf_fail\":1,\"source\":\"ACKpkt:\",\"cmd\":"+String(GET_CMD(P))
+		     +(",\"node\":") + String(GET_NODEID(P))
 		     +(",\"p0\": ")+String(getByte(rx_rx,1))
 		     +(",\"p1\": ")+String(rx_nodeID)+(" }\0")); 
-      SET_CMD(TX_payload[n],NOOP);
       DISABLE_TXPKT(n);
       return true;
     }
@@ -358,31 +405,30 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
       return false;
     }
 }
-//####################################################################
-// If a CMD is available for the nodeID, copy it to TX_payload.  This
-// currently is a place-holder for copying TX payload from
-// NodeID-based caches to global TX_payload
-static void loadTxCmdForNode(const int& nodeID)
-{
-  //  SET_NODEID(TX_payload[nodeID],nodeID);
-  return;
-}
-//####################################################################
+//###################################################################################
+// Macros used on packets from RF12/RFM69CW
+//###################################################################################
 #define RX_CRC_OK()  ((rf12_crc == 0))
 #define RX_HDR_OK()  (((rf12_hdr & RF12_HDR_CTL) == 0))
 #define RX_NODEID()  ((rf12_hdr & 0x1F))
 
-static char* readRFM69() 
+static char* readRFM69()
 {
   int payload_nodeID=NOTHING_TO_SEND;
   bool isACK=false;
   byte listenerNdx=N_LISTENERS;
-  if (rf12_recvDone()) 
+  Payload P;
+
+  if (rf12_recvDone())
     {
       if (RX_CRC_OK() && RX_HDR_OK()) // Is the payload valid?
 	{
 	  payload_nodeID = RX_NODEID();   // Extract node ID from the received packet
 	  payload=*(Payload*) rf12_data;  // Get the payload
+
+	  listenerNdx = inList(payload_nodeID, listenerNodeIDList);
+	  // If the queue is empty, add a NOOP packet.
+	  if (TX_payload_q[listenerNdx].isEmpty()) initTXPkt(listenerNdx);
 
 	  // Determine if this is an ACK packet and return the index
 	  // of the listener in the global listenerNodeIDList array
@@ -393,9 +439,6 @@ static char* readRFM69()
 	{
 	  // Prepare the Tx payload, enable it for Tx and start a
 	  // timer for re-transmission cadence.
-
-	  loadTxCmdForNode(listenerNdx); // Is this required now?
-
 	  ENABLE_TXPKT(listenerNdx);
 	  lastPktSent[listenerNdx]=millis();
 	}
@@ -406,10 +449,12 @@ static char* readRFM69()
   for (listenerNdx=0;listenerNdx<N_LISTENERS;listenerNdx++)
     if (TXPKT_ENABLED(listenerNdx) && (millis() - lastPktSent[listenerNdx] > 200))
       {
-	printJSON(TX_counter,listenerNdx);
-	rfwrite(listenerNdx); // Trasmit the global TX_payload
-	lastPktSent[listenerNdx] = millis();
-	TX_counter[listenerNdx]++;
+	  P=TX_payload_q[listenerNdx].peek(); 
+
+	  printJSON(TX_counter[listenerNdx],P);
+	  rfwrite(P); // Trasmit the global TX_payload
+	  lastPktSent[listenerNdx] = millis();
+	  TX_counter[listenerNdx]++;
       }
   return (str.fill==0)?NULL:str.buf;
 }
@@ -464,7 +509,7 @@ void serialEvent()
 	{  
 	  cmdStr[serialCount] = (char)Serial.read(); 
 	  serialCount++;   
-          //Serial.print(cmdStr);
+          //Serial.println(cmdStr);
 	  //if (serialCount >= SEQ_LEN) seqReady = 1;
 	  if (cmdStr[serialCount-1] == '\n') seqReady=1;//serialCount = 0;
 	}

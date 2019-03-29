@@ -3,6 +3,8 @@ from threading import Thread;
 import settings5;
 import time;
 import json;
+import NaaradUtils as Utils;
+
 # Class to create a topic of type name.  In implementation, this is a
 # thread that listens for in-coming packets on the serial connection
 # to the UNO and conveys them to all sockets in the
@@ -53,7 +55,8 @@ class NaaradTopic (Thread):
             line=line.replace(" }}", " }");
 
             print("@@@: "+line);
-            line = self.pktHndlr.addTimeStamp(line);
+            #line = self.pktHndlr.addTimeStamp(line);
+            line = Utils.addTimeStamp("time",line);
             #print("###: "+line);
                 
             rlock = threading.RLock();
@@ -61,10 +64,21 @@ class NaaradTopic (Thread):
                 try:
                     if (("rf_fail" in line)):
                         jdict = json.loads(line);# The JSON parser
-                        #print jdict;
+                        # print jdict;
+
+                        # Always add the packet to the current packet
+                        # cache.
+                        #
+                        # NOTE TO SELF: This cache should become cache
+                        # for ACK packets only.  Currnet packet is the
+                        # right-most packet in the gPacketHistory
+                        # queue.
+                        nodeID=Utils.getNodeID(jdict);
+                        settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
-                            settings5.gCurrentPacket[jdict["node_id"]] = line;
                             self.pktHndlr.addPacket(line,jdict);
+                        else:
+                            self.pktHndlr.processInfoPacket(nodeID, jdict);
                             #self.addPacket(line,jdict);
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());

@@ -1,6 +1,7 @@
 import os, tempfile;#, threading;
-from threading import Thread;
+from threading import Thread,Condition;
 import settings5;
+import NaaradUtils as Utils;
 import select;
 import socket;
 
@@ -148,7 +149,7 @@ class ClientThread (Thread):
                 tok="";
                 #print("M="+msg);
                 if (len(msg) > 0):
-                    print "MSG: "+msg;
+                    #print "MSG: "+msg;
                     tok=msg.strip().split();
                 if (len(tok) > 0):
                     cmd = tok[0].strip()
@@ -216,6 +217,25 @@ class ClientThread (Thread):
                         if (len(tok) < 5):
                             raise(NaaradClientException("Usage: "+tok[0]+" CMD NODEID PORT TIMEOUT"));
                         self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]+" "+tok[3]+" "+tok[4]);
+                    elif (cmd=="notify"):
+                        notifyForNodeID=int(tok[1]);
+                        notifyForPktID=[int(tok[2]),str(tok[3])]; #[cmd,src]
+                        if (len(tok)<5):
+                            timeOut=None;
+                        else:
+                            timeOut = float(tok[4]);
+                        notifyOnCond=Condition();
+
+                        print ("Registerd: ",notifyForNodeID,notifyForPktID);
+                        settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
+                        with notifyOnCond:
+                            notifyOnCond.wait(timeOut);
+                            cpkt=settings5.gCurrentPacket[notifyForNodeID];
+                            cpkt=Utils.addTimeStamp("tnot",cpkt);
+                            self.myc1.send(cpkt);
+                        settings5.gClientList.unregister(notifyOnCond);
+                        break;
+                        #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
                     else:
                         print ("Command ",msg," not understood");
             except (RuntimeError):#, socket.error as e):

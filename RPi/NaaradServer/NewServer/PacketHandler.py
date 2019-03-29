@@ -2,6 +2,7 @@ import time;
 import json;
 import settings5;
 from collections import deque;
+import NaaradUtils as Utils;
 
 class PacketHandler():
     def __init__(self,hLength):
@@ -43,6 +44,12 @@ class PacketHandler():
         if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid,paramName]) > self.historyLength)):#1800000):
             settings5.gTimeStamp0Cache[nodeid,paramName] = -1;
 
+
+    def processInfoPacket(self, thisNodeID, thisJSON):
+        keys=thisJSON.keys();
+        if 'cmd' in keys:
+            settings5.gClientList.NaaradNotify(thisNodeID,thisJSON['cmd'],thisJSON['source']);
+        
     def addPacket(self,packet,thisJSON):
         keys=thisJSON.keys();
         if 'version' in keys:
@@ -55,7 +62,7 @@ class PacketHandler():
                 print("Param name: \""+thisJSON['name']+"\"");
         else:
             self.addPacket0(packet,thisJSON);
-#            print "V0->3.1: ",self.convertV0ToV31(thisJSON);
+            #            print "V0->3.1: ",self.convertV0ToV31(thisJSON);
             
     def addPacket0(self,packet,thisJSON):
         nodeid=thisJSON["node_id"];
@@ -99,35 +106,24 @@ class PacketHandler():
         if ((settings5.gTimeStamp0Cache[nodeid] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > self.historyLength)):#1800000):
             settings5.gTimeStamp0Cache[nodeid] = -1;
 
-    def modifyJSON(self,jdict,keyword,value,op=0):
-        #        jdict=json.loads(jsonStr);
-        if (op == 0): # add
-            for i in range(len(keyword)):
-                jdict[keyword[i]]=value[i];
-        if (op == 1): # delete
-            for i in range(len(keyword)):
-                del jdict[keyword[i]];
-        return jdict;
-       #   return json.dumps(jdict);
-
     def convertV0ToV31(self,jsonDict):
 #        jdict=json.loads(jsonStr);
 
         keywords=["name",             "unit",    "value"]; # Added these keywords....
         values     =["temperature",  "C",        jsonDict["degc"]]; #...with these values.
 
-        xx=self.modifyJSON(jsonDict,keywords,values,0);
+        xx=Utils.modifyJSON(jsonDict,keywords,values,0);
         return json.dumps(jsonDict);
         
-    def addTimeStamp(self,jsonStr):
-        try:
-            jdict=json.loads(jsonStr);
-            keywords=["time"]; values=[time.time()*1000.0];
-            self.modifyJSON(jdict,keywords,values,0); # Add time=value
-            return json.dumps(jdict);
-        except(ValueError) as excpt:
-            print("Not a JSON string: %s"%jsonStr);
-            return jsonStr;
+    # def addTimeStamp(self,jsonStr):
+    #     try:
+    #         jdict=json.loads(jsonStr);
+    #         keywords=["time"]; values=[time.time()*1000.0];
+    #         Utils.modifyJSON(jdict,keywords,values,0); # Add time=value
+    #         return json.dumps(jdict);
+    #     except(ValueError) as excpt:
+    #         print("Not a JSON string: %s"%jsonStr);
+    #         return jsonStr;
         
     def addTimeStamp_Old(self,jsonStr):
         tok = jsonStr.split()
