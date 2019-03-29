@@ -4,7 +4,13 @@ from ThreadSafeList import *;
 
 class ClientList():
     def __init__(self):
-        # Lists with thread-safe methods
+        # This class represents a collection of clients registered to receive
+        # notification on the arrival of a particular Naarad packet from a particular
+        # Naarad node.  This is a collection of lists of type ThreadSafeList, one each
+        # for the Naarad node ID (IDList) from which to watch for the requested packets,
+        # Condition (CondList) and PacketID (PacketIDList) for which notification is
+        # requested.  The requested packet is identified by the combination of the
+        # command and source in the packet.
 
         # List of node IDs for which some cleint thread is awaiting notification.  The
         # IDs need not be unique in this list.  E.g. if two separate threads are awaiting
@@ -60,10 +66,10 @@ class ClientList():
             self.PacketIDList.append(pktID);
         return myIndex;
 
-    # Using the lock of the thread (entry in the CondList) calling this method to
-    # uniquely identify the thread in the list of threads.  This assumes that the private
-    # lock of each thread will not be equal to the similar private lock of any other
-    # thread.
+    # Using the lock of the thread (entry in the CondList list), this method uniquely
+    # identifies the thread in the list of threads (CondList.findItem) and unregisters
+    # the client.  The ThreadSafeLists.findItem() call assumes that the private lock of
+    # each thread is unique.
     def unregister(self,myCond):
         with self.rlock:
             try:
