@@ -33,9 +33,10 @@ def NaaradSend(mesg):
     return packet,dt;
 
 def notify(argv):
-    """The function returns a packet received from a NODEID with the with
-    the specified command (CMD) and source (SOURCE).  Specified number
-    of re-trails are made if a valid packet is not received within the
+    """
+    The function returns a packet received from a NODEID with the
+    specified command (CMD) and source (SOURCE).  Specified number of
+    re-trails are made if a valid packet is not received within the
     given timeout length of time.
 
     The argument is a sys.argv styled list of strings.  The first
@@ -48,7 +49,7 @@ def notify(argv):
     The first argument above (argv[1]) has to be the string "notify".
     NODEID is the node-ID for which notification is sought and is the
     value of the 'node_id' or 'node' fields, whichever is available,
-    in the received pacakge.  CMD and SOURCE are the values of the
+    in the received packet.  CMD and SOURCE are the values of the
     'cmd' and 'source' fields in the received packet both of which
     must match the given values for the packet to be valid for
     notification. TIMEOUT is the length of time in seconds after which
@@ -63,7 +64,6 @@ def notify(argv):
     packet is no older than 1.5sec.  The packet as a JSON string and
     the different between the current time and time-stamp in the
     packet are both returned to the caller.
-
     """
     if (len(sys.argv) < 7):
         print("\nUsage: "+sys.argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
