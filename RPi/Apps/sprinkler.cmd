@@ -11,7 +11,7 @@ sleep 0.1
 ./cmdnaarad.py RFM_SEND 16 1 0 0  # Open the valve
 ./cmdnaarad.py RFM_SEND 16 1 0 0  # Open the valve
 ./notify.py notify 16 1 ACKpkt: 120 2 # Wait for a NoOp to be exectued
-sleep 40
+sleep 60
 ./cmdnaarad.py RFM_SEND 16 0 0 0  # Close the valve
 sleep 0.1
 ./cmdnaarad.py RFM_SEND 16 4 60 0 # Set ping timeout to 60 sec
