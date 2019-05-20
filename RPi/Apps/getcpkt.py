@@ -9,18 +9,22 @@ SERVER="naaradhost";
 SERVER="192.168.0.66";
 PORT=1234;
 
+def getcpkt(server,port, nodeid):
+    CMD="getcpkt "+str(nodeid);		
+    soc=mysocket();
+    soc.connect(server,port);
+    soc.send("open");time.sleep(0.1);
+    soc.send(CMD); time.sleep(0.1);
+    tt=soc.receive();
+    soc.send("done");time.sleep(0.1);
+    return tt;
+    
 
 def main(argv):
         if (len(sys.argv) < 2):
 		print "Usage: "+sys.argv[0]+" NODEID";
         else:
-            CMD="getcpkt "+str(sys.argv[1]);		
-            soc=mysocket();
-            soc.connect(SERVER,PORT);
-            soc.send("open");time.sleep(0.1);
-            soc.send(CMD); time.sleep(0.1);
-            tt=soc.receive();
-            soc.send("done");time.sleep(0.1);
+            tt=getcpkt(SERVER, PORT, sys.argv[1]);
             print tt;
 
 
