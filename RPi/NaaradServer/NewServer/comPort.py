@@ -19,6 +19,7 @@ class comPort:
         self.com1.bytesize=serial.EIGHTBITS; 
         self.com1.parity=serial.PARITY_NONE; 
         self.com1.stopbits=serial.STOPBITS_ONE;
+        self.users=0;
 
     def getSerial(self):
         return self.com1;
@@ -26,10 +27,14 @@ class comPort:
     def open(self):
         if (not self.com1.isOpen()):
             self.com1.open();
-        
+        self.users += 1;
+
     def close(self):
         if (self.com1.isOpen()):
-            self.com1.close();
+            if (self.users > 0):
+                self.users -= 1;
+            if (self.users==0):
+                self.com1.close();
 
     def send(self,str):
         self.com1.write((str+"\n").encode());
