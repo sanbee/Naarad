@@ -1,7 +1,7 @@
 from ClientList import ClientList;
 
 def init():
-    global NAARAD_COMPORT,NAARAD_PORT,NAARAD_MAXCONNECTIONS ;
+    global NAARAD_COMPORT,NAARAD_PORT,NAARAD_MAXCONNECTIONS,NAARAD_HISTORYLENGTH;
     global NAARAD_TOPIC_SENSORDATA,topicsSubscriberList,gCurrentPacket;
     global gPacketHistory, gTimeStamp0Cache,gTimeStamp1Cache,gValueCache;
     global NAARAD_NAMELESS_PACKETS;
@@ -11,6 +11,8 @@ def init():
     # Port number for the socket listening for incoming requests
     NAARAD_PORT=1234;
     NAARAD_MAXCONNECTIONS = 10;
+    # Amount of temporal history the server holds in milli-seconds. 
+    NAARAD_HISTORYLENGTH=6*60*60*1000.0; 
 
     NAARAD_NAMELESS_PACKETS = "NONAME";
 

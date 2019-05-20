@@ -18,13 +18,12 @@ class NaaradTopicException(Exception):
     pass;
 
 class NaaradTopic (Thread):
-    def __init__(self, name, uno, pktHndlr, hLength=6*60*60*1000.0):
+    def __init__(self, name, uno, pktHndlr):
         Thread.__init__(self)
         settings5.topicsSubscriberList[name]=[];
         print ("List of topics: ",settings5.topicsSubscriberList.keys());
         self.name = name;
         self.uno  = uno;
-        self.historyLength = hLength; # in minutes of time
         self.pktHndlr=pktHndlr;
 
     # Continuously read the serial connection to Arduino UNO (in
