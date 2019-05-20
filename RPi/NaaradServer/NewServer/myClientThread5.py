@@ -160,8 +160,10 @@ class ClientThread (Thread):
 
                 elif (cmd == "gett"):
                     print ("running cmd "+cmd+"@"+self.name);
+                    self.uno.open();
                     data=self.pogo.gettemp();
                     print ("GETT: ",data);
+                    self.uno.close();
                     #self.myc1.send(data.strip());
 
                 elif (cmd == "getnodelist"):
@@ -178,21 +180,29 @@ class ClientThread (Thread):
 
                 elif (cmd == "get"):
                     print ("running cmd "+cmd+"@"+self.name);
+                    self.uno.open();
                     data=self.pogo.getrtemp();
                     print ("Data = ",data);
+                    self.uno.close();
                     self.myc1.send(data.strip());
 
                 elif (cmd == "cget"):
                     while(self.uno.inWaiting() > 0):
+                        self.uno.open();
                         data=self.uno.readline();
+                        self.uno.close();
                         self.myc1.send(data.strip());
 
                 elif (cmd == "tell"):
                     if (len(tok) >= 3):
+                        self.uno.open();
                         self.pogo.tell(int(tok[1]),int(tok[2]));
+                        self.uno.close();
 
                 elif (cmd == "pogocmd"):
+                    self.uno.open();
                     val = self.pogo.sendCmd(cmd);
+                    self.uno.close();
                     #print ("MCTh: pogocmd = ",val);
                     self.myc1.send(val.strip());
 
@@ -205,7 +215,10 @@ class ClientThread (Thread):
                     #self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]);
                     if (len(tok) < 5):
                         raise(NaaradClientException("Usage: "+tok[0]+" CMD NODEID PORT TIMEOUT"));
-                    self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]+" "+tok[3]+" "+tok[4]);
+                    else:
+                        self.uno.open();
+                        self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]+" "+tok[3]+" "+tok[4]);
+                        self.uno.close();
 
                 elif (cmd=="notify"):
                     self.handleNotify(tok);
