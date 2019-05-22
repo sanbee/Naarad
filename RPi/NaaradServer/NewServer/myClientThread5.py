@@ -137,7 +137,6 @@ class ClientThread (Thread):
             cpkt=Utils.addTimeStamp("tnot",cpkt);
             self.myc1.send(cpkt);
         settings5.gClientList.unregister(notifyOnCond);
-        break;
         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
     #
     #--------------------------------------------------------------------------
@@ -209,7 +208,6 @@ class ClientThread (Thread):
                 elif (cmd == "done"):
                     #self.uno.close();
                     self.closeSock(self.myc1.getSock(), "good bye");
-                    break;
 
                 elif (cmd=="RFM_SEND"):
                     #self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]);
@@ -227,10 +225,8 @@ class ClientThread (Thread):
                     print ("Command ",msg," not understood");
         except (RuntimeError):#, socket.error as e):
             print ("ClientThread: Error during cmd handling.")
-            break;
         except NaaradClientException as e:
             print ("NaaradClientException: "+str(e));
-            break;
 
     #
     #--------------------------------------------------------------------------
