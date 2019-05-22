@@ -12,7 +12,7 @@ def init():
     NAARAD_PORT=1234;
     NAARAD_MAXCONNECTIONS = 10;
     # Amount of temporal history the server holds in milli-seconds. 
-    NAARAD_HISTORYLENGTH=6*60*60*1000.0; 
+    NAARAD_HISTORYLENGTH=24*60*60*1000.0;
 
     NAARAD_NAMELESS_PACKETS = "NONAME";
 
