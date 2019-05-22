@@ -221,13 +221,15 @@ class ClientThread (Thread):
                 elif (cmd=="notify"):
                     self.handleNotify(tok);
 
+                elif (cmd=="shutdown"):
+                    settings5.NAARAD_SHUTDOWN=True;
+
                 else:
                     print ("Command ",msg," not understood");
         except (RuntimeError):#, socket.error as e):
             print ("ClientThread: Error during cmd handling.")
         except NaaradClientException as e:
             print ("NaaradClientException: "+str(e));
-
     #
     #--------------------------------------------------------------------------
     #        
@@ -293,6 +295,6 @@ class ClientThread (Thread):
                 break;
             else:
                 self.messageHandler(msg);
+                break;
 
         print ("Exiting " + self.name);
-        #self.__del__();
