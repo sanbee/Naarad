@@ -57,7 +57,7 @@ def initNaarad():
     pogo = Pogo(pktRadio, ookRadio);
     
     # Amount of temporal history the server holds in milli-seconds. 
-    historyLength=6*60*60*1000.0; 
+    historyLength=24*60*60*1000.0;
     pHndlr=ph.PacketHandler(historyLength);
     nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
     #nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno);
