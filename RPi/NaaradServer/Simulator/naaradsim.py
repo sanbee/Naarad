@@ -51,7 +51,6 @@ def initNaarad():
     pHndlr=ph.PacketHandler(historyLength);
     nSensorNetworkData = NaaradTopicSim(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
     nSensorNetworkData.start();
-    
 #------------------------------------------------------------------------------------------------------
 #
 # 
@@ -71,7 +70,7 @@ def startServer():
     # terminates when the connection terminates and the associated socket
     # is also removed from the topicsSubscriberList.
     threadID=0;
-    while 1:
+    while (not settings5.NAARAD_SHUTDOWN):
         fd = select.select([serversocket.fileno()],[],[]);
         (clientsocket, address) = serversocket.accept()
         
@@ -90,8 +89,9 @@ def startServer():
         myCTh = ClientThread(threadID, name, myc1, uno, pogo, connectionType);
         threadID = threadID+1;
         myCTh.start();
+        if (settings5.NAARAD_SHUTDOWN):
+            print ("### Exiting Naarad socket server thread");
 
-        
 if __name__ == "__main__":
     initNaarad();
     startServer();

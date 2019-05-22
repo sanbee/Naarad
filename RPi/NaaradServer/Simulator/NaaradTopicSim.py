@@ -34,7 +34,7 @@ class NaaradTopicSim (Thread):
     # topicsSubscriberList["SensorDataSink"]).
     def run(self):
         nodech=0;
-        while 1:
+        while (not settings5.NAARAD_SHUTDOWN):
             time.sleep(5);
             try:
                 nodech+=1;
@@ -80,3 +80,4 @@ class NaaradTopicSim (Thread):
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());
                     print ("Error duing JSON parsing: Line=\""+line+"\"");
+        print("### Exiting NaaradTopic server thread");
