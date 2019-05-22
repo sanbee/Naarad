@@ -71,11 +71,11 @@ def startServer():
     # terminates when the connection terminates and the associated socket
     # is also removed from the topicsSubscriberList.
     threadID=0;
-    while 1:
+    while (not settings5.NAARAD_SHUTDOWN):
         fd = select.select([serversocket.fileno()],[],[]);
         (clientsocket, address) = serversocket.accept()
         
-        #     #now do something with the clientsocket
+        #now do something with the clientsocket
         myc1 = mysocket(clientsocket);
         connectionType=myc1.receive().strip();
         print ("connection accepted",address,connectionType);
@@ -90,8 +90,8 @@ def startServer():
         myCTh = ClientThread(threadID, name, myc1, uno, pogo, connectionType);
         threadID = threadID+1;
         myCTh.start();
+        print settings5.NAARAD_SHUTDOWN;
 
-        
 if __name__ == "__main__":
     initNaarad();
     startServer();
