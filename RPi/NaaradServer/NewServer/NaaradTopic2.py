@@ -82,38 +82,4 @@ class NaaradTopic (Thread):
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());
                     print ("Error duing JSON parsing: Line=\""+line+"\"");
-                
-            #print ("From DCT: ", line+" "+str(len(settings5.topicsSubscriberList)));
-            nListners = len(settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA]);
-            #
-            # All sockets are set to non-blocking before sending data.
-            # If the other end of the socket is broken and not
-            # emptying the buffer, this call will ultimately fail
-            # (after the buffer is full).  When that happens, remove
-            # the associated subscriber. Since the socket buffer is
-            # finite and usually large compared to the data being
-            # sent, this will fail only after many trials making it
-            # "robust" as well (i.e., the listner is allowed to not
-            # receive many many packets before it is considered dead
-            # and removed from the list of listeners).
-            for i in range(nListners):
-                try:
-                    settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA][i].setblocking(0);
-                    settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA][i].send(line);
-                    settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA][i].setblocking(1);
-                except socket_error as serr:
-                    if serr.errno == 11:#errno.EAGAIN:
-                        print ("Error: Client resource temporarily unavailable for subscriber ",i);
-                    print ("NaardTopic: socket_error occured during send.  Closing connection.", i);
-                    sockID = settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA][i]
-                    settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA][i].close();
-                    settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA].remove(sockID);
-                    break;
-                except RuntimeError as e:
-                    print ("NaardTopic: RunTimeError occured during send/recv.  Closing connection.", i);
-                    sockID = settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA][i]
-                    settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA][i].close();
-                    settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA].remove(sockID);
-                    break; # break the for-loop
-            #print ("No. of listeners: ", nListners);
         print("### Exiting Naarad comPort server thread");    
