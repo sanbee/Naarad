@@ -74,7 +74,7 @@ def startServer():
         fd = select.select([serversocket.fileno()],[],[]);
         (clientsocket, address) = serversocket.accept()
         
-        #     #now do something with the clientsocket
+        #now do something with the clientsocket
         myc1 = mysocket(clientsocket);
         connectionType=myc1.receive().strip();
         print ("connection accepted",address,connectionType);
