@@ -1,6 +1,5 @@
 #! /usr/bin/python
-import sys
-sys.path.insert(0, '../NaaradServer/NewServer');
+import serverinfo;
 
 from mySock import mysocket;
 import time;
@@ -23,7 +22,7 @@ def main(argv):
         if (len(sys.argv) < 2):
 		print "Usage: "+sys.argv[0]+" NODEID";
         else:
-            tt=getcpkt(SERVER, PORT, sys.argv[1]);
+            tt=getcpkt(serverinfo.SERVER, serverinfo.PORT, sys.argv[1]);
             print tt;
 
 if __name__ == "__main__":
