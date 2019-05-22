@@ -31,7 +31,7 @@ class NaaradTopic (Thread):
     # have subscribed to this topic (i.e., the list of sockets in
     # topicsSubscriberList["SensorDataSink"]).
     def run(self):
-        while 1:
+        while (not settings5.NAARAD_SHUTDOWN):
             try:
                 line =self.uno.readline().rstrip();
             except (AttributeError, UniocodeDecodeError) as excpt:
@@ -116,4 +116,4 @@ class NaaradTopic (Thread):
                     settings5.topicsSubscriberList[settings5.NAARAD_TOPIC_SENSORDATA].remove(sockID);
                     break; # break the for-loop
             #print ("No. of listeners: ", nListners);
-            
+        print("### Exiting Naarad comPort server thread");    
