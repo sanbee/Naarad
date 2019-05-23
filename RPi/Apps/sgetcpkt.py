@@ -1,6 +1,6 @@
 #! /usr/bin/python
 import serverinfo;
-
+import sys;
 from mySock import mysocket;
 import time;
 
