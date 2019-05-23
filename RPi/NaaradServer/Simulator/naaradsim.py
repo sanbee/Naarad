@@ -51,7 +51,6 @@ def initNaarad():
     pHndlr=ph.PacketHandler(historyLength);
     nSensorNetworkData = NaaradTopicSim(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
     nSensorNetworkData.start();
-    
 #------------------------------------------------------------------------------------------------------
 #
 # 
@@ -91,7 +90,7 @@ def startServer():
         threadID = threadID+1;
         myCTh.start();
         if (settings5.NAARAD_SHUTDOWN):
-            print ("### Exiting socket server thread");
+            print ("### Exiting Naarad socket server thread");
 
 if __name__ == "__main__":
     initNaarad();

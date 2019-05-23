@@ -226,7 +226,7 @@ class ClientThread (Thread):
                             timeOut = float(tok[4]);
                         notifyOnCond=Condition();
 
-                        print ("Registerd: ",notifyForNodeID,notifyForPktID);
+                        print ("Registered: ",notifyForNodeID,notifyForPktID);
                         settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
                         with notifyOnCond:
                             notifyOnCond.wait(timeOut);
