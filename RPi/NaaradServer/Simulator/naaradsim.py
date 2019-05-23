@@ -90,7 +90,8 @@ def startServer():
         myCTh = ClientThread(threadID, name, myc1, uno, pogo, connectionType);
         threadID = threadID+1;
         myCTh.start();
-        print settings5.NAARAD_SHUTDOWN;
+        if (settings5.NAARAD_SHUTDOWN):
+            print ("### Exiting socket server thread");
 
 if __name__ == "__main__":
     initNaarad();
