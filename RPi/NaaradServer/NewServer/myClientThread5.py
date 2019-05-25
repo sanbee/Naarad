@@ -229,6 +229,7 @@ class ClientThread (Thread):
 
                 else:
                     print ("Command ",msg," not understood");
+                    finished=True;
         except (RuntimeError):#, socket.error as e):
             print ("ClientThread: Error during cmd handling.")
             finished=True;
