@@ -222,6 +222,7 @@ class ClientThread (Thread):
 
                 elif (cmd=="notify"):
                     self.handleNotify(tok);
+                    finished=True;
 
                 elif (cmd=="shutdown"):
                     settings5.NAARAD_SHUTDOWN=True;
