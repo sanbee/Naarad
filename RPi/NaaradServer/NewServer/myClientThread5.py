@@ -143,6 +143,7 @@ class ClientThread (Thread):
     #        
     def messageHandler(self,msg):
         try:
+            finished=False;
             tok="";
             #print("M="+msg);
             if (len(msg) > 0):
@@ -208,6 +209,7 @@ class ClientThread (Thread):
                 elif (cmd == "done"):
                     #self.uno.close();
                     self.closeSock(self.myc1.getSock(), "good bye");
+                    finished=True;
 
                 elif (cmd=="RFM_SEND"):
                     #self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]);
@@ -220,6 +222,7 @@ class ClientThread (Thread):
 
                 elif (cmd=="notify"):
                     self.handleNotify(tok);
+                    finished=True;
 
                 elif (cmd=="shutdown"):
                     settings5.NAARAD_SHUTDOWN=True;
@@ -228,8 +231,12 @@ class ClientThread (Thread):
                     print ("Command ",msg," not understood");
         except (RuntimeError):#, socket.error as e):
             print ("ClientThread: Error during cmd handling.")
+            finished=True;
         except NaaradClientException as e:
             print ("NaaradClientException: "+str(e));
+            finished=True;
+        
+        return finished;
     #
     #--------------------------------------------------------------------------
     #        
@@ -294,7 +301,7 @@ class ClientThread (Thread):
                 self.closeSock(self.myc1.getSock(), "Got a zero-length message.  Possible EOF received from client.  Shutting down the connection");
                 break;
             else:
-                self.messageHandler(msg);
-                break;
+                finish = self.messageHandler(msg);
+                #break;
 
         print ("Exiting " + self.name);
