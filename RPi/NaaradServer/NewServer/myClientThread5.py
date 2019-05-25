@@ -228,10 +228,12 @@ class ClientThread (Thread):
                     settings5.NAARAD_SHUTDOWN=True;
 
                 elif (cmd=="sethlen"):
-                    print("### Setting HISTORYLENGTH to ",float(tok[1]),"hr / ",int(float(tok[1])*3600000), "usec");
+                    print("### Setting HISTORYLENGTH to ",float(tok[1]),"hr / ",int(float(tok[1])*3600000), "msec");
                     settings5.NAARAD_HISTORYLENGTH=int(float(tok[1])*3600000);
                 else:
                     print ("Command ",msg," not understood");
+                    finished=True;
+
         except (RuntimeError):#, socket.error as e):
             print ("ClientThread: Error during cmd handling.")
             finished=True;
