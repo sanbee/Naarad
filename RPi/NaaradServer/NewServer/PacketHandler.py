@@ -7,6 +7,7 @@ import NaaradUtils as Utils;
 class PacketHandler():
     def __init__(self,hLength):
         self.historyLength=hLength;
+        self.currentHistLen=0;
         pass;
 
     def addPacket31(self,packet,thisJSON):
@@ -35,14 +36,18 @@ class PacketHandler():
                 settings5.gPacketHistory[nodeid,paramName].append(packet);
                 # If the time timeStamp0 is < 0 ==> the max. history length has been hit.
                 # Pop out the oldes packet.
-                if (settings5.gTimeStamp0Cache[nodeid,paramName] < 0):
+#                if (settings5.gTimeStamp0Cache[nodeid,paramName] < 0):
+                if (self.currentHistLen > settings5.NAARAD_HISTORYLENGTH):
                     settings5.gPacketHistory[nodeid,paramName].popleft();
 
         # If time diff. between the latest and newest packet is >
         # threshold, set the timeStamp0 to < 0 indicating that max
         # history length has been hit.
-        if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid,paramName]) > self.historyLength)):#1800000):
-            settings5.gTimeStamp0Cache[nodeid,paramName] = -1;
+        #if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and 
+        self.currentHistLen = (thisTimeStamp - settings5.gTimeStamp0Cache[nodeid,paramName]) 
+        # if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and 
+        #     ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid,paramName]) > settings5.NAARAD_HISTORYLENGTH)):#1800000):
+        #     settings5.gTimeStamp0Cache[nodeid,paramName] = -1;
 
 
     def processInfoPacket(self, thisNodeID, thisJSON):
@@ -97,14 +102,19 @@ class PacketHandler():
                 settings5.gPacketHistory[nodeid].append(packet);
                 # If the time timeStamp0 is < 0 ==> the max. history length has been hit.
                 # Pop out the oldes packet.
-                if (settings5.gTimeStamp0Cache[nodeid] < 0):
-                    settings5.gPacketHistory[nodeid].popleft();
+                #if (settings5.gTimeStamp0Cache[nodeid] < 0):
 
+                print((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > settings5.NAARAD_HISTORYLENGTH);
+                if ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > settings5.NAARAD_HISTORYLENGTH):
+                    settings5.gPacketHistory[nodeid].popleft();
+                    print("Poped: ",len(settings5.gPacketHistory[nodeid]));
         # If time diff. between the latest and newest packet is >
         # threshold, set the timeStamp0 to < 0 indicating that max
         # history length has been hit.
-        if ((settings5.gTimeStamp0Cache[nodeid] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > self.historyLength)):#1800000):
-            settings5.gTimeStamp0Cache[nodeid] = -1;
+        self.currentHistLen = (thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]);
+        print("HistLen: ",self.currentHistLen, settings5.NAARAD_HISTORYLENGTH,len(settings5.gPacketHistory[nodeid]));
+        # if ((settings5.gTimeStamp0Cache[nodeid] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > self.historyLength)):#1800000):
+        #     settings5.gTimeStamp0Cache[nodeid] = -1;
 
     def convertV0ToV31(self,jsonDict):
 #        jdict=json.loads(jsonStr);

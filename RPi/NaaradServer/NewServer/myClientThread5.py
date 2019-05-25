@@ -236,6 +236,8 @@ class ClientThread (Thread):
                         settings5.gClientList.unregister(notifyOnCond);
                         break;
                         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
+                    elif (cmd=="sethlen"):
+                        settings5.NAARAD_HISTORYLENGTH=int(float(tok[1])*3600000);
                     else:
                         print ("Command ",msg," not understood");
             except (RuntimeError):#, socket.error as e):
