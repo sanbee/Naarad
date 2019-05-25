@@ -57,8 +57,7 @@ def initNaarad():
     pogo = Pogo(pktRadio, ookRadio);
     
     # Amount of temporal history the server holds in milli-seconds. 
-    historyLength=6*60*60*1000.0; 
-    pHndlr=ph.PacketHandler(historyLength);
+    pHndlr=ph.PacketHandler(settings5.NAARAD_HISTORYLENGTH);
     nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
     #nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno);
 
@@ -92,7 +91,7 @@ def startServer():
     # terminates when the connection terminates and the associated socket
     # is also removed from the topicsSubscriberList.
     threadID=0;
-    while 1:
+    while (not settings5.NAARAD_SHUTDOWN):
         fd = select.select([serversocket.fileno()],[],[]);
         (clientsocket, address) = serversocket.accept()
         
@@ -111,7 +110,8 @@ def startServer():
         myCTh = ClientThread(threadID, name, myc1, uno, pogo, connectionType);
         threadID = threadID+1;
         myCTh.start();
-
+        if (settings5.NAARAD_SHUTDOWN):
+            print("### Exiting Naarad socket server thread");
         
 if __name__ == "__main__":
     initNaarad();
