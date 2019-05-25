@@ -143,6 +143,7 @@ class ClientThread (Thread):
     #        
     def messageHandler(self,msg):
         try:
+            finished=False;
             tok="";
             #print("M="+msg);
             if (len(msg) > 0):
@@ -208,6 +209,7 @@ class ClientThread (Thread):
                 elif (cmd == "done"):
                     #self.uno.close();
                     self.closeSock(self.myc1.getSock(), "good bye");
+                    finished=True;
 
                 elif (cmd=="RFM_SEND"):
                     #self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]);
@@ -231,8 +233,13 @@ class ClientThread (Thread):
                     print ("Command ",msg," not understood");
         except (RuntimeError):#, socket.error as e):
             print ("ClientThread: Error during cmd handling.")
+            finished=True;
         except NaaradClientException as e:
             print ("NaaradClientException: "+str(e));
+            finished=True;
+
+        return finished;
+
     #
     #--------------------------------------------------------------------------
     #        
@@ -242,8 +249,8 @@ class ClientThread (Thread):
 
         print ("Starting " + self.name + ". Watching fd " + str(self.myc1.fileno()));
 
-        finish = False;
-        while (not finish):
+        finished = False;
+        while (not finished):
 
             # First block via select.select waiting for someone to
             # call on the myc1 socket.  This should only get the read
@@ -253,11 +260,11 @@ class ClientThread (Thread):
                 fdr,fdw,fde = select.select(rSockList,[],[]);
                 for s in fde:
                     print ("select.select got exceptional fd.  Exiting.");
-                    finish = True;
+                    finished = True;
                     break;
                 for s in fdw:
                     print ("select.select got writeable fd.  Strange...");
-                    finish = True;
+                    finished = True;
                     break;
             except RuntimeError as e:
                 print ("ClientThread: RuntimeError during select().");
@@ -297,7 +304,7 @@ class ClientThread (Thread):
                 self.closeSock(self.myc1.getSock(), "Got a zero-length message.  Possible EOF received from client.  Shutting down the connection");
                 break;
             else:
-                self.messageHandler(msg);
-                break;
+                finished = self.messageHandler(msg);
+                #break;
 
         print ("Exiting " + self.name);
