@@ -1,5 +1,6 @@
 #! /usr/bin/python
 from __future__ import print_function;
+import serverinfo
 import sys
 import json;
 sys.path.insert(0, '../NaaradServer/NewServer');
@@ -7,18 +8,16 @@ sys.path.insert(0, '../NaaradServer/NewServer');
 from mySock import mysocket;
 import time;
 
-SERVER="raspberrypi";
-SERVER="192.168.0.66";
-PORT=1234;
-
 class MyException(Exception):
     pass;
 
 def NaaradSend(mesg):
     naaradSoc=mysocket();
-    naaradSoc.connect(SERVER,PORT);
+    naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
     naaradSoc.send("open");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);
+    infopkt=naaradSoc.receive(True); # Do a blocking read
+    print(infopkt);
     packet=naaradSoc.receive(True); # Do a blocking read
     time.sleep(1);
     #naaradSoc.send("done");     time.sleep(1);

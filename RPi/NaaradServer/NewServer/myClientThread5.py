@@ -4,6 +4,7 @@ import settings5;
 import NaaradUtils as Utils;
 import select;
 import socket;
+import json;
 
 class NaaradClientException(Exception):
     pass;
@@ -129,14 +130,50 @@ class ClientThread (Thread):
             timeOut = float(tok[4]);
         notifyOnCond=Condition();
 
-        print ("Registerd: ",notifyForNodeID,notifyForPktID);
-        settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
+        uuid=settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
+        # Send the UUID of this request as an info packet
+        jdict={};
+        jdict['rf_fail']=1;
+        jdict['source']='uuid';
+        jdict['uuid']=uuid;
+        infopkt=json.dumps(jdict);
+        self.myc1.send(infopkt);
+
         with notifyOnCond:
             notifyOnCond.wait(timeOut);
             cpkt=settings5.gCurrentPacket[notifyForNodeID];
             cpkt=Utils.addTimeStamp("tnot",cpkt);
             self.myc1.send(cpkt);
-        settings5.gClientList.unregister(notifyOnCond);
+        settings5.gClientList.unregister(uuid);
+        #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
+    #
+    #--------------------------------------------------------------------------
+    #        
+    def handleContinuousNotify(self,tok):
+        notifyForNodeID=int(tok[1]);
+        notifyForPktID=[int(tok[2]),str(tok[3])]; #[cmd,src]
+        if (len(tok)<5):
+            timeOut=None;
+        else:
+            timeOut = float(tok[4]);
+        notifyOnCond=Condition();
+
+        settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
+        # Send the UUID of this request as an info packet
+        jdict={};
+        jdict['rf_fail']=1;
+        jdict['source']='uuid';
+        jdict['uuid']=uuid;
+        infopkt=json.dumps(jdict);
+        self.myc1.send(infopkt);
+
+        while(settings5.gClientList.continuousNotification(notifyOnCond)):
+            with notifyOnCond:
+                notifyOnCond.wait(timeOut);
+                cpkt=settings5.gCurrentPacket[notifyForNodeID];
+                cpkt=Utils.addTimeStamp("tnot",cpkt);
+                self.myc1.send(cpkt);
+        settings5.gClientList.unregister(uuid);
         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
     #
     #--------------------------------------------------------------------------
@@ -222,6 +259,14 @@ class ClientThread (Thread):
 
                 elif (cmd=="notify"):
                     self.handleNotify(tok);
+                    finished=True;
+
+                elif (cmd=="cnotify"):
+                    self.handleContinuousNotify(tok);
+                    finished=True;
+
+                elif (cmd=="abortcnotify"):
+                    self.handleContinuousNotify(tok);
                     finished=True;
 
                 elif (cmd=="shutdown"):
