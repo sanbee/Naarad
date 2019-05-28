@@ -46,7 +46,8 @@ class NaaradTopicSim (Thread):
                 jdict["node_id"]=node;
                 jdict["degc"]=20.0+(random.random()-0.5)/2.0;
                 jdict["node_p"]=-30.0-random.random()*30.0;
-                
+                jdict["source"]="naaradsim";
+
                 line =json.dumps(jdict);
             except (AttributeError, UniocodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);

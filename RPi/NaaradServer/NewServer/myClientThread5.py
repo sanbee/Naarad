@@ -134,7 +134,7 @@ class ClientThread (Thread):
         # Send the UUID of this request as an info packet
         jdict={};
         jdict['rf_fail']=1;
-        jdict['source']='uuid';
+        jdict['source']='notify';
         jdict['uuid']=uuid;
         infopkt=json.dumps(jdict);
         self.myc1.send(infopkt);
@@ -158,16 +158,15 @@ class ClientThread (Thread):
             timeOut = float(tok[4]);
         notifyOnCond=Condition();
 
-        settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
+        settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID,True);
         # Send the UUID of this request as an info packet
         jdict={};
-        jdict['rf_fail']=1;
-        jdict['source']='uuid';
+        jdict['rf_fail']=1; # Make this an info packet
+        jdict['source']='contnotify';
         jdict['uuid']=uuid;
-        infopkt=json.dumps(jdict);
-        self.myc1.send(infopkt);
+        self.myc1.send(json.dumps(jdict));
 
-        while(settings5.gClientList.continuousNotification(notifyOnCond)):
+        while(settings5.gClientList.continuousNotification(uuid)):
             with notifyOnCond:
                 notifyOnCond.wait(timeOut);
                 cpkt=settings5.gCurrentPacket[notifyForNodeID];
