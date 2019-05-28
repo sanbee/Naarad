@@ -46,9 +46,9 @@ class ClientList():
                 (src == self.PacketIDList[index][1]));
     
 
-    def continuousNotification(uuid):
+    def continuousNotification(self,uuid):
         myIndex=self.uuid.findItem(uuid);
-        return self.ContinuousNotification.remove(myIndex[0]);
+        return self.ContinuousNotification[myIndex[0]];
 
     def NaaradNotify(self,nodeid=-1,cmd=-1,src=''):
         #Notify all register threads

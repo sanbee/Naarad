@@ -158,7 +158,7 @@ class ClientThread (Thread):
             timeOut = float(tok[4]);
         notifyOnCond=Condition();
 
-        settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID,True);
+        uuid=settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID,True);
         # Send the UUID of this request as an info packet
         jdict={};
         jdict['rf_fail']=1; # Make this an info packet
