@@ -19,7 +19,6 @@ def cnotifyNaaradSend(mesg):
     infopkt=naaradSoc.receive(True); # Do a blocking read
     print(infopkt);
     packet=naaradSoc.receive(True); # Do a blocking read
-    time.sleep(1);
     #naaradSoc.send("done");     time.sleep(1);
     #naaradSoc.close();
 
@@ -91,10 +90,9 @@ def notify(argv):
                 while True:
                     naaradSoc.send(FULLCMD);  
                     infopkt=naaradSoc.receive(True); # Do a blocking read
-                    print(infopkt);time.sleep(1);
+                    print(infopkt);
                     packet=naaradSoc.receive(True); # Do a blocking read
                     #naaradSoc.send("done");     
-                    time.sleep(1);
                     #naaradSoc.close();
                     print(packet);
 
