@@ -175,8 +175,9 @@ class ClientThread (Thread):
                     self.myc1.send(cpkt);
         except RuntimeError as e:#, socket.error as e):
             print ("handleContNotify: Error during notification.")
-            settings5.gClientList.unregister(uuid);
             raise type(e)("handleContNotify: Error during notification.");
+        finally:
+            settings5.gClientList.unregister(uuid);
     #
     #--------------------------------------------------------------------------
     #        
