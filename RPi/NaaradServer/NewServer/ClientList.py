@@ -91,8 +91,6 @@ class ClientList():
     def unregister(self,uuid):
         with self.rlock:
             try:
-                #myIndex=self.CondList.findItem(myCond);
-                print(self.uuid);
                 myIndex=self.uuid.findItem(uuid);
                 print;
                 print "De-registering: ",self.IDList[myIndex[0]],self.PacketIDList[myIndex[0]],self.uuid[myIndex[0]];

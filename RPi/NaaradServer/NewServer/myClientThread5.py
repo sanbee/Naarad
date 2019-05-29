@@ -166,14 +166,17 @@ class ClientThread (Thread):
         jdict['uuid']=uuid;
         self.myc1.send(json.dumps(jdict));
 
-        while(settings5.gClientList.continuousNotification(uuid)):
-            with notifyOnCond:
-                notifyOnCond.wait(timeOut);
-                cpkt=settings5.gCurrentPacket[notifyForNodeID];
-                cpkt=Utils.addTimeStamp("tnot",cpkt);
-                self.myc1.send(cpkt);
-        settings5.gClientList.unregister(uuid);
-        #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
+        try:
+            while(settings5.gClientList.continuousNotification(uuid)):
+                with notifyOnCond:
+                    notifyOnCond.wait(timeOut);
+                    cpkt=settings5.gCurrentPacket[notifyForNodeID];
+                    cpkt=Utils.addTimeStamp("tnot",cpkt);
+                    self.myc1.send(cpkt);
+        except RuntimeError as e:#, socket.error as e):
+            print ("handleContNotify: Error during notification.")
+            settings5.gClientList.unregister(uuid);
+            raise type(e)("handleContNotify: Error during notification.");
     #
     #--------------------------------------------------------------------------
     #        
