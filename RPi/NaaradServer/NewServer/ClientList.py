@@ -85,9 +85,8 @@ class ClientList():
         return hex_uuid;
 
     # Using the uuid entries, this method identifies a unique thread
-    # in the list of threads (CondList.findItem) and unregisters the
-    # client.  The ThreadSafeLists.findItem() call assumes that the
-    # private lock of each thread is unique.
+    # in the list of threads (uuid.findItem) and deregisters the
+    # client.  
     def unregister(self,uuid):
         with self.rlock:
             try:
