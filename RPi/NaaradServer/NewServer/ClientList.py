@@ -47,8 +47,12 @@ class ClientList():
     
 
     def continuousNotification(self,uuid):
-        myIndex=self.uuid.findItem(uuid);
-        return self.ContinuousNotification[myIndex[0]];
+        try:
+            myIndex=self.uuid.findItem(uuid);
+            return self.ContinuousNotification[myIndex[0]];
+        except IndexError as e:
+                print "IndexError: ",self.IDList, myIndex;
+                raise e;
 
     def abortContinuousNotification(self,uuid):
         myIndex=self.uuid.findItem(uuid);
@@ -103,6 +107,6 @@ class ClientList():
                 self.PacketIDList.remove(myIndex[0]);
                 self.ContinuousNotification.remove(myIndex[0]);
                 self.uuid.remove(myIndex[0]);
-            except IndexError:
+            except IndexError as e:
                 print "IndexError: ",self.IDList, myIndex;
-
+                raise e;

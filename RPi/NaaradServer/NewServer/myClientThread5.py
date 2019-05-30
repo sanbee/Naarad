@@ -185,9 +185,8 @@ class ClientThread (Thread):
         uuid=tok[1];
         try:
             settings5.gClientList.abortContinuousNotification(uuid);
-        except RuntimeError as e:
-            print ("abortContinuousNotify: Error", tok);
-            raise e;
+        except Exception as e:
+            raise type(e)("abortContinuousNotify: UUID "+str(uuid)+" not registered: "+str(e));
     #
     #--------------------------------------------------------------------------
     #        
@@ -293,10 +292,13 @@ class ClientThread (Thread):
                     finished=True;
 
         except (RuntimeError):#, socket.error as e):
-            print ("ClientThread: Error during cmd handling.")
+            print ("### ClientThread: Error during cmd handling.")
             finished=True;
         except NaaradClientException as e:
-            print ("NaaradClientException: "+str(e));
+            print ("### NaaradClientException: "+str(e));
+            finished=True;
+        except Exception as e:
+            print ("### Unknown error of type Exception: "+str(e));
             finished=True;
 
         return finished;
@@ -320,15 +322,15 @@ class ClientThread (Thread):
                 rSockList = [self.myc1.fileno()];
                 fdr,fdw,fde = select.select(rSockList,[],[]);
                 for s in fde:
-                    print ("select.select got exceptional fd.  Exiting.");
+                    print ("### select.select got exceptional fd.  Exiting.");
                     finished = True;
                     break;
                 for s in fdw:
-                    print ("select.select got writeable fd.  Strange...");
+                    print ("### select.select got writeable fd.  Strange...");
                     finished = True;
                     break;
             except RuntimeError as e:
-                print ("ClientThread: RuntimeError during select().");
+                print ("### ClientThread: RuntimeError during select().");
                 break;
 
             # Having gotten a read fd from select.select() above, do a
@@ -368,4 +370,4 @@ class ClientThread (Thread):
                 finished = self.messageHandler(msg);
                 #break;
 
-        print ("Exiting " + self.name);
+        print ("### Exiting " + self.name);
