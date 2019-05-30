@@ -181,6 +181,16 @@ class ClientThread (Thread):
     #
     #--------------------------------------------------------------------------
     #        
+    def abortContinuousNotify(self,tok):
+        uuid=tok[1];
+        try:
+            settings5.gClientList.abortContinuousNotification(uuid);
+        except RuntimeError as e:
+            print ("abortContinuousNotify: Error", tok);
+            raise e;
+    #
+    #--------------------------------------------------------------------------
+    #        
     def messageHandler(self,msg):
         try:
             finished=False;
@@ -269,7 +279,7 @@ class ClientThread (Thread):
                     finished=True;
 
                 elif (cmd=="abortcnotify"):
-                    self.handleContinuousNotify(tok);
+                    self.abortContinuousNotify(tok);
                     finished=True;
 
                 elif (cmd=="shutdown"):

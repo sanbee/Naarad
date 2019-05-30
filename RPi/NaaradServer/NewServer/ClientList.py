@@ -50,6 +50,10 @@ class ClientList():
         myIndex=self.uuid.findItem(uuid);
         return self.ContinuousNotification[myIndex[0]];
 
+    def abortContinuousNotification(self,uuid):
+        myIndex=self.uuid.findItem(uuid);
+        self.ContinuousNotification[myIndex[0]]=False;
+
     def NaaradNotify(self,nodeid=-1,cmd=-1,src=''):
         #Notify all register threads
         if (nodeid < 0):

@@ -13,7 +13,7 @@ def getcpkt(server,port, nodeid):
     CMD="getcpkt "+str(nodeid);		
     soc=mysocket();
     soc.connect(server,port);
-    soc.send("open");time.sleep(0.1);
+    soc.send("getcpkt App");
     soc.send(CMD); time.sleep(0.1);
     tt=soc.receive();
     soc.send("done");time.sleep(0.1);

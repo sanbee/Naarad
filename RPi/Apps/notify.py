@@ -14,7 +14,7 @@ class MyException(Exception):
 def notifyNaaradSend(mesg):
     naaradSoc=mysocket();
     naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
-    naaradSoc.send("open");     time.sleep(0.1);
+    naaradSoc.send("notify App");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);
     infopkt=naaradSoc.receive(True); # Do a blocking read
     print(infopkt);

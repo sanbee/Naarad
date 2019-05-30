@@ -78,23 +78,28 @@ def notify(argv):
             for i in range(2,6):
                 FULLCMD=FULLCMD+" "+str(sys.argv[i]);
 
-            nRETRIALS=int(sys.argv[6]);
-
             print(FULLCMD);
             Retry=0;
-            while (Retry < nRETRIALS):
-                naaradSoc=mysocket();
-                naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);time.sleep(0.1);
-                naaradSoc.send("open");     time.sleep(0.1);
 
-                while True:
-                    naaradSoc.send(FULLCMD);  
-                    infopkt=naaradSoc.receive(True); # Do a blocking read
-                    print(infopkt);
-                    packet=naaradSoc.receive(True); # Do a blocking read
-                    #naaradSoc.send("done");     
-                    #naaradSoc.close();
-                    print(packet);
+            naaradSoc=mysocket();
+            naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);time.sleep(0.1);
+            naaradSoc.send("Cont Notification App");     
+            time.sleep(0.1);
+            naaradSoc.send(FULLCMD);  
+            infopkt=naaradSoc.receive(True); # Do a blocking read
+            print(infopkt);
+
+            while True:
+                packet=naaradSoc.receive(True);  # Do a blocking read
+                # End of transmission or the notification was
+                # de-registered by the server or via abortnotify
+                # command.
+                if (len(packet)==0):  
+                    break;
+                    
+                print(packet);
+#            naaradSoc.send("done");     
+            naaradSoc.close();
 
         except MyException as e:
             print(str(e));
