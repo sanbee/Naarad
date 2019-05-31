@@ -13,11 +13,12 @@ class MyException(Exception):
 
 def notifyNaaradSend(mesg):
     naaradSoc=mysocket();
+    print("Connection to: ",serverinfo.SERVER,serverinfo.PORT);
     naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
     naaradSoc.send("notify App");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);
-    infopkt=naaradSoc.receive(True); # Do a blocking read
-    print(infopkt);
+    #infopkt=naaradSoc.receive(True); # Do a blocking read
+    #print(infopkt);
     packet=naaradSoc.receive(True); # Do a blocking read
     time.sleep(1);
     #naaradSoc.send("done");     time.sleep(1);
