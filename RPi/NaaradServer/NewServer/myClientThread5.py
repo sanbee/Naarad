@@ -132,12 +132,12 @@ class ClientThread (Thread):
 
         uuid=settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
         # Send the UUID of this request as an info packet
-        jdict={};
-        jdict['rf_fail']=1;
-        jdict['source']='notify';
-        jdict['uuid']=uuid;
-        infopkt=json.dumps(jdict);
-        self.myc1.send(infopkt);
+        # jdict={};
+        # jdict['rf_fail']=1;
+        # jdict['source']='notify';
+        # jdict['uuid']=uuid;
+        # infopkt=json.dumps(jdict);
+        # self.myc1.send(infopkt);
 
         with notifyOnCond:
             notifyOnCond.wait(timeOut);
