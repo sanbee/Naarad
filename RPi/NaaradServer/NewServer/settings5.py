@@ -4,7 +4,7 @@ def init():
     global NAARAD_COMPORT,NAARAD_PORT,NAARAD_MAXCONNECTIONS,NAARAD_HISTORYLENGTH;
     global NAARAD_TOPIC_SENSORDATA,topicsSubscriberList,gCurrentPacket;
     global gPacketHistory, gTimeStamp0Cache,gTimeStamp1Cache,gValueCache;
-    global NAARAD_NAMELESS_PACKETS, NAARAD_SHUTDOWN;
+    global NAARAD_NAMELESS_PACKETS, NAARAD_SHUTDOWN, NAARAD_HISTORYLENGTH;
     global gClientList;
 
     NAARAD_COMPORT = "/dev/ttyACM0";
@@ -18,7 +18,8 @@ def init():
 
     # Name of topic that is server async to all subscribers
     NAARAD_TOPIC_SENSORDATA = "SensorDataSink"; 
-    # Global flag used to shutdown Naarad server threads.
+
+    # Flag used to shutdown Naarad server.
     NAARAD_SHUTDOWN = False;
 
     # List of subscribers per topic

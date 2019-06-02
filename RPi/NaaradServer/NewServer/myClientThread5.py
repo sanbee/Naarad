@@ -4,6 +4,7 @@ import settings5;
 import NaaradUtils as Utils;
 import select;
 import socket;
+import json;
 
 class NaaradClientException(Exception):
     pass;
@@ -129,15 +130,63 @@ class ClientThread (Thread):
             timeOut = float(tok[4]);
         notifyOnCond=Condition();
 
-        print ("Registerd: ",notifyForNodeID,notifyForPktID);
-        settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
+        uuid=settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID);
+        # Send the UUID of this request as an info packet
+        # jdict={};
+        # jdict['rf_fail']=1;
+        # jdict['source']='notify';
+        # jdict['uuid']=uuid;
+        # infopkt=json.dumps(jdict);
+        # self.myc1.send(infopkt);
+
         with notifyOnCond:
             notifyOnCond.wait(timeOut);
             cpkt=settings5.gCurrentPacket[notifyForNodeID];
             cpkt=Utils.addTimeStamp("tnot",cpkt);
             self.myc1.send(cpkt);
-        settings5.gClientList.unregister(notifyOnCond);
+        settings5.gClientList.unregister(uuid);
         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
+    #
+    #--------------------------------------------------------------------------
+    #        
+    def handleContinuousNotify(self,tok):
+        notifyForNodeID=int(tok[1]);
+        notifyForPktID=[int(tok[2]),str(tok[3])]; #[cmd,src]
+        if (len(tok)<5):
+            timeOut=None;
+        else:
+            timeOut = float(tok[4]);
+        notifyOnCond=Condition();
+
+        uuid=settings5.gClientList.register(notifyForNodeID, notifyOnCond, notifyForPktID,True);
+        # Send the UUID of this request as an info packet
+        jdict={};
+        jdict['rf_fail']=1; # Make this an info packet
+        jdict['source']='contnotify';
+        jdict['uuid']=uuid;
+        self.myc1.send(json.dumps(jdict));
+
+        try:
+            while(settings5.gClientList.continuousNotification(uuid)):
+                with notifyOnCond:
+                    notifyOnCond.wait(timeOut);
+                    cpkt=settings5.gCurrentPacket[notifyForNodeID];
+                    cpkt=Utils.addTimeStamp("tnot",cpkt);
+                    self.myc1.send(cpkt);
+        except RuntimeError as e:#, socket.error as e):
+            print ("handleContNotify: Error during notification.")
+            raise type(e)("handleContNotify: Error during notification.");
+        finally:
+            settings5.gClientList.unregister(uuid);
+    #
+    #--------------------------------------------------------------------------
+    #        
+    def abortContinuousNotify(self,tok):
+        uuid=tok[1];
+        try:
+            settings5.gClientList.abortContinuousNotification(uuid);
+        except Exception as e:
+            raise type(e)("abortContinuousNotify: UUID "+str(uuid)+" not registered: "+str(e));
     #
     #--------------------------------------------------------------------------
     #        
@@ -224,20 +273,36 @@ class ClientThread (Thread):
                     self.handleNotify(tok);
                     finished=True;
 
+                elif (cmd=="cnotify"):
+                    self.handleContinuousNotify(tok);
+                    finished=True;
+
+                elif (cmd=="abortcnotify"):
+                    self.abortContinuousNotify(tok);
+                    finished=True;
+
                 elif (cmd=="shutdown"):
                     settings5.NAARAD_SHUTDOWN=True;
 
+                elif (cmd=="sethlen"):
+                    print("### Setting HISTORYLENGTH to ",float(tok[1]),"hr / ",int(float(tok[1])*3600000), "msec");
+                    settings5.NAARAD_HISTORYLENGTH=int(float(tok[1])*3600000);
                 else:
                     print ("Command ",msg," not understood");
                     finished=True;
+
         except (RuntimeError):#, socket.error as e):
-            print ("ClientThread: Error during cmd handling.")
+            print ("### ClientThread: Error during cmd handling.")
             finished=True;
         except NaaradClientException as e:
-            print ("NaaradClientException: "+str(e));
+            print ("### NaaradClientException: "+str(e));
             finished=True;
-        
+        except Exception as e:
+            print ("### Unknown error of type Exception: "+str(e));
+            finished=True;
+
         return finished;
+
     #
     #--------------------------------------------------------------------------
     #        
@@ -247,8 +312,8 @@ class ClientThread (Thread):
 
         print ("Starting " + self.name + ". Watching fd " + str(self.myc1.fileno()));
 
-        finish = False;
-        while (not finish):
+        finished = False;
+        while (not finished):
 
             # First block via select.select waiting for someone to
             # call on the myc1 socket.  This should only get the read
@@ -257,15 +322,15 @@ class ClientThread (Thread):
                 rSockList = [self.myc1.fileno()];
                 fdr,fdw,fde = select.select(rSockList,[],[]);
                 for s in fde:
-                    print ("select.select got exceptional fd.  Exiting.");
-                    finish = True;
+                    print ("### select.select got exceptional fd.  Exiting.");
+                    finished = True;
                     break;
                 for s in fdw:
-                    print ("select.select got writeable fd.  Strange...");
-                    finish = True;
+                    print ("### select.select got writeable fd.  Strange...");
+                    finished = True;
                     break;
             except RuntimeError as e:
-                print ("ClientThread: RuntimeError during select().");
+                print ("### ClientThread: RuntimeError during select().");
                 break;
 
             # Having gotten a read fd from select.select() above, do a
@@ -302,7 +367,7 @@ class ClientThread (Thread):
                 self.closeSock(self.myc1.getSock(), "Got a zero-length message.  Possible EOF received from client.  Shutting down the connection");
                 break;
             else:
-                finish = self.messageHandler(msg);
+                finished = self.messageHandler(msg);
                 #break;
 
-        print ("Exiting " + self.name);
+        print ("### Exiting " + self.name);

@@ -1,13 +1,9 @@
 #! /usr/bin/python
-import sys
-sys.path.insert(0, '../NaaradServer/NewServer');
+import serverinfo;
 
+import sys
 from mySock import mysocket;
 import time;
-
-SERVER="raspberrypi";
-SERVER="192.168.0.66";
-PORT=1234;
 
 def main(argv):
     if (len(sys.argv) < 3):
@@ -18,8 +14,8 @@ def main(argv):
     	CMD="tell "+LAMP+" "+OP;
 
     	naaradSoc=mysocket();
-    	naaradSoc.connect(SERVER,PORT);
-    	naaradSoc.send("open");time.sleep(0.1);
+    	naaradSoc.connect(serverinfo.SERVER, serverinfo.PORT);
+    	naaradSoc.send("lightOn App");time.sleep(0.1);
     	naaradSoc.send(CMD);time.sleep(0.1);
     	naaradSoc.send("done");time.sleep(0.1);
     	naaradSoc.close();
