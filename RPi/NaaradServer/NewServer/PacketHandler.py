@@ -106,13 +106,13 @@ class PacketHandler():
 
                 if ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > settings5.NAARAD_HISTORYLENGTH):
                     settings5.gPacketHistory[nodeid].popleft();
-                    print("Poped: ",len(settings5.gPacketHistory[nodeid]),
-                          ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > settings5.NAARAD_HISTORYLENGTH));
+                    #print("Poped: ",len(settings5.gPacketHistory[nodeid]),
+                    #      ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > settings5.NAARAD_HISTORYLENGTH));
         # If time diff. between the latest and newest packet is >
         # threshold, set the timeStamp0 to < 0 indicating that max
         # history length has been hit.
         self.currentHistLen = (thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]);
-        print("HistLen: ",self.currentHistLen/(60000.0), settings5.NAARAD_HISTORYLENGTH,len(settings5.gPacketHistory[nodeid]));
+        #print("HistLen: ",self.currentHistLen/(60000.0), settings5.NAARAD_HISTORYLENGTH,len(settings5.gPacketHistory[nodeid]));
         # if ((settings5.gTimeStamp0Cache[nodeid] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > self.historyLength)):#1800000):
         #     settings5.gTimeStamp0Cache[nodeid] = -1;
 
