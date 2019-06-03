@@ -4,10 +4,7 @@ sys.path.insert(0, '../NaaradServer/NewServer');
 
 from mySock import mysocket;
 import time;
-
-SERVER="naaradhost";
-SERVER="192.168.0.66";
-PORT=1234;
+import serverinfo;
 
 def getcpkt(server,port, nodeid):
     CMD="getcpkt "+str(nodeid);		
@@ -24,7 +21,7 @@ def main(argv):
         if (len(sys.argv) < 2):
 		print "Usage: "+sys.argv[0]+" NODEID";
         else:
-            tt=getcpkt(SERVER, PORT, sys.argv[1]);
+            tt=getcpkt(serverinfo.SERVER, serverinfo.PORT, sys.argv[1]);
             print tt;
 
 

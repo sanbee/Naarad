@@ -1,9 +1,9 @@
 #! /usr/bin/python
 from __future__ import print_function;
-import serverinfo
 import sys
 import json;
 sys.path.insert(0, '../NaaradServer/NewServer');
+import serverinfo
 
 from mySock import mysocket;
 import time;
@@ -13,7 +13,7 @@ class MyException(Exception):
 
 def notifyNaaradSend(mesg):
     naaradSoc=mysocket();
-    print("Connection to: ",serverinfo.SERVER,serverinfo.PORT);
+
     naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
     naaradSoc.send("notify App");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);

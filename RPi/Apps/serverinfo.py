@@ -1,3 +1,4 @@
+from __future__ import print_function;
 import sys
 sys.path.insert(0, '../NaaradServer/NewServer');
 
@@ -7,5 +8,7 @@ def init():
     SERVER="localhost";
     SERVER="naaradhost";
     PORT=1234;
+
+#    print("Connection: SERVER:",SERVER," PORT:",PORT);
 
 init();
