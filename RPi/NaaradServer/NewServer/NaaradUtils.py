@@ -27,5 +27,5 @@ def addTimeStamp(name,jsonStr):
         return json.dumps(jdict);
     except(ValueError) as excpt:
         print("Not a JSON string: %s"%jsonStr);
-        return jsonStr;
+        return jsonStr,jdict;
         
