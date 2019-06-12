@@ -51,16 +51,15 @@ class NaaradTopic (Thread):
             # (e.g.), "{a, b, c }" and the next one was shorter, like
             # "{a, b }", it comes out looking like {"a, b }}".  This
             # should be fixed in the UNO code.
-            #line=line.replace(" }}", " }");
-
+            line=line.replace(" }}", " }"); 
             print("@@@: "+line);
                 
             rlock = threading.RLock();
             with rlock:
                 try:
                     if (("rf_fail" in line)):
-                        line,jdict = Utils.addTimeStamp("time",line);
-                        #jdict = json.loads(line);# The JSON parser
+                        line = Utils.addTimeStamp("time",line);
+                        jdict = json.loads(line);# The JSON parser
                         # print jdict;
 
                         # Always add the packet to the current packet
