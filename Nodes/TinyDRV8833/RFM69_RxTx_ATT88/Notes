@@ -1,0 +1,57 @@
+For others who might be similarly out of touch as I, here are the full details of what I did:
+
+Connections:
+
+Arduino UNO Pin labels         Physical Pin on ATTiny88-PU
+     10 (SS)                          1 (RESET)
+     11 (MOSI)                       17 (MOSI)
+     12 (MISO)                       18 (MISO)
+     13 (SCK)                        19 (SCK)
+     3.3V                            20 (VACC) and 7 (VCC)
+     GND                             22 (GND)
+
+Procedure:
+
+0.  Install ATTinyCore
+
+1. Select  Tools->Board->Arduino/Genuino UNO    (or whatever board you are using)
+2. Load ArduinoISP sketch from Files->examples->ArduinoISP
+3. Select  Tools->Board->Attiny48/88.  After this, the "Tools" menus should show the following for the board.  Make clock, "B.O.D." and other selections as appropriate:
+
+Board: "ATtiny48/88"
+Chip: ATtiny88
+Clock: "8MHz (internal)"
+Save EEPRO: "EEPROM retained"
+LTO: "Disabled"
+B.O.D. Level: "B.O.D. Disabled"
+
+4. Select Tools->Programmer->"Arduino as ISP".  The "Tools" menu should then show the following:
+
+Programmer: "Arduino as ISP"
+
+5. Now upload your sketch for ATT88 as usual.
+
+-------------------------------------------------------
+
+I hooked up the RFM69CW module with the ATT88 programmed to run at 8MHz with a sketch that does a wireless ping-pong with the basestation radio. The test was successful.  I.e., for my purpose, ATT88 is a good replacement for ATT84 that I have been using and, for my purpose it is pin-compatible with ATMega328.  The RFM69CW drive I use is from JeeLib and I had to make only minor modifications to the library code to use it on ATT88.
+
+Following are the connections between ATT88 and RFM69CW module:
+
+
+     ATT88 Physical Pin                      RFM69CW Pins
+           16 (SS)                             7 (NSS)
+           17 (MOSI)                           5 (MOSI)
+           18 (MISO)                           8 (MISO)
+           19 SCK                              6 (SCK)
+            4 (INT0/2/PCINT18/PD2)             9 DI00
+
+While I did not use one for my current test, it's advisable to put a 10uF cap between pins 2 and 3 (GND and VCC) of the RFM69 module, as close as possible to the pins.
+
+One follow up question for the experts now is: The ATTinyCore offers a choice of 8MHz or 1MHz (internal) for clock settings for ATTiny48/88.  However these MCUs can be run at 4MHz or lower as well.  Can I do something in my program to set it to run it at, say, 2 MHz or 4MHz?  If not, can the ATTinyCore be changed to allow other clock settings (as for other ATTinys)?
+
+--------------------------------------------------
+JeeLib changes:
+
+The Sleepy::loseSomeTime() function in Ports.cpp has a #define for code meant for ATTiny AVR MCUs.  That #define responds to __AVR_ATtiny84/85/44/45__.  ATTiny88 is different in the sense that is (mostly) compatible with ATTiny328 (even is pin compatible), is ATTiny class MCU.  Addin __AVR_ATtiny88__ to the list in the #define fixes the compile-time problem.
+
+I have now tested Sleepy::loseSomeTime() to work on ATT88.  It gives the expected delay.  I haven't measured that the MCU's power consumption also goes down as expected (i.e. the MCU does go into deep-sleep mode).
