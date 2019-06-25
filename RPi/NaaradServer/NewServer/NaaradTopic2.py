@@ -34,7 +34,7 @@ class NaaradTopic (Thread):
         while (not settings5.NAARAD_SHUTDOWN):
             try:
                 line =self.uno.readline().rstrip();
-            except (AttributeError, UniocodeDecodeError) as excpt:
+            except (AttributeError, UnicodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
                 line="";
             #line =self.uno.getSerial().readline();
