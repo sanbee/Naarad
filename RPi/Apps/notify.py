@@ -7,8 +7,7 @@ sys.path.insert(0, '../NaaradServer/NewServer');
 from mySock import mysocket;
 import time;
 
-SERVER="raspberrypi";
-SERVER="192.168.0.66";
+SERVER="naaradhost";
 PORT=1234;
 
 class MyException(Exception):
