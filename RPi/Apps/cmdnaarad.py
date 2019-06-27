@@ -30,13 +30,15 @@ class MyException(Exception):
     pass;
 
 def neumonic(cmd):
-        if (cmd == "CLOSE"): return 0;
-        if (cmd == "OPEN"): return 1;
-        if (cmd == "SHUT"): return 2;
-        if (cmd == "RX_TO"): return 3;
-        if (cmd == "POLL_TO"): return 4;
-        if (cmd == "PULSE_WIDTH"): return 5;
-        raise MyException("Incorrect command string \""+cmd+"\"");
+    # These are neumonics for the commands sent to the remote node, e.g. to the sprinkler
+    # controller.
+    if (cmd == "CLOSE"): return 0;
+    if (cmd == "OPEN"): return 1;
+    if (cmd == "SHUT"): return 2;
+    if (cmd == "RX_TO"): return 3;
+    if (cmd == "POLL_TO"): return 4;
+    if (cmd == "PULSE_WIDTH"): return 5;
+    raise MyException("Incorrect command string \""+cmd+"\"");
 
 def main(argv):
         if (len(sys.argv) < 6):
