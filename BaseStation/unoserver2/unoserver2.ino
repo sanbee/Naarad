@@ -322,7 +322,41 @@ static short int setByte(short int word, short int nibble, short int whichByte)
 //####################################################################
 //---------------------------------------------
 // Send payload data via RF
-//---------------------------------------------
+//
+// A single call to rf12_sendStart()/rf12_sendWait() combo seems
+// required immediately after rf12_recvDone() via rf12_canSend()
+// polling.  Multiple calls to rf12_sendStart()/rf12_sendWait() seems
+// to make the RFM69CW unstable. I.e. it freezes, sometime after a few
+// days or operation, after which it does not receive *any* packets
+// from *any* of the nodes.  It **may** be capable of transmitting,
+// but I haven't confirmed that.  
+//
+// From what I can understand of the driver's FSM, rf12_sendStart()
+// will turn the radio into TX mode and keep it in that state till
+// sending is finished. rf12_sendWait(), I think, will wait till the
+// sending is finished.  And in this state, any RX packets will be
+// ignored (lost).  Since the driver's packet buffer is shared between
+// TX and RX states, the TX state should be entered only if there is
+// no received packets in the packet buffer.  This condition is
+// ensured via the "while(!rf12_canSend()) rf12_recvDone();" polling
+// loop.
+//
+// rf12_sendWait(1) is the only one that works for "standard" fuses
+// used on ATT84/88 when programmed with TinyCore using Arduino IDE
+// ("Arduino as ISP").  Values of 2 or 3 as the argument would work
+// for ATmega (?) and requires special fuses, etc.  Probably also not
+// worth the effort given that this code runs on the wall-powered,
+// always-on BaseStation unit.  This kind of BaseStation is
+// fundamental part of RF network of remote nodes, some of which are
+// TX-only and others are RX-TX nodes.
+//
+// A good resource for understanding, in some detail, the FSM is the
+// "Inside the RF12 Driver" series via the following link:
+// https://jeelabs.org/2011/12/10/inside-the-rf12-driver/ 
+//
+//                                            --SB (July 4th., 2019)
+//
+// ---------------------------------------------
 static void rfwrite(const Payload& P)
 {
   {
@@ -330,9 +364,9 @@ static void rfwrite(const Payload& P)
     while (!rf12_canSend()) rf12_recvDone();
     rf12_sendStart(0, &P, sizeof P);
     rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-    rf12_sendStart(0, &P, sizeof P);
-    rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-    //       rf12_sleep(0);    //put RF module to sleep
+    // rf12_sendStart(0, &P, sizeof P);
+    // rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
+    // //       rf12_sleep(0);    //put RF module to sleep
   }
 }
 //####################################################################
