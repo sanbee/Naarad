@@ -202,17 +202,18 @@ class ClientThread (Thread):
                 cmd = tok[0].strip()
                 print (str(self.name)+" got: \""+msg+"\"");
                 if (cmd == "open"):
-                    self.uno.open(); # Checks internally if it is already open
-
+                    #self.uno.open(); # Checks internally if it is already open
+                    print("uno.open() disabled")
                 elif (cmd == "close"):
-                    self.uno.close(); # Checks internally if it already closed
+                    #self.uno.close(); # Checks internally if it already closed
+                    print("uno.close() disabled")
 
                 elif (cmd == "gett"):
                     print ("running cmd "+cmd+"@"+self.name);
-                    self.uno.open();
+                    #self.uno.open();
                     data=self.pogo.gettemp();
                     print ("GETT: ",data);
-                    self.uno.close();
+                    #self.uno.close();
                     #self.myc1.send(data.strip());
 
                 elif (cmd == "getnodelist"):
@@ -229,29 +230,29 @@ class ClientThread (Thread):
 
                 elif (cmd == "get"):
                     print ("running cmd "+cmd+"@"+self.name);
-                    self.uno.open();
+                    #self.uno.open();
                     data=self.pogo.getrtemp();
                     print ("Data = ",data);
-                    self.uno.close();
+                    #self.uno.close();
                     self.myc1.send(data.strip());
 
                 elif (cmd == "cget"):
                     while(self.uno.inWaiting() > 0):
-                        self.uno.open();
+                        #self.uno.open();
                         data=self.uno.readline();
-                        self.uno.close();
+                        #self.uno.close();
                         self.myc1.send(data.strip());
 
                 elif (cmd == "tell"):
                     if (len(tok) >= 3):
-                        self.uno.open();
+                        #self.uno.open();
                         self.pogo.tell(int(tok[1]),int(tok[2]));
-                        self.uno.close();
+                        #self.uno.close();
 
                 elif (cmd == "pogocmd"):
-                    self.uno.open();
+                    #self.uno.open();
                     val = self.pogo.sendCmd(cmd);
-                    self.uno.close();
+                    #self.uno.close();
                     #print ("MCTh: pogocmd = ",val);
                     self.myc1.send(val.strip());
 
@@ -265,9 +266,9 @@ class ClientThread (Thread):
                     if (len(tok) < 5):
                         raise(NaaradClientException("Usage: "+tok[0]+" CMD NODEID PORT TIMEOUT"));
                     else:
-                        self.uno.open();
+                        #self.uno.open();
                         self.uno.send(tok[0]+" "+tok[1]+" "+tok[2]+" "+tok[3]+" "+tok[4]);
-                        self.uno.close();
+                        #self.uno.close();
 
                 elif (cmd=="notify"):
                     self.handleNotify(tok);
