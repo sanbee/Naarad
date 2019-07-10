@@ -286,9 +286,9 @@ void loop()
       // The RFM_SEND switch above loads the RFM_SEND command in
       // TX_payload queue.  readRFM69() call below is the one which
       // should POP out the payload from TX_payload (it's a 2D array),
-      if ((msg = readRFM69())!=NULL)
+      if (readRFM69()!=0)
         {
-	  Serial.println(msg);
+	  Serial.println(str.buf);
           str.reset();
         }
     }
@@ -327,12 +327,34 @@ static void rfwrite(const Payload& P)
 {
   {
     rf12_sleep(-1);     //wake up RF module
-    while (!rf12_canSend()) rf12_recvDone();
+
+    int i=0;
+    while (!rf12_canSend()) {rf12_recvDone();i++;}
     rf12_sendStart(0, &P, sizeof P);
     rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-    rf12_sendStart(0, &P, sizeof P);
-    rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
+    // rf12_sendStart(0, &P, sizeof P);
+    // rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
     //       rf12_sleep(0);    //put RF module to sleep
+
+    // int i=0;
+    // for(i=0;i<100;i++)
+    //   if (rf12_canSend())
+    // 	{
+    // 	  //    while (!rf12_canSend()) rf12_recvDone();
+    // 	  rf12_sendStart(0, &P, sizeof P);
+    // 	  rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
+    // 	  rf12_sendStart(0, &P, sizeof P);
+    // 	  rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
+    // 	  //       rf12_sleep(0);    //put RF module to sleep
+    // 	  break;
+    // 	}
+    //   else
+    // 	{
+    // 	  rf12_recvDone();
+    // 	  delay(10);
+    // 	}
+    // if (i > 0)
+    //   Serial.println("{\"rf_fail\":1,\"source\":\"ERROR RFM_SEND\",\"Try\":"+String(i)+(" }\0"));
   }
 }
 //####################################################################
@@ -412,7 +434,7 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
 #define RX_HDR_OK()  (((rf12_hdr & RF12_HDR_CTL) == 0))
 #define RX_NODEID()  ((rf12_hdr & 0x1F))
 
-static char* readRFM69()
+static byte readRFM69()
 {
   int payload_nodeID=NOTHING_TO_SEND;
   bool isACK=false;
@@ -456,7 +478,8 @@ static char* readRFM69()
 	  lastPktSent[listenerNdx] = millis();
 	  TX_counter[listenerNdx]++;
       }
-  return (str.fill==0)?NULL:str.buf;
+  // return (str.fill==0)?NULL:str.buf;
+  return str.fill;
 }
 //####################################################################
 void writeOne() 

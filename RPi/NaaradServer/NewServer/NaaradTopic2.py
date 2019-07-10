@@ -33,9 +33,10 @@ class NaaradTopic (Thread):
     # topicsSubscriberList["SensorDataSink"]).
     def run(self):
         while 1:
+            line="";
             try:
-                line =self.uno.readline().rstrip();
-            except (AttributeError, UniocodeDecodeError) as excpt:
+                line =self.uno.myreadline().rstrip();
+            except (AttributeError, UnicodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
                 line="";
             #line =self.uno.getSerial().readline();
@@ -56,13 +57,13 @@ class NaaradTopic (Thread):
 
             print("@@@: "+line);
             #line = self.pktHndlr.addTimeStamp(line);
-            line = Utils.addTimeStamp("time",line);
             #print("###: "+line);
                 
             rlock = threading.RLock();
             with rlock:
                 try:
                     if (("rf_fail" in line)):
+                        line = Utils.addTimeStamp("time",line);
                         jdict = json.loads(line);# The JSON parser
                         # print jdict;
 
