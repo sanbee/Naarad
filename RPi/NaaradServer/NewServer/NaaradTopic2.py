@@ -53,8 +53,8 @@ class NaaradTopic (Thread):
             # should be fixed in the UNO code.
             #line=line.replace(" }}", " }"); 
             if (not ("cmd" in line)):
-                jdict=json.loads(line);
-                line = json.dumps(Utils.modifyJSON(jdict,["cmd"],[-1])).decode();
+                line=Utils.addKey("cmd",-1,line);
+
             print("@@@: "+line);
                 
             rlock = threading.RLock();

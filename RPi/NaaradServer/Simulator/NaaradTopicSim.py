@@ -49,13 +49,14 @@ class NaaradTopicSim (Thread):
                 jdict["node_p"]=-30.0-random.random()*30.0;
                 jdict["source"]="naaradsim";
                 line =json.dumps(jdict);
+                if (nodech==3):
+                    line="Three!";
             except (AttributeError, UniocodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
                 line="";
             #line = self.pktHndlr.addTimeStamp(line);
             if (not ("cmd" in line)):
-                jdict=json.loads(line);
-                line = json.dumps(Utils.modifyJSON(jdict,["cmd"],[-1])).decode();
+                line=Utils.addKey("cmd",-1,line);
 
             print("@@@: "+line);
             #print("###: "+line);
