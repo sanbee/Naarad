@@ -34,8 +34,8 @@ def addTimeStamp(name,jsonStr):
         jdict=json.loads(jsonStr);
         keywords=[name]; values=[time.time()*1000.0];
         modifyJSON(jdict,keywords,values,0); # Add time=value
-        return json.dumps(jdict);
+        return json.dumps(jdict),jdict;
     except(ValueError) as excpt:
         print("Not a JSON string: %s"%jsonStr);
-        return jsonStr;
+        return jsonStr,json.loads(jsonStr);
         

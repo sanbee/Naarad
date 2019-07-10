@@ -142,7 +142,7 @@ class ClientThread (Thread):
         with notifyOnCond:
             notifyOnCond.wait(timeOut);
             cpkt=settings5.gCurrentPacket[notifyForNodeID];
-            cpkt=Utils.addTimeStamp("tnot",cpkt);
+            cpkt,jdict=Utils.addTimeStamp("tnot",cpkt);
             self.myc1.send(cpkt);
         settings5.gClientList.unregister(uuid);
         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
@@ -171,7 +171,7 @@ class ClientThread (Thread):
                 with notifyOnCond:
                     notifyOnCond.wait(timeOut);
                     cpkt=settings5.gCurrentPacket[notifyForNodeID];
-                    cpkt=Utils.addTimeStamp("tnot",cpkt);
+                    cpkt,jdict=Utils.addTimeStamp("tnot",cpkt);
                     self.myc1.send(cpkt);
         except RuntimeError as e:#, socket.error as e):
             print ("handleContNotify: Error during notification.")

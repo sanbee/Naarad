@@ -39,11 +39,12 @@ class NaaradTopicSim (Thread):
             try:
                 nodech+=1;
                 jdict={};
-                jdict["rf_fail"]=1;
+                jdict["rf_fail"]=0;
                 #jdict["cmd"]=-1;
                 node=1;
                 if (nodech%10==0):
                     node=3;
+                    jdict["rf_fail"]=1;
                 jdict["node_id"]=node;
                 jdict["degc"]=20.0+(random.random()-0.5)/2.0;
                 jdict["node_p"]=-30.0-random.random()*30.0;
@@ -65,8 +66,8 @@ class NaaradTopicSim (Thread):
             with rlock:
                 try:
                     if (("rf_fail" in line)):
-                        line = Utils.addTimeStamp("time",line);
-                        jdict = json.loads(line);# The JSON parser
+                        line,jdict = Utils.addTimeStamp("time",line);
+                        #jdict = json.loads(line);# The JSON parser
                         # print jdict;
 
                         # Always add the packet to the current packet
@@ -80,8 +81,7 @@ class NaaradTopicSim (Thread):
                         settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
                             self.pktHndlr.addPacket(line,jdict);
-                        else:
-                            self.pktHndlr.processInfoPacket(nodeID, jdict);
+                        self.pktHndlr.processInfoPacket(nodeID, jdict);
                             #self.addPacket(line,jdict);
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());
