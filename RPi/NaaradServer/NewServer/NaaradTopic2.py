@@ -37,21 +37,7 @@ class NaaradTopic (Thread):
             except (AttributeError, UnicodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
                 line="";
-            #line =self.uno.getSerial().readline();
-            # try:
-            #     tt=line.decode('UTF-8',errors='ignore');
-            #     # print('XXXX: '+tt);
-            #     line = tt.rstrip();
-            # except(AttributeError, UnicodeDecodeError):
-            #     print("Could not decode to utf-8");
-            #     line="";
 
-            # A HACK: The JSON string from UNO does not seem to be
-            # cleared up properly.  As a result, if one string was
-            # (e.g.), "{a, b, c }" and the next one was shorter, like
-            # "{a, b }", it comes out looking like {"a, b }}".  This
-            # should be fixed in the UNO code.
-            #line=line.replace(" }}", " }"); 
             if (not ("cmd" in line)):
                 line=Utils.addKey("cmd",-1,line);
 
@@ -76,9 +62,8 @@ class NaaradTopic (Thread):
                         settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
                             self.pktHndlr.addPacket(line,jdict);
-                        else:
-                            self.pktHndlr.processInfoPacket(nodeID, jdict);
-                            #self.addPacket(line,jdict);
+                        self.pktHndlr.processInfoPacket(nodeID, jdict);
+
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());
                     print ("Error duing JSON parsing: Line=\""+line+"\"");
