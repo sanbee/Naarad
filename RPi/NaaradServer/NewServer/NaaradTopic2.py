@@ -47,9 +47,8 @@ class NaaradTopic (Thread):
             with rlock:
                 try:
                     if (("rf_fail" in line)):
-                        line = Utils.addTimeStamp("time",line);
-                        jdict = json.loads(line);# The JSON parser
-                        # print jdict;
+                        line,jdict = Utils.addTimeStamp("time",line);
+                        #jdict = json.loads(line);# The JSON parser
 
                         # Always add the packet to the current packet
                         # cache.
