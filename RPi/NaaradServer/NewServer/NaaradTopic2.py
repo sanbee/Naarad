@@ -51,7 +51,10 @@ class NaaradTopic (Thread):
             # (e.g.), "{a, b, c }" and the next one was shorter, like
             # "{a, b }", it comes out looking like {"a, b }}".  This
             # should be fixed in the UNO code.
-            line=line.replace(" }}", " }"); 
+            #line=line.replace(" }}", " }"); 
+            if (not ("cmd" in line)):
+                jdict=json.loads(line);
+                line = json.dumps(Utils.modifyJSON(jdict,["cmd"],[-1])).decode();
             print("@@@: "+line);
                 
             rlock = threading.RLock();

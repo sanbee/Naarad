@@ -40,7 +40,7 @@ class NaaradTopicSim (Thread):
                 nodech+=1;
                 jdict={};
                 jdict["rf_fail"]=1;
-                jdict["cmd"]=-1;
+                #jdict["cmd"]=-1;
                 node=1;
                 if (nodech%10==0):
                     node=3;
@@ -53,7 +53,10 @@ class NaaradTopicSim (Thread):
                 print("Could not decode to utf-8: %s" %excpt);
                 line="";
             #line = self.pktHndlr.addTimeStamp(line);
-            line = Utils.addTimeStamp("time",line);
+            if (not ("cmd" in line)):
+                jdict=json.loads(line);
+                line = json.dumps(Utils.modifyJSON(jdict,["cmd"],[-1])).decode();
+
             print("@@@: "+line);
             #print("###: "+line);
                 
@@ -61,6 +64,7 @@ class NaaradTopicSim (Thread):
             with rlock:
                 try:
                     if (("rf_fail" in line)):
+                        line = Utils.addTimeStamp("time",line);
                         jdict = json.loads(line);# The JSON parser
                         # print jdict;
 
