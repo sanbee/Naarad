@@ -1,5 +1,5 @@
 # Naarad Host Server
 
-The block level system diagram looks like this:
+The block level diagram of the server looks like this:
 
-![SysDiagram](Docs/NaaradSoftware.png)
+![SysDiagram](../Docs/NaaradSoftware.png)
