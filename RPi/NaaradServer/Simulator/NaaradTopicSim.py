@@ -42,7 +42,7 @@ class NaaradTopicSim (Thread):
                 jdict["rf_fail"]=0;
                 #jdict["cmd"]=-1;
                 node=1;
-                if (nodech%10==0):
+                if (nodech%5==0):
                     node=3;
                     jdict["rf_fail"]=1;
                 jdict["node_id"]=node;
@@ -78,11 +78,12 @@ class NaaradTopicSim (Thread):
                         # right-most packet in the gPacketHistory
                         # queue.
                         nodeID=Utils.getNodeID(jdict);
+                        self.pktHndlr.processInfoPacket(nodeID, jdict);
+
                         settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
                             self.pktHndlr.addPacket(line,jdict);
-                        self.pktHndlr.processInfoPacket(nodeID, jdict);
-                            #self.addPacket(line,jdict);
+
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());
                     print ("Error duing JSON parsing: Line=\""+line+"\"");

@@ -41,7 +41,7 @@ class NaaradTopic (Thread):
             if (not ("cmd" in line)):
                 line=Utils.addKey("cmd",-1,line);
 
-            print("@@@: "+line);
+            print("@@@: "+time.asctime()+": "+line);
                 
             rlock = threading.RLock();
             with rlock:

@@ -122,7 +122,7 @@ static PacketBuffer str;
 
 //####################################################################
 // Flow control varaiables
-unsigned long lastPktSent[N_LISTENERS];
+unsigned long lastPktSent[N_LISTENERS], lastPktRecvd=0;
 
 //####################################################################
 //####################################################################
@@ -163,6 +163,11 @@ void setup()
 //####################################################################
 void loop() 
 {
+  if ((millis() - lastPktRecvd) > 10000)
+    {
+      Serial.println("{\"rf_fail\":1,\"source\":\"Init RFM\",\"node\": 0 }\0");
+      rf12_initialize(MYNODE, freq,group,1600 /*freqOffset*/);
+    }
   if (seqReady) 
     {
       //For debugging -- write the full command on the serial output stream
@@ -290,6 +295,7 @@ void loop()
         {
 	  Serial.println(msg);
           str.reset();
+	  lastPktRecvd = millis()
         }
     }
 }
