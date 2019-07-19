@@ -167,6 +167,7 @@ void loop()
     {
       Serial.println("{\"rf_fail\":1,\"source\":\"Init RFM\",\"node\": 0 }\0");
       rf12_initialize(MYNODE, freq,group,1600 /*freqOffset*/);
+      lastPktRecvd = millis()
     }
   if (seqReady) 
     {
