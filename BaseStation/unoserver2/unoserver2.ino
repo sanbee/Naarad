@@ -122,7 +122,7 @@ static PacketBuffer str;
 
 //####################################################################
 // Flow control varaiables
-unsigned long lastPktSent[N_LISTENERS];
+unsigned long lastPktSent[N_LISTENERS], lastPktRecvd=0;
 
 //####################################################################
 //####################################################################
@@ -163,6 +163,12 @@ void setup()
 //####################################################################
 void loop() 
 {
+  if ((millis() - lastPktRecvd) > 10000)
+    {
+      Serial.println("{\"rf_fail\":1,\"source\":\"Init RFM\",\"node\": 0 }\0");
+      rf12_initialize(MYNODE, freq,group,1600 /*freqOffset*/);
+      lastPktRecvd=millis();
+    }
   if (seqReady) 
     {
       //For debugging -- write the full command on the serial output stream
@@ -286,10 +292,11 @@ void loop()
       // The RFM_SEND switch above loads the RFM_SEND command in
       // TX_payload queue.  readRFM69() call below is the one which
       // should POP out the payload from TX_payload (it's a 2D array),
-      if (readRFM69()!=0)
+      if ((msg = readRFM69())!=NULL)
         {
-	  Serial.println(str.buf);
+	  Serial.println(msg);
           str.reset();
+	  lastPktRecvd = millis();
         }
     }
 }
@@ -322,39 +329,51 @@ static short int setByte(short int word, short int nibble, short int whichByte)
 //####################################################################
 //---------------------------------------------
 // Send payload data via RF
-//---------------------------------------------
+//
+// A single call to rf12_sendStart()/rf12_sendWait() combo seems
+// required immediately after rf12_recvDone() via rf12_canSend()
+// polling.  Multiple calls to rf12_sendStart()/rf12_sendWait() seems
+// to make the RFM69CW unstable. I.e. it freezes, sometime after a few
+// days or operation, after which it does not receive *any* packets
+// from *any* of the nodes.  It **may** be capable of transmitting,
+// but I haven't confirmed that.  
+//
+// From what I can understand of the driver's FSM, rf12_sendStart()
+// will turn the radio into TX mode and keep it in that state till
+// sending is finished. rf12_sendWait(), I think, will wait till the
+// sending is finished.  And in this state, any RX packets will be
+// ignored (lost).  Since the driver's packet buffer is shared between
+// TX and RX states, the TX state should be entered only if there is
+// no received packets in the packet buffer.  This condition is
+// ensured via the "while(!rf12_canSend()) rf12_recvDone();" polling
+// loop.
+//
+// rf12_sendWait(1) is the only one that works for "standard" fuses
+// used on ATT84/88 when programmed with TinyCore using Arduino IDE
+// ("Arduino as ISP").  Values of 2 or 3 as the argument would work
+// for ATmega (?) and requires special fuses, etc.  Probably also not
+// worth the effort given that this code runs on the wall-powered,
+// always-on BaseStation unit.  This kind of BaseStation is
+// fundamental part of RF network of remote nodes, some of which are
+// TX-only and others are RX-TX nodes.
+//
+// A good resource for understanding, in some detail, the FSM is the
+// "Inside the RF12 Driver" series via the following link:
+// https://jeelabs.org/2011/12/10/inside-the-rf12-driver/ 
+//
+//                                            --SB (July 4th., 2019)
+//
+// ---------------------------------------------
 static void rfwrite(const Payload& P)
 {
   {
-    rf12_sleep(-1);     //wake up RF module
-
-    int i=0;
-    while (!rf12_canSend()) {rf12_recvDone();i++;}
+    //rf12_sleep(-1);     //wake up RF module
+    while (!rf12_canSend()) rf12_recvDone();
     rf12_sendStart(0, &P, sizeof P);
     rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
     // rf12_sendStart(0, &P, sizeof P);
     // rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-    //       rf12_sleep(0);    //put RF module to sleep
-
-    // int i=0;
-    // for(i=0;i<100;i++)
-    //   if (rf12_canSend())
-    // 	{
-    // 	  //    while (!rf12_canSend()) rf12_recvDone();
-    // 	  rf12_sendStart(0, &P, sizeof P);
-    // 	  rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-    // 	  rf12_sendStart(0, &P, sizeof P);
-    // 	  rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-    // 	  //       rf12_sleep(0);    //put RF module to sleep
-    // 	  break;
-    // 	}
-    //   else
-    // 	{
-    // 	  rf12_recvDone();
-    // 	  delay(10);
-    // 	}
-    // if (i > 0)
-    //   Serial.println("{\"rf_fail\":1,\"source\":\"ERROR RFM_SEND\",\"Try\":"+String(i)+(" }\0"));
+    // //       rf12_sleep(0);    //put RF module to sleep
   }
 }
 //####################################################################
@@ -434,7 +453,7 @@ static bool processACK(const int rx_nodeID, const int rx_rx, const int rx_supply
 #define RX_HDR_OK()  (((rf12_hdr & RF12_HDR_CTL) == 0))
 #define RX_NODEID()  ((rf12_hdr & 0x1F))
 
-static byte readRFM69()
+static char* readRFM69()
 {
   int payload_nodeID=NOTHING_TO_SEND;
   bool isACK=false;
@@ -478,8 +497,7 @@ static byte readRFM69()
 	  lastPktSent[listenerNdx] = millis();
 	  TX_counter[listenerNdx]++;
       }
-  // return (str.fill==0)?NULL:str.buf;
-  return str.fill;
+  return (str.fill==0)?NULL:str.buf;
 }
 //####################################################################
 void writeOne() 

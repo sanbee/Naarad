@@ -75,7 +75,8 @@ class NaaradTopic (Thread):
                         # right-most packet in the gPacketHistory
                         # queue.
                         nodeID=Utils.getNodeID(jdict);
-                        settings5.gCurrentPacket[nodeID] = line;
+                        if (nodeID > 0):
+		       	    settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
                             self.pktHndlr.addPacket(line,jdict);
                         else:
