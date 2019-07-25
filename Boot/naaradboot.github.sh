@@ -21,6 +21,6 @@ cd /mnt/flash1/Naarad/RPi/NaaradServer/NewServer
 #python serversoc4.py
 screen -d -m -t Naarad python -B naarad.py
 
-#screen -d -m -t Naarad bash -c 'python -u -B naarad.py | tee >(grep --line-buffered "RFM" >| init.log)'
+#screen -d -m -t Naarad bash -c 'python -u -B naarad.py | tee >(grep --line-buffered "Init RFM" >| init.log)'
 
 # Can also use python serversock5.py as of Jan 5, 2017
