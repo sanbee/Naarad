@@ -71,27 +71,30 @@ def startServer():
     # is also removed from the topicsSubscriberList.
     threadID=0;
     while (not settings5.NAARAD_SHUTDOWN):
-        fd = select.select([serversocket.fileno()],[],[]);
-        (clientsocket, address) = serversocket.accept()
+        try:
+            fd = select.select([serversocket.fileno()],[],[]);
+            (clientsocket, address) = serversocket.accept()
         
-        #now do something with the clientsocket
-        myc1 = mysocket(clientsocket);
-        connectionType=myc1.receive().strip();
-        print ("connection accepted",address,connectionType);
+            #now do something with the clientsocket
+            myc1 = mysocket(clientsocket);
+            connectionType=myc1.receive().strip();
+            print ("connection accepted",address,connectionType);
     
-        # Start a new thread to service this socket connection.  The
-        # thread exits when end-of-communication command ("done") is
-        # received on myc1 socket or if there is an irrecoverable error or
-        # when the client closes the socket or when the client dies.  In
-        # all cases, ClientThread also closes the myc1 socket before
-        # exiting.
-        name = "Th"+str(threadID);
-        myCTh = ClientThread(threadID, name, myc1, uno, pogo, connectionType);
-        threadID = threadID+1;
-        myCTh.start();
-        if (settings5.NAARAD_SHUTDOWN):
-            print ("### Exiting Naarad socket server thread");
-
+            # Start a new thread to service this socket connection.  The
+            # thread exits when end-of-communication command ("done") is
+            # received on myc1 socket or if there is an irrecoverable error or
+            # when the client closes the socket or when the client dies.  In
+            # all cases, ClientThread also closes the myc1 socket before
+            # exiting.
+            name = "Th"+str(threadID);
+            myCTh = ClientThread(threadID, name, myc1, uno, pogo, connectionType);
+            threadID = threadID+1;
+            myCTh.start();
+            if (settings5.NAARAD_SHUTDOWN):
+                print ("### Exiting Naarad socket server thread");
+        except KeyboardInterrupt:
+            print "\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server";
+            
 if __name__ == "__main__":
     initNaarad();
     startServer();
