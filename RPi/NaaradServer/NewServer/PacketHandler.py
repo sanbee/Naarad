@@ -12,6 +12,9 @@ class PacketHandler():
 
     def addPacket31(self,packet,thisJSON):
         nodeid=thisJSON["node_id"];
+        if (nodeid==0):
+           return;
+
         thisTimeStamp=thisJSON["time"];
         paramName = thisJSON["name"];
         

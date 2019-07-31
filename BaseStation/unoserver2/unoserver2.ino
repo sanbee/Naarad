@@ -367,7 +367,7 @@ static short int setByte(short int word, short int nibble, short int whichByte)
 static void rfwrite(const Payload& P)
 {
   {
-    rf12_sleep(-1);     //wake up RF module
+    //rf12_sleep(-1);     //wake up RF module
     while (!rf12_canSend()) rf12_recvDone();
     rf12_sendStart(0, &P, sizeof P);
     rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)

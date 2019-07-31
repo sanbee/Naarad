@@ -41,6 +41,7 @@ def initNaarad():
     #uno=comPort(port=settings5.NAARAD_COMPORT,baudrate=9600);
     uno=comPort(port=settings5.NAARAD_COMPORT);
     uno.open();
+    time.sleep(1);
     #
     # Instantiate the object that encapsulates communcation to the packet
     # radio (RFM64CW) connected to UNO.
