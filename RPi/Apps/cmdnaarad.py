@@ -6,11 +6,6 @@ import serverinfo
 from mySock import mysocket;
 import time;
 
-<<<<<<< HEAD
-=======
-SERVER="naaradhost";
-PORT=1234;
->>>>>>> origin/master
 helpmsg="\n\
    Operation       NODEID    CMD       P1                 P0\n\
   --------------------------------------------------------------------------------\n\
