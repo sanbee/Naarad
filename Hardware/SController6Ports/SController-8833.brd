@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.3.0">
+<eagle version="9.4.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -92,7 +92,7 @@
 <wire x1="72.1616" y1="0" x2="72.1616" y2="64.76" width="0" layer="20"/>
 <wire x1="72.1616" y1="64.76" x2="0" y2="64.76" width="0" layer="20"/>
 <wire x1="0" y1="64.76" x2="0" y2="0" width="0" layer="20"/>
-<text x="20.3708" y="24.6634" size="1.016" layer="25">Naarad Sprinkler Controller (6-port): Ver 1.0</text>
+<text x="2.9464" y="25.3238" size="1.016" layer="25">Naarad Sprinkler Controller (6-port): Ver 1.0</text>
 <text x="1.0922" y="60.2234" size="1.016" layer="25" rot="R90">3V3</text>
 <text x="1.0922" y="54.6354" size="1.016" layer="25" rot="R90">GND</text>
 <text x="1.1684" y="49.6316" size="1.016" layer="25" rot="R90">GND</text>
@@ -146,6 +146,43 @@
 <text x="72.0598" y="42.6212" size="1.016" layer="25" rot="R90">R</text>
 <text x="72.1614" y="50.165" size="1.016" layer="25" rot="R90">G</text>
 <text x="72.009" y="39.116" size="1.016" layer="25" rot="R90">S</text>
+<text x="47.9806" y="25.273" size="1.016" layer="25">https://github.com/sanbee/Naarad</text>
+<text x="2.8956" y="19.3294" size="0.8128" layer="21" rot="R90">GND</text>
+<text x="18.3642" y="19.7358" size="0.8128" layer="21" rot="R90">SLP</text>
+<text x="27.1526" y="19.1262" size="0.8128" layer="21" rot="R90">GND</text>
+<text x="42.4942" y="19.431" size="0.8128" layer="21" rot="R90">SLP</text>
+<text x="51.308" y="19.2278" size="0.8128" layer="21" rot="R90">GND</text>
+<text x="66.6496" y="19.5326" size="0.8128" layer="21" rot="R90">SLP</text>
+<text x="5.3086" y="14.097" size="0.8128" layer="21" rot="R90">VIN</text>
+<text x="8.128" y="13.8938" size="0.8128" layer="21" rot="R90">OB1</text>
+<text x="10.6934" y="13.9954" size="0.8128" layer="21" rot="R90">OB2</text>
+<text x="13.1826" y="13.9954" size="0.8128" layer="21" rot="R90">OA2</text>
+<text x="15.5702" y="14.097" size="0.8128" layer="21" rot="R90">OA1</text>
+<text x="29.464" y="13.7668" size="0.8128" layer="21" rot="R90">VIN</text>
+<text x="32.2834" y="13.5636" size="0.8128" layer="21" rot="R90">OB1</text>
+<text x="34.8488" y="13.6652" size="0.8128" layer="21" rot="R90">OB2</text>
+<text x="37.338" y="13.6652" size="0.8128" layer="21" rot="R90">OA2</text>
+<text x="39.7256" y="13.7668" size="0.8128" layer="21" rot="R90">OA1</text>
+<text x="53.4162" y="13.9954" size="0.8128" layer="21" rot="R90">VIN</text>
+<text x="56.2356" y="13.7922" size="0.8128" layer="21" rot="R90">OB1</text>
+<text x="58.801" y="13.8938" size="0.8128" layer="21" rot="R90">OB2</text>
+<text x="61.2902" y="13.8938" size="0.8128" layer="21" rot="R90">OA2</text>
+<text x="63.6778" y="13.9954" size="0.8128" layer="21" rot="R90">OA1</text>
+<text x="56.4388" y="19.4818" size="0.8128" layer="21" rot="R90">IB1</text>
+<text x="59.0042" y="19.5834" size="0.8128" layer="21" rot="R90">IB2</text>
+<text x="61.4934" y="19.5834" size="0.8128" layer="21" rot="R90">IA2</text>
+<text x="63.881" y="19.685" size="0.8128" layer="21" rot="R90">IA1</text>
+<text x="32.385" y="19.8882" size="0.8128" layer="21" rot="R90">IB1</text>
+<text x="34.9504" y="19.9898" size="0.8128" layer="21" rot="R90">IB2</text>
+<text x="37.4396" y="19.9898" size="0.8128" layer="21" rot="R90">IA2</text>
+<text x="39.8272" y="20.0914" size="0.8128" layer="21" rot="R90">IA1</text>
+<text x="8.128" y="19.9898" size="0.8128" layer="21" rot="R90">IB1</text>
+<text x="10.6934" y="20.0914" size="0.8128" layer="21" rot="R90">IB2</text>
+<text x="13.1826" y="20.0914" size="0.8128" layer="21" rot="R90">IA2</text>
+<text x="15.5702" y="20.193" size="0.8128" layer="21" rot="R90">IA1</text>
+<text x="26.9748" y="13.7922" size="0.8128" layer="21" rot="R90">GND</text>
+<text x="2.7178" y="13.8938" size="0.8128" layer="21" rot="R90">GND</text>
+<text x="51.2318" y="13.8938" size="0.8128" layer="21" rot="R90">GND</text>
 </plain>
 <libraries>
 <library name="Pololu_Driver_DRV8833">
@@ -2954,7 +2991,7 @@ design rules under a new name.</description>
 <wire x1="55.5376" y1="61.0691625" x2="53.975" y2="59.73480625" width="0.508" layer="1"/>
 </signal>
 <signal name="N$6">
-<via x="65.4304" y="63.4492" extent="1-16" drill="0.8" shape="square"/>
+<via x="65.4304" y="63.246" extent="1-16" drill="0.8" shape="square"/>
 </signal>
 <signal name="N$7">
 <contactref element="TST" pad="5"/>

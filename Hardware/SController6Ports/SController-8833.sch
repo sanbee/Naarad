@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.3.2">
+<eagle version="9.4.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -16928,12 +16928,10 @@ W = angled&lt;p&gt;
 <net name="SEL" class="0">
 <segment>
 <pinref part="RFM69CW" gate="G$1" pin="SEL"/>
-<wire x1="157.48" y1="30.48" x2="157.48" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="157.48" y1="10.16" x2="167.64" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="167.64" y1="10.16" x2="167.64" y2="-71.12" width="0.1524" layer="91"/>
-<wire x1="167.64" y1="-71.12" x2="205.74" y2="-71.12" width="0.1524" layer="91"/>
+<wire x1="157.48" y1="30.48" x2="157.48" y2="-81.28" width="0.1524" layer="91"/>
+<wire x1="157.48" y1="-81.28" x2="205.74" y2="-81.28" width="0.1524" layer="91"/>
 <pinref part="ATT88" gate="G$1" pin="PB2_[!SS!/OC1B/PCINT2]"/>
-<wire x1="205.74" y1="-71.12" x2="205.74" y2="-58.42" width="0.1524" layer="91"/>
+<wire x1="205.74" y1="-81.28" x2="205.74" y2="-58.42" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="IRQ" class="0">
