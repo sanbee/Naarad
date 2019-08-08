@@ -47,15 +47,15 @@ class comPort:
         self.com1.write((str+"\n").encode());
 
     def read(self,errors='ignore'):
-        #return self.com1.read().decode(errors=errors);
-        return self.com1.read().decode();
+        return self.com1.read().decode(errors=errors);
+        #return self.com1.read().decode();
 
     def readline(self,errors='ignore'):
-        #return self.com1.readline().decode(errors=errors);
-        print("Waiting...");
-        tt=self.com1.readline().decode();
-        print("### "+str(tt));
-        return tt;
+        return self.com1.readline().decode(errors=errors);
+        #print("Waiting...");
+        #tt=self.com1.readline().decode();
+        #print("### "+str(tt));
+        #return tt;
 
     def myreadline(self):
         # FIND START OF FRAME
