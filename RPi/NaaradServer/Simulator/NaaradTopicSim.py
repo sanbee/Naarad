@@ -59,8 +59,7 @@ class NaaradTopicSim (Thread):
             if (not ("cmd" in line)):
                 line=Utils.addKey("cmd",-1,line);
 
-            print("@@@: "+line);
-            #print("###: "+line);
+            print("@@@: "+time.strftime("%a %b %d %H:%M:%S %Y")+":: "+line);
                 
             rlock = threading.RLock();
             with rlock:
