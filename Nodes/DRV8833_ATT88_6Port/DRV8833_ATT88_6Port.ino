@@ -179,9 +179,9 @@ void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
 void setSolenoidPort(const byte cmd, const byte cPort)
 {
   byte IN1, IN2, portD_l=getPORTD(), portB_l=getPORTB();
-  if (cmd==OPEN)       {IN1=HIGH; IN2=LOW;}
-  else if (cmd==CLOSE) {IN1=LOW;  IN2=HIGH;}
-  else /*SHUT*/        {IN1=LOW;  IN2=LOW;}
+  if      (cmd==OPEN)  {IN1=0b11111111; IN2=0b00000000;} // HIGH, LOW
+  else if (cmd==CLOSE) {IN1=0b00000000; IN2=0b11111111;} // LOW, HIGH
+  else /*SHUT*/          {IN1=0b00000000; IN2=0b00000000;} // LOW, LOW
 
   // Set both DRV pins of all ports to the same value (IN1)
   // Set all DRV IN{A,B}2 pins to same value (IN1).  PD6 is the IN{A,B}1 pin for all DRV ports
