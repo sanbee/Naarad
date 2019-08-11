@@ -84,7 +84,7 @@ inline static short int getNibble(short int target, short int which)
 
 //                            IA2_0        IB2_0      IA2_1      IB2_1      IA2_2       IB2_2
 #define HIGH_L 0b11111111
-#define HIGH_L 0b00000000
+#define LOW_L  0b00000000
 
 static byte DRV_PIN2_MASK[]={0b00000001, 0b0000000, 0b00010000, 0b00001000, 0b00000000, 0b01000000};
 static byte PORTD_MASK=0b11011011, PORTB_MASK=0b10000000;
@@ -192,7 +192,7 @@ void setSolenoidPort(const byte cmd, const byte cPort)
   setPort(portB_l, IN1, PORTB_MASK); // PB0=IN1;  IB2_0
   
   // Set DRV SLP to HIGH
-  setPort(portD_l,   HIGH, 0b00000100); // PD5/SLP_D=HIGH
+  setPort(portD_l,   HIGH_L, 0b00000100); // PD5/SLP_D=HIGH
   delay(5);
   
   if (cPort==1) setPort(portB_l, IN2, 0b10000000);

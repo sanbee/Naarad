@@ -9,8 +9,8 @@ typedef char byte;
 #define CLRBIT(t,n)  (t &= ~(1 << n))
 static const byte port2BitMap[N_PORTS]={0,1,2,3,7}; //Pins: A0, A1,A2,A3,A7
 #define getPORTA() (0b10001111)
-#define getPORTB() (0b00000001)
-#define getPORTD() (0b10001111)
+#define getPORTB() (0b01111111)
+#define getPORTD() (0b00100000)
 
 #define CMDPORT(c,p) ({setSolenoid(c,p);printf("Insert 10ms delay\n");setSolenoid(SHUT,p);})
 
@@ -18,7 +18,7 @@ static const byte port2BitMap[N_PORTS]={0,1,2,3,7}; //Pins: A0, A1,A2,A3,A7
 #define HIGH 1
 #define LOW 0
 
-static byte PORTA, PORTB;
+static byte PORTA, PORTB, PORTD;
 using namespace std;
 void showbits(byte x)
 {
@@ -91,6 +91,8 @@ void setSolenoid(const byte& cmd, const byte& port)
 
 static byte DRV_PIN2_MASK[]={0b00000001, 0b0000000, 0b00010000, 0b00001000, 0b00000000, 0b01000000};
 static byte PORTD_MASK=0b11011011, PORTB_MASK=0b10000000;
+#define HIGH_L 0b11111111
+#define LOW_L  0b00000000
 
 void setPort(byte& port,const byte& val, const byte& mask)
 {
@@ -100,9 +102,9 @@ void setPort(byte& port,const byte& val, const byte& mask)
 void setSolenoidPort(const byte& cmd, const byte& cPort)
 {
   byte IN1, IN2, portD_l=getPORTD(), portB_l=getPORTB();
-  if      (cmd==OPEN)  {IN1=0b11111111; IN2=0b00000000;} // HIGH, LOW
-  else if (cmd==CLOSE) {IN1=0b00000000; IN2=0b11111111;} // LOW, HIGH
-  else /*SHUT*/          {IN1=0b00000000; IN2=0b00000000;} // LOW, LOW
+  if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
+  else if (cmd==CLOSE) {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
+  else /*SHUT*/          {IN1=LOW_L; IN2=LOW_L;} // LOW, LOW
 
   // Set both DRV pins of all ports to the same value (IN1)
   // Set all DRV IN{A,B}2 pins to same value (IN1).  PD6 is the IN{A,B}1 pin for all DRV ports
@@ -110,26 +112,32 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   setPort(portB_l, IN1, PORTB_MASK); // PB0=IN1;  IB2_0
   
   // Set DRV SLP to HIGH
-  setPort(portD_l,   HIGH, 0b00000100); // PD5/SLP_D=HIGH
+  setPort(portD_l,   HIGH_L, 0b00000100); // PD5/SLP_D=HIGH
   //  delay(5);
   
   if (cPort==1) setPort(portB_l, IN2, 0b10000000);
   else          setPort(portD_l, IN2, DRV_PIN2_MASK[cPort]);
 
+  printf("   0123 4567\n");
+  printf("   |||| ||||\n");
   printf("B: "); showbits(portB_l);
   printf("D: "); showbits(portD_l);
-  // PORTD=portD_l;
-  // PORTB=portB_l;
+  PORTD=portD_l;
+  PORTB=portB_l;
 
   //  delay(20);
 
   // After 20msec, set all DRV port pins and SLP pin to LOW
-  setPort(portD_l, 0b00000000, PORTD_MASK);
-  setPort(portD_l, 0b00000000, 0b00000100); // PD5/SLP_D=LOW
-  setPort(portB_l, 0b00000000, PORTB_MASK);
+  setPort(portD_l, LOW_L, PORTD_MASK);
+  setPort(portD_l, LOW_L, 0b00000100); // PD5/SLP_D=LOW
+  setPort(portB_l, LOW_L, PORTB_MASK);
 
-  // PORTD=portD_l;
-  // PORTB=portB_l;
+  printf("delay 20ms\n");
+  printf("B: "); showbits(portB_l);
+  printf("D: "); showbits(portD_l);
+
+  PORTD=portD_l;
+  PORTB=portB_l;
   //delay(10);
 }
 
@@ -137,10 +145,14 @@ int main(int argc, char **argv)
 {
   while(1)
     {
+      cout <<  "      0          1           2          3           4          5" << endl;
+      cout <<  "A0:[D6,D7] B0:[D6,B0]  A1:[D6,D3] B1:[D6,D4]  A2:[D6,D0] B2:[D6,D1]" << endl;
       int port, cmd;
       std::cin >> port >> cmd;
+      cerr << "Port:" << port << " cmd:" << cmd << endl;
       //CMDPORT(cmd,port);
       // setSolenoid(cmd,port);
+
       setSolenoidPort(cmd,port);
       printf("------------------------\n");
     }
