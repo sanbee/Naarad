@@ -89,15 +89,16 @@ void setSolenoid(const byte& cmd, const byte& port)
   printf("A: "); showbits(PORTA);
 }
 
-static byte DRV_PIN2_MASK[]={0b00000001, 0b0000000, 0b00010000, 0b00001000, 0b00000000, 0b01000000};
-static byte PORTD_MASK=0b11011011, PORTB_MASK=0b10000000;
-#define HIGH_L 0b11111111
-#define LOW_L  0b00000000
+//                                       D7              B0             D3             D4            D0              D1
+static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
+#define PORTD_MASK 0b11011011 
+#define PORTB_MASK 0b10000000
+#define SLP_MASK   0b00000100
+#define HIGH_L     0b11111111
+#define LOW_L      0b00000000
 
 void setPort(byte& port,const byte& val, const byte& mask)
-{
-  port = (port & ~mask) | (val & mask);
-}
+{port = (port & ~mask) | (val & mask);}
 
 void setSolenoidPort(const byte& cmd, const byte& cPort)
 {
@@ -112,10 +113,10 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   setPort(portB_l, IN1, PORTB_MASK); // PB0=IN1;  IB2_0
   
   // Set DRV SLP to HIGH
-  setPort(portD_l,   HIGH_L, 0b00000100); // PD5/SLP_D=HIGH
+  setPort(portD_l,   HIGH_L, SLP_MASK); // PD5/SLP_D=HIGH
   //  delay(5);
   
-  if (cPort==1) setPort(portB_l, IN2, 0b10000000);
+  if (cPort==1) setPort(portB_l, IN2, DRV_PIN2_MASK[cPort]);
   else          setPort(portD_l, IN2, DRV_PIN2_MASK[cPort]);
 
   printf("   0123 4567\n");

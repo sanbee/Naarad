@@ -174,12 +174,21 @@ void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
   power_adc_enable();
 }
 
-#define SETBIT(t,n)  (t |= 1<<n)
-#define CLRBIT(t,n)  (t &= ~(1 << n))
 #define getPORTD() (PORTD)
 #define getPORTB() (PORTB)
 
-void setSolenoidPort(const byte cmd, const byte cPort)
+//                                       D7              B0             D3             D4            D0              D1
+static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
+#define PORTD_MASK 0b11011011 
+#define PORTB_MASK 0b10000000
+#define SLP_MASK   0b00000100
+#define HIGH_L     0b11111111
+#define LOW_L      0b00000000
+
+void setPort(byte& port,const byte& val, const byte& mask)
+{port = (port & ~mask) | (val & mask);}
+
+void setSolenoidPort(const byte& cmd, const byte& cPort)
 {
   byte IN1, IN2, portD_l=getPORTD(), portB_l=getPORTB();
   if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
@@ -192,12 +201,16 @@ void setSolenoidPort(const byte cmd, const byte cPort)
   setPort(portB_l, IN1, PORTB_MASK); // PB0=IN1;  IB2_0
   
   // Set DRV SLP to HIGH
-  setPort(portD_l,   HIGH_L, 0b00000100); // PD5/SLP_D=HIGH
+  setPort(portD_l,   HIGH_L, SLP_MASK); // PD5/SLP_D=HIGH
   delay(5);
   
-  if (cPort==1) setPort(portB_l, IN2, 0b10000000);
+  if (cPort==1) setPort(portB_l, IN2, DRV_PIN2_MASK[cPort]);
   else          setPort(portD_l, IN2, DRV_PIN2_MASK[cPort]);
 
+  // printf("   0123 4567\n");
+  // printf("   |||| ||||\n");
+  // printf("B: "); showbits(portB_l);
+  // printf("D: "); showbits(portD_l);
   PORTD=portD_l;
   PORTB=portB_l;
 
@@ -205,18 +218,20 @@ void setSolenoidPort(const byte cmd, const byte cPort)
 
   // After 20msec, set all DRV port pins and SLP pin to LOW
   setPort(portD_l, LOW_L, PORTD_MASK);
-  setPort(portD_l, LOW_L, 0b00000100); // PD5/SLP_D=HIGH
+  setPort(portD_l, LOW_L, 0b00000100); // PD5/SLP_D=LOW
   setPort(portB_l, LOW_L, PORTB_MASK);
+
+  // printf("delay 20ms\n");
+  // printf("B: "); showbits(portB_l);
+  // printf("D: "); showbits(portD_l);
+
   PORTD=portD_l;
   PORTB=portB_l;
   delay(10);
 }
 
-void setPort(byte& port,const byte& val, const byte& mask)
-{
-  port = (port & ~mask) | (val & mask);
-}
-
+// #define SETBIT(t,n)  (t |= 1<<n)
+// #define CLRBIT(t,n)  (t &= ~(1 << n))
 // void setPortD(byte& port,const byte& val)
 // {
 //   port = (port & ~MASK_PORTD) | (val & MASK_PORTD);
