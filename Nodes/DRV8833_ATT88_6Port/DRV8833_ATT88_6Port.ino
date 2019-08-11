@@ -83,6 +83,9 @@ inline static short int getNibble(short int target, short int which)
 //static const byte portB2BitMap[1]={6};             //Pins: B00
 
 //                            IA2_0        IB2_0      IA2_1      IB2_1      IA2_2       IB2_2
+#define HIGH_L 0b11111111
+#define HIGH_L 0b00000000
+
 static byte DRV_PIN2_MASK[]={0b00000001, 0b0000000, 0b00010000, 0b00001000, 0b00000000, 0b01000000};
 static byte PORTD_MASK=0b11011011, PORTB_MASK=0b10000000;
 
@@ -179,9 +182,9 @@ void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
 void setSolenoidPort(const byte cmd, const byte cPort)
 {
   byte IN1, IN2, portD_l=getPORTD(), portB_l=getPORTB();
-  if      (cmd==OPEN)  {IN1=0b11111111; IN2=0b00000000;} // HIGH, LOW
-  else if (cmd==CLOSE) {IN1=0b00000000; IN2=0b11111111;} // LOW, HIGH
-  else /*SHUT*/          {IN1=0b00000000; IN2=0b00000000;} // LOW, LOW
+  if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
+  else if (cmd==CLOSE) {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
+  else /*SHUT*/          {IN1=LOW_L; IN2=LOW_L;} // LOW, LOW
 
   // Set both DRV pins of all ports to the same value (IN1)
   // Set all DRV IN{A,B}2 pins to same value (IN1).  PD6 is the IN{A,B}1 pin for all DRV ports
@@ -201,9 +204,9 @@ void setSolenoidPort(const byte cmd, const byte cPort)
   delay(20);
 
   // After 20msec, set all DRV port pins and SLP pin to LOW
-  setPort(portD_l, LOW, PORTD_MASK);
-  setPort(portD_l, LOW, 0b00000100); // PD5/SLP_D=HIGH
-  setPort(portB_l, LOW, PORTB_MASK);
+  setPort(portD_l, LOW_L, PORTD_MASK);
+  setPort(portD_l, LOW_L, 0b00000100); // PD5/SLP_D=HIGH
+  setPort(portB_l, LOW_L, PORTB_MASK);
   PORTD=portD_l;
   PORTB=portB_l;
   delay(10);
