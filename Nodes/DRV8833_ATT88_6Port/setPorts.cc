@@ -4,6 +4,7 @@
 typedef char byte;
 #define MASK_PORTA 0b10001111 //Only bits with 1 will be modified
 #define MASK_PORTB 0b00000001 //Only bits with 1 will be modified
+
 #define N_PORTS 5
 #define SETBIT(t,n)  (t |= 1<<n)
 #define CLRBIT(t,n)  (t &= ~(1 << n))
@@ -130,7 +131,7 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
 
   // After 20msec, set all DRV port pins and SLP pin to LOW
   setPort(portD_l, LOW_L, PORTD_MASK);
-  setPort(portD_l, LOW_L, 0b00000100); // PD5/SLP_D=LOW
+  setPort(portD_l, LOW_L, SLP_MASK); // PD5/SLP_D=LOW
   setPort(portB_l, LOW_L, PORTB_MASK);
 
   printf("delay 20ms\n");

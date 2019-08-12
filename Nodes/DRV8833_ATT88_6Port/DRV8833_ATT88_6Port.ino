@@ -69,6 +69,14 @@ inline static short int getNibble(short int target, short int which)
 #define GET_PARAM0(p)   (getNibble(p.temp,0)) /* Get the parameter for the SET_* commands*/
 
 #define N_DRV_PORTS 6
+#define getPORTD() (PORTD)
+#define getPORTB() (PORTB)
+#define PORTD_MASK 0b11011011 
+#define PORTB_MASK 0b10000000
+#define SLP_MASK   0b00000100
+#define HIGH_L     0b11111111
+#define LOW_L      0b00000000
+
 
 // Bit 5 for PORTD maps to ping PD5 for DRV8833 SLP (common)
 //static const byte SLP_D={5};   // Pin D05
@@ -81,14 +89,6 @@ inline static short int getNibble(short int target, short int which)
 
 // PORTB bit 0 maps to PIN_B0, which is common for DRV8833 IA1_0, IB1_0, IA1_1, IB1_1, IA1_2, IB1_2
 //static const byte portB2BitMap[1]={6};             //Pins: B00
-
-//                            IA2_0        IB2_0      IA2_1      IB2_1      IA2_2       IB2_2
-#define HIGH_L 0b11111111
-#define LOW_L  0b00000000
-
-static byte DRV_PIN2_MASK[]={0b00000001, 0b0000000, 0b00010000, 0b00001000, 0b00000000, 0b01000000};
-static byte PORTD_MASK=0b11011011, PORTB_MASK=0b10000000;
-
 
 // Utility macros
 // #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
@@ -138,8 +138,8 @@ void setup()
   for(port=0; port< N_DRV_PORTS; port++) setSolenoidPort(CLOSE,port); 
 
   // Set A0-3, A7 and B0 to LOW
-  setPort(port,0x00,PORTD_MASK);PORTD=port;
-  setPort(port,0x00,PORTB_MASK);PORTB=port;
+  setPort(port,LOW_L,PORTD_MASK);PORTD=port;
+  setPort(port,LOW_L,PORTB_MASK);PORTB=port;
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=2*24*60; //minutes in 2 days
   SYS_SHUTDOWN_INTERVAL=60000; // One minute -- close to the maximum possible with looseSomeTime()
   Sleepy::loseSomeTime(5000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
@@ -174,16 +174,9 @@ void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
   power_adc_enable();
 }
 
-#define getPORTD() (PORTD)
-#define getPORTB() (PORTB)
-
+//                                      IA2_0           IB2_0         IA2_1           IB2_1         IA2_2          IB2_2
 //                                       D7              B0             D3             D4            D0              D1
 static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
-#define PORTD_MASK 0b11011011 
-#define PORTB_MASK 0b10000000
-#define SLP_MASK   0b00000100
-#define HIGH_L     0b11111111
-#define LOW_L      0b00000000
 
 void setPort(byte& port,const byte& val, const byte& mask)
 {port = (port & ~mask) | (val & mask);}
@@ -218,7 +211,7 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
 
   // After 20msec, set all DRV port pins and SLP pin to LOW
   setPort(portD_l, LOW_L, PORTD_MASK);
-  setPort(portD_l, LOW_L, 0b00000100); // PD5/SLP_D=LOW
+  setPort(portD_l, LOW_L, SLP_MASK); // PD5/SLP_D=LOW
   setPort(portB_l, LOW_L, PORTB_MASK);
 
   // printf("delay 20ms\n");
