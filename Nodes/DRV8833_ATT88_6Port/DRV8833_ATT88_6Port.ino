@@ -1,22 +1,34 @@
 // -*- C++ -*-
-// --------------------------------------------------------------------------------------
-// ATtiny84 Based Wireless temperature sensor (based on Tiny-Tx) and
-// sprinkler controller for DC latching solenoids.
+// -------------------------------------------------------------------------
+// ATtiny88 Based Wireless sprinkler controller for DC latching solenoids.
 // By S. Bhatnagar (sanbeepie@gmail.com).
 //
-// GNU GPL V3
-//--------------------------------------------------------------------------------------
-// Connections between ATTiny84 MCU and the RFM69CW module:
+// Copyright (c) 2019 S.Bhatnagar
+// 
+//  This file is part of the Naarad software.
+// 
+//  Naarad is a free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  fussy is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with Naarad.  If not, see <https:www.gnu.org/licenses/>.
+// 
+//--------------------------------------------------------------------------
+// Connections between ATTiny88 MCU and the RFM69CW module:
 //
-//       ATT84          RFM69CW
-//         D1             NSS
-//         D2             DI00
-//      MOSI, D4          MISO
-//      MISO, D5          MOSI
-//      SCK, D6           SCK
-//
-// Will these same connection also work when ATT84 is programmed for
-// both Rx and Tx?
+//    ATT88 Physical Pin              RFM69CW Pins
+//       16 (SS)                        7 (NSS)
+//       17 (MOSI)                      5 (MOSI)
+//       18 (MISO)                      8 (MISO)
+//       19 (SCK)                       6 (SCK)
+//        4 (INT0/2/PCINT18/PD2)        9 (DI00)
 
 #define RF69_COMPAT 1
 #pragma message("Compiling in RF69_COMPAT mode")
