@@ -120,7 +120,7 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   if (cPort==1) setPort(portB_l, IN2, DRV_PIN2_MASK[cPort]);
   else          setPort(portD_l, IN2, DRV_PIN2_MASK[cPort]);
 
-  printf("   0123 4567\n");
+  printf("   01?3 4S67\n");
   printf("   |||| ||||\n");
   printf("B: "); showbits(portB_l);
   printf("D: "); showbits(portD_l);
