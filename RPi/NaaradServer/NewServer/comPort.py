@@ -2,7 +2,7 @@
 #Arduino (UNO in this case) related code lives here.
 #
 import serial as serial;
-#from __future__ import print_function
+import threading;
 
 class comPort:
     '''
@@ -20,6 +20,8 @@ class comPort:
         self.com1.bytesize=serial.EIGHTBITS; 
         self.com1.parity=serial.PARITY_NONE; 
         self.com1.stopbits=serial.STOPBITS_ONE;
+        self.users=0;
+        self.lock=threading.Lock();
         self.com1.timeout=10;
 	self.SOF = '{';
         self.EOF = '}';
@@ -28,26 +30,32 @@ class comPort:
         return self.com1;
 
     def open(self):
-        if (not self.com1.isOpen()):
-            self.com1.open();
-        
+        with self.lock:
+            if (not self.com1.isOpen()):
+                self.com1.open();
+            self.users += 1;
+
     def close(self):
-        if (self.com1.isOpen()):
-            self.com1.close();
+        with lock:
+            if (self.com1.isOpen()):
+                if (self.users > 0):
+                    self.users -= 1;
+                if (self.users==0):
+                    self.com1.close();
 
     def send(self,str):
         self.com1.write((str+"\n").encode());
 
     def read(self,errors='ignore'):
-        #return self.com1.read().decode(errors=errors);
-        return self.com1.read().decode();
+        return self.com1.read().decode(errors=errors);
+        #return self.com1.read().decode();
 
     def readline(self,errors='ignore'):
-        #return self.com1.readline().decode(errors=errors);
-        print("Waiting...");
-        tt=self.com1.readline().decode();
-        print("### "+str(tt));
-        return tt;
+        return self.com1.readline().decode(errors=errors);
+        #print("Waiting...");
+        #tt=self.com1.readline().decode();
+        #print("### "+str(tt));
+        #return tt;
 
     def myreadline(self):
         # FIND START OF FRAME

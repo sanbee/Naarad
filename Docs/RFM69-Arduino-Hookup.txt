@@ -1,0 +1,16 @@
+                                ---------------                                    
+                            RST |             |  A5                                
+                            RX  |             |  A4                                
+                            TX  |   ARDUINO   |  A3                                
+     RFM69 (DIO0) --------- D2  |     UNO     |  A2                                
+                            D3  |             |  A1                                
+                            D4  | ATMEGA 328p |  A0                                
+            +3.3v --------- VCC |             | GND --------- GND                  
+              GND --------- GND |  8MHz int.  | REF                                
+                            OSC |             | VCC --------- +3.3v                
+                            OSC |             | D13 --------- RFM69 (SCK)          
+                            D5  |             | D12 --------- RFM69 (MISO)         
+                            D6  |             | D11 --------- RFM69 (MOSI)         
+                            D7  |             | D10 --------- RFM69 (NSS)          
+                            D8  |             |  D9                                
+                                ---------------                                    

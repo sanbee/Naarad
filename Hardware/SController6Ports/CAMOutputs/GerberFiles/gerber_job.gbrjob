@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2019-07-09T11:51:41Z",
+        "GenerationSoftware": {
+            "Application": "EAGLE",
+            "Vendor": "Autodesk",
+            "Version": "9.3.0"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 1.57,
+        "LayerNumber": 2,
+        "Name": {
+            "ProjectId": "SController-8833"
+        },
+        "Owner": "Sanjay B <bhatnagar.sanjay@gmail.com>",
+        "Size": {
+            "X": 72.1616,
+            "Y": 64.76
+        }
+    }
+}

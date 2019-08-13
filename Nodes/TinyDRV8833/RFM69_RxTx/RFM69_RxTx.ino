@@ -134,6 +134,8 @@ void setup()
 {
   adc_enable(); 
 
+  // RFFreq = 43*10000000 +band*2500*1600)/1e6 == 434.0MHz
+  // Eq. to compute RFFreq is in RF69_compact.cpp::rf69_initialize()
   rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
   rf12_sleep(RFM_SLEEP_FOREVER);                          // Put the RFM12 to sleep
 
@@ -326,7 +328,12 @@ static long readVcc()
  {
    long result;
    // Read 1.1V reference against Vcc
+#if defined(__AVR_ATTINY84__)
    ADMUX = _BV(MUX5) | _BV(MUX0);
+#else
+   ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+#endif
+
    delay(2); // Wait for Vref to settle
    ADCSRA |= _BV(ADSC); // Convert
    while (bit_is_set(ADCSRA,ADSC));

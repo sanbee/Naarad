@@ -1,12 +1,11 @@
 #! /usr/bin/python
 import sys
 sys.path.insert(0, '../NaaradServer/NewServer');
+import serverinfo
 
 from mySock import mysocket;
 import time;
 
-SERVER="naaradhost";
-PORT=1234;
 helpmsg="\n\
    Operation       NODEID    CMD       P1                 P0\n\
   --------------------------------------------------------------------------------\n\
@@ -31,13 +30,15 @@ class MyException(Exception):
     pass;
 
 def neumonic(cmd):
-        if (cmd == "CLOSE"): return 0;
-        if (cmd == "OPEN"): return 1;
-        if (cmd == "SHUT"): return 2;
-        if (cmd == "RX_TO"): return 3;
-        if (cmd == "POLL_TO"): return 4;
-        if (cmd == "PULSE_WIDTH"): return 5;
-        raise MyException("Incorrect command string \""+cmd+"\"");
+    # These are neumonics for the commands sent to the remote node, e.g. to the sprinkler
+    # controller.
+    if (cmd == "CLOSE"): return 0;
+    if (cmd == "OPEN"): return 1;
+    if (cmd == "SHUT"): return 2;
+    if (cmd == "RX_TO"): return 3;
+    if (cmd == "POLL_TO"): return 4;
+    if (cmd == "PULSE_WIDTH"): return 5;
+    raise MyException("Incorrect command string \""+cmd+"\"");
 
 def main(argv):
         if (len(sys.argv) < 6):
@@ -59,7 +60,7 @@ def main(argv):
 
 		        print FULLCMD;
 		        naaradSoc=mysocket();
-		        naaradSoc.connect(SERVER,PORT);
+		        naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
 		        naaradSoc.send("open");time.sleep(0.1);
 		        naaradSoc.send(FULLCMD);#time.sleep(1);
 		        naaradSoc.send("done");time.sleep(0.1);

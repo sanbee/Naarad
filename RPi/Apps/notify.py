@@ -3,21 +3,22 @@ from __future__ import print_function;
 import sys
 import json;
 sys.path.insert(0, '../NaaradServer/NewServer');
+import serverinfo
 
 from mySock import mysocket;
 import time;
 
-SERVER="naaradhost";
-PORT=1234;
-
 class MyException(Exception):
     pass;
 
-def NaaradSend(mesg):
+def notifyNaaradSend(mesg):
     naaradSoc=mysocket();
-    naaradSoc.connect(SERVER,PORT);
-    naaradSoc.send("open");     time.sleep(0.1);
+
+    naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
+    naaradSoc.send("notify App");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);
+    #infopkt=naaradSoc.receive(True); # Do a blocking read
+    #print(infopkt);
     packet=naaradSoc.receive(True); # Do a blocking read
     time.sleep(1);
     #naaradSoc.send("done");     time.sleep(1);
@@ -65,6 +66,7 @@ def notify(argv):
     packet are both returned to the caller.
     """
     if (len(sys.argv) < 7):
+
         print("\nUsage: "+sys.argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
         print(notify.__doc__);
     else:
@@ -73,17 +75,17 @@ def notify(argv):
             nodeid=sys.argv[2]
             cmd=sys.argv[3];
             src=str(sys.argv[4]);
-            for i in range(2,6):
-                naaradcmd=naaradcmd+" "+str(sys.argv[i]);
-
-            nRETRIALS=int(sys.argv[6]);
 
             FULLCMD=naaradcmd;
+            for i in range(2,6):
+                FULLCMD=FULLCMD+" "+str(sys.argv[i]);
+
+            nRETRIALS=int(sys.argv[6]);
 
             print(FULLCMD);
             Retry=0;
             while (Retry < nRETRIALS):
-                packet, dt = NaaradSend(FULLCMD);
+                packet, dt = notifyNaaradSend(FULLCMD);
                 if (dt > 1500.0):
                     Retry += 1;
                 else:
