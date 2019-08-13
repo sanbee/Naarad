@@ -44,12 +44,12 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 
 #define PIN_SLP PD5  // D6 (AT88 pin 11)
 #define COMMN  PD6  // D6 (AT88 pin 12) IB1_0, IA1_0, IB1_1, IA1_1, IB1_2, IA1_2
-#define PORT0  PB0  // B0 (AT88 pin 14) IB2_0
-#define PORT1  PD7  // D7 (AT88 pin 13) IA2_0
-#define PORT2  PD4  // D4 (AT88 pin 06) IB2_1
-#define PORT3  PD3  // D3 (AT88 pin 05) IA2_1
-#define PORT4  PD1  // D1 (AT88 pin 03) IB2_2
-#define PORT5  PD0  // D0 (AT88 pin 02) IA2_2
+#define SPORT0  PB0  // B0 (AT88 pin 14) IB2_0
+#define SPORT1  PD7  // D7 (AT88 pin 13) IA2_0
+#define SPORT2  PD4  // D4 (AT88 pin 06) IB2_1
+#define SPORT3  PD3  // D3 (AT88 pin 05) IA2_1
+#define SPORT4  PD1  // D1 (AT88 pin 03) IB2_2
+#define SPORT5  PD0  // D0 (AT88 pin 02) IA2_2
 
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
@@ -83,9 +83,9 @@ inline static short int getNibble(short int target, short int which)
 #define N_DRV_PORTS 6
 #define getPORTD() (PORTD)
 #define getPORTB() (PORTB)
-#define PORTD_MASK 0b11011011 
-#define PORTB_MASK 0b10000000
-#define SLP_MASK   0b00000100
+#define PORTD_MASK 0b11011011 // 1 for PD{0,1,3,4,6,7}
+#define PORTB_MASK 0b10000000 // 1 for PB0
+#define SLP_MASK   0b00000100 // 1 for PD5
 #define HIGH_L     0b11111111
 #define LOW_L      0b00000000
 
@@ -133,16 +133,17 @@ void setup()
   // rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
   // rf12_sleep(0);                          // Put the RFM12 to sleep
 
+  //  uint8_t pp = digitalPinToPort(PIN_SLP);
   analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
  
   pinMode(PIN_SLP, OUTPUT);
   pinMode(COMMN, OUTPUT);
-  pinMode(PORT0, OUTPUT);
-  pinMode(PORT1, OUTPUT);
-  pinMode(PORT2, OUTPUT);
-  pinMode(PORT3, OUTPUT);
-  pinMode(PORT4, OUTPUT);
-  pinMode(PORT5, OUTPUT);
+  pinMode(SPORT0, OUTPUT);
+  pinMode(SPORT1, OUTPUT);
+  pinMode(SPORT2, OUTPUT);
+  pinMode(SPORT3, OUTPUT);
+  pinMode(SPORT4, OUTPUT);
+  pinMode(SPORT5, OUTPUT);
 
   byte port;
   // CLOSE all ports.  This generates a 10ms pulse which draws current
