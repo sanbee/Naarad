@@ -83,9 +83,11 @@ inline static short int getNibble(short int target, short int which)
 #define N_DRV_PORTS 6
 #define getPORTD() (PORTD)
 #define getPORTB() (PORTB)
-#define PORTD_MASK 0b11011011 // 1 for PD{0,1,3,4,6,7}
-#define PORTB_MASK 0b10000000 // 1 for PB0
-#define SLP_MASK   0b00000100 // 1 for PD5
+
+#define PORTD_MASK 0b11011011 //bits 0,1,3,4,6,7
+#define PORTB_MASK 0b00000001 // bit 0
+#define SLP_MASK   0b00100000 // bit 5
+
 #define HIGH_L     0b11111111
 #define LOW_L      0b00000000
 
@@ -189,7 +191,8 @@ void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
 
 //                                      IA2_0           IB2_0         IA2_1           IB2_1         IA2_2          IB2_2
 //                                       D7              B0             D3             D4            D0              D1
-static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
+static byte DRV_PIN2_MASK[]={0b10000000, 0b00000001, 0b00001000, 0b00010000, 0b00000001, 0b00000010};
+//static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
 
 void setPort(byte& port,const byte& val, const byte& mask)
 {port = (port & ~mask) | (val & mask);}

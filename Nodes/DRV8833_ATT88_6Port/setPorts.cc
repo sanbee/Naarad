@@ -9,8 +9,8 @@ typedef char byte;
 #define SETBIT(t,n)  (t |= 1<<n)
 #define CLRBIT(t,n)  (t &= ~(1 << n))
 static const byte port2BitMap[N_PORTS]={0,1,2,3,7}; //Pins: A0, A1,A2,A3,A7
-#define getPORTA() (0b10001111)
-#define getPORTB() (0b01111111)
+#define getPORTA() (0b11110001)
+#define getPORTB() (0b11111110)
 #define getPORTD() (0b00100000)
 
 #define CMDPORT(c,p) ({setSolenoid(c,p);printf("Insert 10ms delay\n");setSolenoid(SHUT,p);})
@@ -91,10 +91,11 @@ void setSolenoid(const byte& cmd, const byte& port)
 }
 
 //                                       D7              B0             D3             D4            D0              D1
-static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
-#define PORTD_MASK 0b11011011 
-#define PORTB_MASK 0b10000000
-#define SLP_MASK   0b00000100
+//atic byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
+static byte DRV_PIN2_MASK[]={0b10000000, 0b00000001, 0b00001000, 0b00010000, 0b00000001, 0b00000010};
+#define PORTD_MASK 0b11011011 //bits 0,1,3,4,6,7
+#define PORTB_MASK 0b00000001 // bit 0
+#define SLP_MASK   0b00100000
 #define HIGH_L     0b11111111
 #define LOW_L      0b00000000
 
@@ -120,7 +121,7 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   if (cPort==1) setPort(portB_l, IN2, DRV_PIN2_MASK[cPort]);
   else          setPort(portD_l, IN2, DRV_PIN2_MASK[cPort]);
 
-  printf("   01?3 4S67\n");
+  printf("   76S4 3?10\n");
   printf("   |||| ||||\n");
   printf("B: "); showbits(portB_l);
   printf("D: "); showbits(portD_l);
