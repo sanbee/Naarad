@@ -162,6 +162,7 @@ void setup()
   // CLOSE all ports.  This generates a 10ms pulse which draws current
   // and therefore must be done one port at a time.
   for(port=0; port< N_DRV_PORTS; port++) setSolenoidPort(CLOSE,port); 
+  setSolenoidPort(SHUT,0); // This will set both lines of all ports to LOW
 
   // Set A0-3, A7 and B0 to LOW
   setPort(port,LOW_L,PORTD_MASK);PORTD=port;
