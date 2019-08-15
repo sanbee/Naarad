@@ -12,7 +12,7 @@
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 // 
-//  fussy is distributed in the hope that it will be useful,
+//  Naarad is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
@@ -29,6 +29,17 @@
 //       18 (MISO)                      8 (MISO)
 //       19 (SCK)                       6 (SCK)
 //        4 (INT0/2/PCINT18/PD2)        9 (DI00)
+//
+//
+// Connections between ATTiny88 MCU and Arduino as ISP
+//
+// Arduino UNO Pin labels       Physical Pin on ATTiny88-PU
+//      10 (SS)                         1 (RESET)
+//      11 (MOSI)                      17 (MOSI)
+//      12 (MISO)                      18 (MISO)
+//      13 (SCK)                       19 (SCK)
+//      3.3V                           20 (VACC) and 7 (VCC)
+//      GND                            22 (GND)
 
 #define RF69_COMPAT 1
 #pragma message("Compiling in RF69_COMPAT mode")
