@@ -53,23 +53,7 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
 #define network        210                   // RF12 Network group
 #define freq           RF12_433MHZ  // Frequency of RFM12B module
-//
-// Apparently, the #defines in IDE like PD5, have nothing to do with the actual pin
-// number to use.  The "pin numbers" on data sheets are called PDx, PBx etc.  The 'D' and
-// 'B' in those do represent the port bit number.  E.g. PD5 corresponds to the bit 5 in
-// PORTD variabl.
-//
-// The IDE has #defined like PDx, which refere to Dx in pinout diagrams as "arduino
-// labels".  However use just the integer x and NOT PD5 or D5 in the code!!  The 'D' in
-// the case just represents that the pin is "digital".
-//
-// And none of the above has anything do with the physical pin numbers.  E.g. Physical
-// pin 9 on Attiny88-PU has designation PB6 in data sheets.  It is called "D14" in Arduino
-// IDE.  The interger to use in pinMode() etc. is 14.
-//
-// So much for the folk-lore that "...hardware engineering is better organized that
-// software engineering".
-//
+
 #define PIN_SLP PIN_PD5  // D5 (AT88 pin 11), IDE pin no. D5, but use 5 in the code instead.  Go figure!
 #define COMMN   PIN_PD6  // D6 (AT88 pin 12) IB1_0, IA1_0, IB1_1, IA1_1, IB1_2, IA1_2: IDE pin no. D6, but use 6 in the code instead.  Go figure!
 #define SPORT0  PIN_PB0  // B0 (AT88 pin 14) IB2_0, IDE pin no. D8, but use 8 in the code instead.  Go figure!
