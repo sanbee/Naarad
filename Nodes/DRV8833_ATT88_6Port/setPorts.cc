@@ -10,8 +10,8 @@ typedef char byte;
 #define CLRBIT(t,n)  (t &= ~(1 << n))
 static const byte port2BitMap[N_PORTS]={0,1,2,3,7}; //Pins: A0, A1,A2,A3,A7
 #define getPORTA() (0b11110001)
-#define getPORTB() (0b11111110)
-#define getPORTD() (0b00100000)
+#define getPORTB() (0b00000100)
+#define getPORTD() (0b00100100)
 
 #define CMDPORT(c,p) ({setSolenoid(c,p);printf("Insert 10ms delay\n");setSolenoid(SHUT,p);})
 

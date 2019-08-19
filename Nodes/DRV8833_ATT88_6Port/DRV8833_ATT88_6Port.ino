@@ -46,21 +46,38 @@
 #include <JeeLib.h> // https://github.com/jcw/jeelib
 #include <avr/power.h>
 #include "RemoteCmd.h" // List of remote commands
+#include "ATTiny88Pins.h"
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
 
 #define SERVER_NODE_ID 5
 #define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
 #define network        210                   // RF12 Network group
 #define freq           RF12_433MHZ  // Frequency of RFM12B module
-
-#define PIN_SLP PD5  // D6 (AT88 pin 11)
-#define COMMN  PD6  // D6 (AT88 pin 12) IB1_0, IA1_0, IB1_1, IA1_1, IB1_2, IA1_2
-#define SPORT0  PB0  // B0 (AT88 pin 14) IB2_0
-#define SPORT1  PD7  // D7 (AT88 pin 13) IA2_0
-#define SPORT2  PD4  // D4 (AT88 pin 06) IB2_1
-#define SPORT3  PD3  // D3 (AT88 pin 05) IA2_1
-#define SPORT4  PD1  // D1 (AT88 pin 03) IB2_2
-#define SPORT5  PD0  // D0 (AT88 pin 02) IA2_2
+//
+// Apparently, the #defines in IDE like PD5, have nothing to do with the actual pin
+// number to use.  The "pin numbers" on data sheets are called PDx, PBx etc.  The 'D' and
+// 'B' in those do represent the port bit number.  E.g. PD5 corresponds to the bit 5 in
+// PORTD variabl.
+//
+// The IDE has #defined like PDx, which refere to Dx in pinout diagrams as "arduino
+// labels".  However use just the integer x and NOT PD5 or D5 in the code!!  The 'D' in
+// the case just represents that the pin is "digital".
+//
+// And none of the above has anything do with the physical pin numbers.  E.g. Physical
+// pin 9 on Attiny88-PU has designation PB6 in data sheets.  It is called "D14" in Arduino
+// IDE.  The interger to use in pinMode() etc. is 14.
+//
+// So much for the folk-lore that "...hardware engineering is better organized that
+// software engineering".
+//
+#define PIN_SLP PIN_PD5  // D5 (AT88 pin 11), IDE pin no. D5, but use 5 in the code instead.  Go figure!
+#define COMMN   PIN_PD6  // D6 (AT88 pin 12) IB1_0, IA1_0, IB1_1, IA1_1, IB1_2, IA1_2: IDE pin no. D6, but use 6 in the code instead.  Go figure!
+#define SPORT0  PIN_PB0  // B0 (AT88 pin 14) IB2_0, IDE pin no. D8, but use 8 in the code instead.  Go figure!
+#define SPORT1  PIN_PD7  // D7 (AT88 pin 13) IA2_0, IDE pin no. D7, but use 7 in the code instead.  Go figure!
+#define SPORT2  PIN_PD4  // D4 (AT88 pin 06) IB2_1, IDE pin no. D4, but use 4 in the code instead.  Go figure!
+#define SPORT3  PIN_PD3  // D3 (AT88 pin 05) IA2_1, IDE pin no. D3, but use 3 in the code instead.  Go figure!
+#define SPORT4  PIN_PD1  // D1 (AT88 pin 03) IB2_2, IDE pin no. D1, but use 1 in the code instead.  Go figure!
+#define SPORT5  PIN_PD0  // D0 (AT88 pin 02) IA2_2, IDE pin no. D0, but use 0 in the code instead.  Go figure!
 
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
@@ -139,6 +156,10 @@ int tempReading,cmd=-1, port=0;
 unsigned long valveTimeout=60000,TimeOfLastValveCmd=0; /*1 min*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
+//                                      IA2_0           IB2_0         IA2_1           IB2_1         IA2_2          IB2_2
+//                                       D7              B0             D3             D4            D0              D1
+static byte DRV_PIN2_MASK[]={0b10000000, 0b00000001, 0b00001000, 0b00010000, 0b00000001, 0b00000010};
+//static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
 
 //#################################################################
 void setup()
@@ -167,9 +188,9 @@ void setup()
   // Set A0-3, A7 and B0 to LOW
   setPort(port,LOW_L,PORTD_MASK);PORTD=port;
   setPort(port,LOW_L,PORTB_MASK);PORTB=port;
-  SYS_SHUTDOWN_INTERVAL_MULTIPLIER=2*24*60; //minutes in 2 days
-  SYS_SHUTDOWN_INTERVAL=60000; // One minute -- close to the maximum possible with looseSomeTime()
-  Sleepy::loseSomeTime(5000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+  SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1; //minutes in 2 days
+  SYS_SHUTDOWN_INTERVAL=5000; // One minute -- close to the maximum possible with looseSomeTime()
+  Sleepy::loseSomeTime(1000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
   
   //  power_adc_enable();
 }
@@ -180,31 +201,36 @@ void loop()
   // rfwrite(0);
   // int cmd = readRFM69();
   // controlSolenoid(cmd);
-
-  for(byte port=0;port<N_DRV_PORTS;port++)
+  byte tt=0x00;
+  PORTD=tt;
+  PORTB=tt;
+  for(byte port=0;port<6;port++)
     {
       setSolenoidPort(OPEN,port); // This generates a 10ms pulse which draws current
-      hibernate(60000,1);
+      //setPort(tt,HIGH_L,DRV_PIN2_MASK[port]);if (port==1) PORTB=tt; else PORTD=tt;
+      //digitalWrite(10,HIGH);
+      hibernate(1000,1);
       setSolenoidPort(CLOSE,port);// This generates a 10ms pulse which draws current
-      hibernate(5000,1);
+      //setPort(tt,LOW_L,DRV_PIN2_MASK[port]);if (port==1) PORTB=tt; else PORTD=tt;
+      //digitalWrite(10,LOW);
+      hibernate(1000,1);
     }
-
+  setPort(tt, LOW_L, PORTD_MASK);PORTD=tt;
+  setPort(tt, LOW_L, SLP_MASK); PORTD=tt;
+  setPort(tt, LOW_L, PORTB_MASK); PORTB=tt;
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
 }
 
 void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
 {
+  delay(timeout*multiplier); return;
   power_adc_disable();
   for(unsigned int i=0;i<multiplier;i++)
     Sleepy::loseSomeTime(timeout); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
   power_adc_enable();
 }
 
-//                                      IA2_0           IB2_0         IA2_1           IB2_1         IA2_2          IB2_2
-//                                       D7              B0             D3             D4            D0              D1
-static byte DRV_PIN2_MASK[]={0b10000000, 0b00000001, 0b00001000, 0b00010000, 0b00000001, 0b00000010};
-//static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
 
 void setPort(byte& port,const byte& val, const byte& mask)
 {port = (port & ~mask) | (val & mask);}
@@ -246,9 +272,9 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   // printf("B: "); showbits(portB_l);
   // printf("D: "); showbits(portD_l);
 
-  PORTD=portD_l;
-  PORTB=portB_l;
-  delay(10);
+  // PORTD=portD_l;
+  // PORTB=portB_l;
+  // delay(10);
 }
 
 // #define SETBIT(t,n)  (t |= 1<<n)
