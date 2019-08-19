@@ -8,7 +8,10 @@
 // labels".  However all online resources say that one should use just the integer x and
 // NOT PD5 or D5 in the code!!  The 'D' in the case just represents that the pin is
 // "digital".  Why are these defined in the first place in Arduino IDE framework in a
-// file included (automatically!) in application layer software?
+// file included (automatically!) in application layer software?  
+//
+// Analog pins (ones which have ADC attached to them) have #defines like A0, A1,....etc
+// in Arduino IDE.  And those are OK to use -- for analog pins only.  Go figure!
 //
 // And none of the above has anything do with the physical pin numbers.  E.g. Physical
 // pin 9 on Attiny88-PU has designation PB6 in data sheets.  It is called "D14" in Arduino
