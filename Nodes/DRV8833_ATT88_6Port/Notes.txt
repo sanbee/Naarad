@@ -1,0 +1,47 @@
+Aug. 24, 2019
+-------------
+
+o With the default set up on ArduinoIDE 1.8.x, "Arduino as ISP" did not detect ATT88.
+  After some reasearch, it turned out that the compile command constructed uses
+  "-carduino".  However the correct one to use, on Arduino UNO for programming ATT88 is
+  "-cstk500v1".  
+
+  Arduino IDE comes with a file named "programmer.txt", typically at the following path:
+
+     ~/.arduino15/packages/arduino/hardware/avr/1.6.23/programmers.txt
+
+     (1.6.23 may change with the IDE version used)
+
+  It also exists at 
+
+     <IDE ROOT>/hardware/arduino/avr/programmers.txt
+
+  The entry in these files (may need to change both!) for "arduinoasisp" has to be the
+  following.  Note that the ".protocol" value has to change to "stk500v1".
+  ".program.protocol=arduino" is left unchanged
+
+    arduinoasisp.name=Arduino as ISP
+    arduinoasisp.communication=serial
+    arduinoasisp.protocol=stk500v1
+    arduinoasisp.speed=19200
+    arduinoasisp.program.protocol=arduino
+    arduinoasisp.program.speed=19200
+    arduinoasisp.program.tool=avrdude
+    arduinoasisp.program.extra_params=-P{serial.port} -b{program.speed}
+
+  Some forums seems to suggest that this will be fixed in the new release which it's out
+  yet.  I have checked the nightly build and it's not fixed in at least that.
+
+  Apparently this is due to some change in OS (Linux) that requires this change.  I also
+  feel there much be some OS related change since I have successfully programmed ATT88
+  *without* needing the above change from the same machine (work laptop) running RHFL6.
+  Now with RHEL7, the above problem appears.
+
+  Also, this change was made in Arduino IDE to enable programming ATMega chips (or
+  something similar), but it inadvertently, created the above problem. 
+
+
+  For the record, the compile command that works is:
+
+   /export/home/langur/sbhatnag/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino14/bin/avrdude -C/export/home/langur/sbhatnag/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino14/etc/avrdude.conf -v -pattiny88 -cstk500v1 -P/dev/ttyACM0 -b19200 -Uflash:w:/tmp/arduino_build_738819/DRV8833_ATT88_6Port.ino.hex:i 
+

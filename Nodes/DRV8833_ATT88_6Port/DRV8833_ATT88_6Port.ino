@@ -136,15 +136,18 @@ typedef struct
   int supplyV;	// Supply voltage; re-used for receiving target nodeID
  } Payload;
 
-int tempReading,cmd=-1, port=0;
+int tempReading,cmd=-1, inPort=0;
 unsigned long valveTimeout=60000,TimeOfLastValveCmd=0; /*1 min*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
 //                                      IA2_0           IB2_0         IA2_1           IB2_1         IA2_2          IB2_2
 //                                       D7              B0             D3             D4            D0              D1
 static byte DRV_PIN2_MASK[]={0b10000000, 0b00000001, 0b00001000, 0b00010000, 0b00000001, 0b00000010};
+static byte port=0x00;
 //static byte DRV_PIN2_MASK[]={0b00000001, 0b10000000, 0b00010000, 0b00001000, 0b10000000, 0b01000000};
 
+#define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
+#define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
 //#################################################################
 void setup()
 {
@@ -163,15 +166,19 @@ void setup()
   pinMode(SPORT4, OUTPUT);
   pinMode(SPORT5, OUTPUT);
 
-  byte port;
   // CLOSE all ports.  This generates a 10ms pulse which draws current
   // and therefore must be done one port at a time.
   for(port=0; port< N_DRV_PORTS; port++) setSolenoidPort(CLOSE,port); 
   setSolenoidPort(SHUT,0); // This will set both lines of all ports to LOW
 
   // Set A0-3, A7 and B0 to LOW
-  setPort(port,LOW_L,PORTD_MASK);PORTD=port;
-  setPort(port,LOW_L,PORTB_MASK);PORTB=port;
+  port=PORTD; 
+  setPort(port,LOW_L,PORTD_MASK);  setPort(port, LOW_L, SLP_MASK); 
+  PORTD=port;
+  port=PORTB;
+  setPort(port,LOW_L,PORTB_MASK);
+  PORTB=port;
+
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1; //minutes in 2 days
   SYS_SHUTDOWN_INTERVAL=5000; // One minute -- close to the maximum possible with looseSomeTime()
   Sleepy::loseSomeTime(1000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
@@ -181,38 +188,43 @@ void setup()
 //#################################################################
 void loop()
 {
+  PORTD=PORTB=0x00;
+
   //Calls to measure size of the program
   // rfwrite(0);
   // int cmd = readRFM69();
-  // controlSolenoid(cmd);
-  byte tt=0x00;
-  PORTD=tt;
-  PORTB=tt;
-  for(byte port=0;port<6;port++)
+
+  controlSolenoid(cmd);
+
+
+  for(port=0;port<6;port++)
     {
       setSolenoidPort(OPEN,port); // This generates a 10ms pulse which draws current
-      //setPort(tt,HIGH_L,DRV_PIN2_MASK[port]);if (port==1) PORTB=tt; else PORTD=tt;
-      //digitalWrite(10,HIGH);
-      hibernate(1000,1);
+      hibernate(60000,1);
       setSolenoidPort(CLOSE,port);// This generates a 10ms pulse which draws current
-      //setPort(tt,LOW_L,DRV_PIN2_MASK[port]);if (port==1) PORTB=tt; else PORTD=tt;
-      //digitalWrite(10,LOW);
-      hibernate(1000,1);
+      hibernate(5000,1);
     }
-  setPort(tt, LOW_L, PORTD_MASK);PORTD=tt;
-  setPort(tt, LOW_L, SLP_MASK); PORTD=tt;
-  setPort(tt, LOW_L, PORTB_MASK); PORTB=tt;
+  port=PORTD;
+  setPort(port, LOW_L, PORTD_MASK);
+  setPort(port, LOW_L, SLP_MASK); 
+  PORTD=port;
+
+  port=PORTB;
+  setPort(port, LOW_L, PORTB_MASK); 
+  PORTB=port;
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
 }
 
 void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
 {
-  delay(timeout*multiplier); return;
-  power_adc_disable();
+  //delay(timeout*multiplier); return;
+  //power_
+  adc_disable();
   for(unsigned int i=0;i<multiplier;i++)
     Sleepy::loseSomeTime(timeout); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
-  power_adc_enable();
+  //power_
+  adc_enable();
 }
 
 
@@ -245,7 +257,7 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   PORTD=portD_l;
   PORTB=portB_l;
 
-  delay(20);
+  delay(40);
 
   // After 20msec, set all DRV port pins and SLP pin to LOW
   setPort(portD_l, LOW_L, PORTD_MASK);
@@ -256,8 +268,8 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   // printf("B: "); showbits(portB_l);
   // printf("D: "); showbits(portD_l);
 
-  // PORTD=portD_l;
-  // PORTB=portB_l;
+  PORTD=portD_l;
+  PORTB=portB_l;
   // delay(10);
 }
 
@@ -415,7 +427,7 @@ static int readRFM69()
       if ((payload_nodeID != SERVER_NODE_ID) && (GET_NODEID(payLoad_RxTx) != MY_NODE_ID)) return -1;
 
       cmd=GET_CMD(payLoad_RxTx);
-      port=GET_PORT(payLoad_RxTx);
+      inPort=GET_PORT(payLoad_RxTx);
       valveTimeout=GET_TIMEOUT(payLoad_RxTx)*60*1000;//Convert user value in min. to milli sec.
       valveTimeout=(valveTimeout==0?60000:valveTimeout);
 
