@@ -2,7 +2,8 @@ from ClientList import ClientList;
 
 def init():
     global NAARAD_COMPORT,NAARAD_PORT,NAARAD_MAXCONNECTIONS,NAARAD_HISTORYLENGTH;
-    global NAARAD_TOPIC_SENSORDATA,topicsSubscriberList,gCurrentPacket;
+    global NAARAD_TOPIC_SENSORDATA,gCurrentPacket;
+    # global topicsSubscriberList;
     global gPacketHistory, gTimeStamp0Cache,gTimeStamp1Cache,gValueCache;
     global NAARAD_NAMELESS_PACKETS, NAARAD_SHUTDOWN, NAARAD_HISTORYLENGTH;
     global gClientList;
@@ -16,14 +17,17 @@ def init():
 
     NAARAD_NAMELESS_PACKETS = "NONAME";
 
+    # String to identify EOC (End of Communication)
+    NAARAD_END_OF_COMMUNICATION = "PHINISHED";
+
     # Name of topic that is server async to all subscribers
     NAARAD_TOPIC_SENSORDATA = "SensorDataSink"; 
 
     # Flag used to shutdown Naarad server.
     NAARAD_SHUTDOWN = False;
 
-    # List of subscribers per topic
-    topicsSubscriberList={};
+    # # List of subscribers per topic
+    # topicsSubscriberList={};
     # The cache for the latest packet per node (now redunt due history of
     # packets, but still in use)
     gCurrentPacket = {};

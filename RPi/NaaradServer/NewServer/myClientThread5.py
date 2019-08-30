@@ -116,8 +116,8 @@ class ClientThread (Thread):
                 self.myc1.send(settings5.gPacketHistory[key][i]);
         except KeyError:
             print ("gethpkt::Key ",tok[1]," not found");
-        self.myc1.send("PHINISHED }");
-        print ("PHINISHED");
+        self.myc1.send(settings5.NAARAD_END_OF_COMMUNICATION+" }");
+        print (settings5.NAARAD_END_OF_COMMUNICATION);
     #
     #--------------------------------------------------------------------------
     #        
@@ -174,8 +174,9 @@ class ClientThread (Thread):
                     cpkt,jdict=Utils.addTimeStamp("tnot",cpkt);
                     self.myc1.send(cpkt);
         except RuntimeError as e:#, socket.error as e):
-            print ("handleContNotify: Error during notification.")
-            raise type(e)("handleContNotify: Error during notification.");
+            msg="handleContNotify: Error during notification.";
+            print (msg)
+            raise type(e)(msg);
         finally:
             settings5.gClientList.unregister(uuid);
     #

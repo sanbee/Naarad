@@ -20,8 +20,9 @@ class NaaradTopicException(Exception):
 class NaaradTopic (Thread):
     def __init__(self, name, uno, pktHndlr):
         Thread.__init__(self)
-        settings5.topicsSubscriberList[name]=[];
-        print ("List of topics: ",settings5.topicsSubscriberList.keys());
+        # settings5.topicsSubscriberList[name]=[];
+        # print ("List of topics: ",settings5.topicsSubscriberList.keys());
+        print ("Topic: "+name);
         self.name = name;
         self.uno  = uno;
         self.pktHndlr=pktHndlr;
