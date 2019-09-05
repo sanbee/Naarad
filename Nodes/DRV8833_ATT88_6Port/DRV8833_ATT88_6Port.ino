@@ -53,6 +53,14 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
 #define network        210                   // RF12 Network group
 #define freq           RF12_433MHZ  // Frequency of RFM12B module
+#define RFM_WAKEUP -1
+#define RFM_SLEEP_FOREVER 0
+
+#define RCV_TIMEDOUT      10
+#define RCV_GOT_SOME_PKT  20
+#define RCV_GOT_VALID_PKT 30
+#define MAX_RX_ATTEMPTS 50000  // Keep it <= 65535
+#define VALVE_DEFAULT_ON_TIME 10000 //10 sec.
 
 #define PIN_SLP PIN_PD5  // D5 (AT88 pin 11), IDE pin no. D5, but use 5 in the code instead.  Go figure!
 #define COMMN   PIN_PD6  // D6 (AT88 pin 12) IB1_0, IA1_0, IB1_1, IA1_1, IB1_2, IA1_2: IDE pin no. D6, but use 6 in the code instead.  Go figure!
@@ -67,7 +75,7 @@ int RFM69_READ_TIMEOUT = 3000, // 3 sec
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1,
   VALVE_PULSE_WIDTH=10,
-  PULSE_WIDTH_MULTIPLIER=1; // 10 ms
+  PULSE_WIDTH_MULTIPLIER=4; // 10 ms
 
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
@@ -136,7 +144,8 @@ typedef struct
   int supplyV;	// Supply voltage; re-used for receiving target nodeID
  } Payload;
 
-int tempReading,cmd=-1, inPort=0;
+int tempReading,cmd=NOOP, inPort=0;
+unsigned int MaxRxCounter=0;
 unsigned long valveTimeout=60000,TimeOfLastValveCmd=0; /*1 min*/
 Payload payLoad_RxTx;
 uint16_t freqOffset=1600;
@@ -151,8 +160,8 @@ static byte port=0x00;
 //#################################################################
 void setup()
 {
-  // rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
-  // rf12_sleep(0);                          // Put the RFM12 to sleep
+  rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
+  rf12_sleep(0);                          // Put the RFM12 to sleep
 
   //  uint8_t pp = digitalPinToPort(PIN_SLP);
   analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
@@ -194,17 +203,64 @@ void setup()
 //#################################################################
 void loop()
 {
+  payLoad_RxTx.supplyV = readVcc(); // Get supply voltage
   //Calls to measure size of the program
-  // rfwrite(0);
-  // int cmd = readRFM69();
+  if ((TimeOfLastValveCmd>0)&&((unsigned long)(millis() - TimeOfLastValveCmd) >= valveTimeout))
+    {executeCommand(CLOSE);TimeOfLastValveCmd=0;}
 
-  controlSolenoid(cmd);
+  rfwrite(1);
+  delay(10);
 
+  lastRF=millis();
+  rf12_sleep(RFM_WAKEUP);
+
+  // readRFM69() returns command if it gets a packet from the server
+  // node with a target ID of this node.  It returns -1 otherwise (if
+  // it did not get a packet or if the packet was not from the server
+  // node or not meant for this node).
+  cmd=-1;
+  MaxRxCounter=0;
+  while ((cmd=readRFM69())==-1)
+    {
+      if (
+	  ((millis() - lastRF) > (unsigned long)RFM69_READ_TIMEOUT) ||
+	  (MaxRxCounter > MAX_RX_ATTEMPTS)
+	  )
+	{
+	  dataReady=RCV_TIMEDOUT;
+	  break;
+	}
+      MaxRxCounter++;
+    }
+
+  delay(10); // With the receiver ON, this delay is necessary for the
+	     // second packet to be issued.  What's the minimum delay?
+
+  if (dataReady != RCV_TIMEDOUT)
+    {
+      dataReady=RCV_GOT_VALID_PKT;
+      // Following is an ACK packet which is captured by all listener
+      // stations (but currently processed only by the base station)
+      rfwrite(1);
+    }
+  rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
+  //=============================================================================
+  // End radio operations
+  //
+
+  // If cmd has valid value, process it.
+  if (cmd >=0 ) 
+    {
+      executeCommand(cmd);
+    }
+
+  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  //adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
 
   for(port=0;port<6;port++)
     {
       setSolenoidPort(OPEN,port); // This generates a 10ms pulse which draws current
-      hibernate(6000,10);
+      hibernate(valveTimeOut,1);//(6000,10);
       setSolenoidPort(CLOSE,port);// This generates a 10ms pulse which draws current
       //hibernate(5000,1);
       //      setSolenoidPort(SHUT,port);
@@ -233,8 +289,8 @@ void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
   adc_disable();
   for(unsigned int i=0;i<multiplier;i++)
     Sleepy::loseSomeTime(timeout); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
-  //power_adc_enable();
   adc_enable();
+  //power_adc_enable();
 }
 
 
@@ -268,9 +324,11 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   // printf("B: "); showbits(portB_l);
   // printf("D: "); showbits(portD_l);
 
-  delay(40);
+  // Wait for MULTIPLIER*PULSE_WIDTH time deliver a pulse.
+  for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+  //  delay(40);
 
-  // After 20msec, set all DRV port pins and SLP pin to LOW
+  // After the pulse (40msec by default), set all DRV port pins and SLP pin to LOW
   
   setPort(portD_l, LOW_L, SLP_MASK); // PD5/SLP_D=LOW
   setPort(portD_l, LOW_L, PORTD_MASK);
@@ -285,6 +343,108 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   // delay(10);
 }
 
+//#################################################################
+//#################################################################
+//
+// Application specific functions
+//
+//#################################################################
+//#################################################################
+//
+// Application specific functions
+static void executeCommand(const int cmd)
+{
+  // First handle system commands (these modify the internal
+  // parameters, but don't control the valve solenoid.  THESE SHOULD
+  // IMMEDIATELY RETURN AFTER SERVICING THE COMMANDS.
+  if (cmd==NOOP) return;
+  if (cmd==SET_RX_TO)                          {RFM69_READ_TIMEOUT = 1000*GET_PARAM1(payLoad_RxTx);return;} // Default 3 sec.
+  if (cmd==SET_TX_INT)
+    {
+      SYS_SHUTDOWN_INTERVAL = 1000*GET_PARAM1(payLoad_RxTx); // Default 60 sec.
+      SYS_SHUTDOWN_INTERVAL_MULTIPLIER=GET_PARAM0(payLoad_RxTx);
+      SYS_SHUTDOWN_INTERVAL_MULTIPLIER=((SYS_SHUTDOWN_INTERVAL_MULTIPLIER==0)?1:SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
+      return;
+    };
+  if (cmd== SET_VALVE_PULSE_WIDTH)
+    {
+      VALVE_PULSE_WIDTH = GET_PARAM1(payLoad_RxTx); // Default 10 ms.
+      PULSE_WIDTH_MULTIPLIER = GET_PARAM0(payLoad_RxTx);//Detaul 1
+      return;
+    };
+  //
+  // Service the solenoid control commands
+  //
+  setSolenoidPort(cmd,inPort);
+  if (cmd==OPEN) TimeOfLastValveCmd=millis(); // Record the time when OPEN command is issued.
+}
+// //--------------------------------------------------------------------------------------------------
+// // Send payload data via RF
+// //--------------------------------------------------------------------------------------------------
+static void rfwrite(const byte wakeup)
+ {
+   if (wakeup==1) rf12_sleep(-1);     //wake up RF module
+   while (!rf12_canSend()) rf12_recvDone();
+   rf12_sendStart(0, &payLoad_RxTx, sizeof payLoad_RxTx); 
+   rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
+   rf12_sleep(0);    //put RF module to sleep
+}
+
+//--------------------------------------------------------------------------------------------------
+// Read current supply voltage
+//--------------------------------------------------------------------------------------------------
+static long readVcc()
+ {
+   long result;
+   // Read 1.1V reference against Vcc
+#if defined(__AVR_ATTINY84__)
+   ADMUX = _BV(MUX5) | _BV(MUX0);
+#else
+   ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+#endif
+
+   delay(2); // Wait for Vref to settle
+   ADCSRA |= _BV(ADSC); // Convert
+   while (bit_is_set(ADCSRA,ADSC));
+   result = ADCL;
+   result |= ADCH<<8;
+   result = 1126400L / result; // Back-calculate Vcc in mV
+   return result;
+}
+
+static int readRFM69() 
+{
+  //  digitalWrite(LEDPIN,LOW);    // turn LED off
+  
+  // On data receieved from rf12
+  //################################################################
+  
+  //  if (rf12_recvDone() && rf12_crc == 0 && (rf12_hdr & RF12_HDR_CTL) == 0) 
+  if (rf12_recvDone() && rf12_crc == 0)
+    {
+      payload_nodeID = rf12_hdr & 0x1F;   // extract node ID from received packet
+      payLoad_RxTx=*(Payload*) rf12_data; // Get the payload
+
+      dataReady = 1;                   // Ok, data is ready
+      
+      if ((payload_nodeID != SERVER_NODE_ID) && (GET_NODEID(payLoad_RxTx) != MY_NODE_ID)) return -1;
+
+      cmd=GET_CMD(payLoad_RxTx);
+      inPort=GET_PORT(payLoad_RxTx);
+      valveTimeout=GET_TIMEOUT(payLoad_RxTx)*60*1000;//Convert user value in min. to milli sec.
+      valveTimeout=(valveTimeout==0?60000:valveTimeout);
+
+      return cmd;
+      // if (cmd == 0)      return CLOSE;
+      // else if (cmd == 1) return OPEN;
+      // else if (cmd== 2) return SHUT;
+      // else return cmd;
+    }
+    return -1;
+}
+//
+//---------------Old code for reference-------------------------------------
+//
 // #define SETBIT(t,n)  (t |= 1<<n)
 // #define CLRBIT(t,n)  (t &= ~(1 << n))
 // void setPortD(byte& port,const byte& val)
@@ -341,112 +501,3 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
 //   delay(10);
 // }
 //
-//#################################################################
-//#################################################################
-//
-// Application specific functions
-static void controlSolenoid(const int cmd)
-{
-  // First handle system commands (these modify the internal
-  // parameters, but don't control the valve solenoid.  THESE SHOULD
-  // IMMEDIATELY RETURN AFTER SERVICING THE COMMANDS.
-  if (cmd==NOOP) return;
-  if (cmd==SET_RX_TO)                          {RFM69_READ_TIMEOUT = 1000*GET_PARAM1(payLoad_RxTx);return;} // Default 3 sec.
-  if (cmd==SET_TX_INT)
-    {
-      SYS_SHUTDOWN_INTERVAL = 1000*GET_PARAM1(payLoad_RxTx); // Default 60 sec.
-      SYS_SHUTDOWN_INTERVAL_MULTIPLIER=GET_PARAM0(payLoad_RxTx);
-      SYS_SHUTDOWN_INTERVAL_MULTIPLIER=((SYS_SHUTDOWN_INTERVAL_MULTIPLIER==0)?1:SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
-      return;
-    };
-  if (cmd== SET_VALVE_PULSE_WIDTH)
-    {
-      VALVE_PULSE_WIDTH = GET_PARAM1(payLoad_RxTx); // Default 10 ms.
-      PULSE_WIDTH_MULTIPLIER = GET_PARAM0(payLoad_RxTx);//Detaul 1
-      return;
-    };
-  //
-  // Service the solenoid control commands
-  //
-  if (cmd==OPEN)
-    {
-      digitalWrite(0, HIGH);
-      digitalWrite(1, LOW);
-      for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
-      TimeOfLastValveCmd=millis(); // Record the time when OPEN command is issued.
-    }
-  else if (cmd==CLOSE)
-    {
-      digitalWrite(0, LOW);
-      digitalWrite(1, HIGH);
-      for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
-      TimeOfLastValveCmd=0; // Record that the valve is off now
-    }
-  //  else //Comment this line, and uncomment the delays in above blocks
-       //to ensure that OPEN and CLOSE are always followed by a delay
-       //and SHUT
-    {
-      digitalWrite(0, LOW);
-      digitalWrite(1, LOW);
-      TimeOfLastValveCmd=0; // Record that the valve is off now
-    }
-}
-
-// //--------------------------------------------------------------------------------------------------
-// // Send payload data via RF
-// //--------------------------------------------------------------------------------------------------
-static void rfwrite(const byte wakeup)
- {
-   if (wakeup==1) rf12_sleep(-1);     //wake up RF module
-   while (!rf12_canSend()) rf12_recvDone();
-   rf12_sendStart(0, &payLoad_RxTx, sizeof payLoad_RxTx); 
-   rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
-   rf12_sleep(0);    //put RF module to sleep
-}
-
-// //--------------------------------------------------------------------------------------------------
-// // Read current supply voltage
-// //--------------------------------------------------------------------------------------------------
-// static long readVcc()
-//  {
-//    long result;
-//    // Read 1.1V reference against Vcc
-//    ADMUX = _BV(MUX5) | _BV(MUX0);
-//    delay(2); // Wait for Vref to settle
-//    ADCSRA |= _BV(ADSC); // Convert
-//    while (bit_is_set(ADCSRA,ADSC));
-//    result = ADCL;
-//    result |= ADCH<<8;
-//    result = 1126400L / result; // Back-calculate Vcc in mV
-//    return result;
-// }
-
-static int readRFM69() 
-{
-  //  digitalWrite(LEDPIN,LOW);    // turn LED off
-  
-  // On data receieved from rf12
-  //################################################################
-  
-  //  if (rf12_recvDone() && rf12_crc == 0 && (rf12_hdr & RF12_HDR_CTL) == 0) 
-  if (rf12_recvDone() && rf12_crc == 0)
-    {
-      payload_nodeID = rf12_hdr & 0x1F;   // extract node ID from received packet
-      payLoad_RxTx=*(Payload*) rf12_data; // Get the payload
-
-      dataReady = 1;                   // Ok, data is ready
-      
-      if ((payload_nodeID != SERVER_NODE_ID) && (GET_NODEID(payLoad_RxTx) != MY_NODE_ID)) return -1;
-
-      cmd=GET_CMD(payLoad_RxTx);
-      inPort=GET_PORT(payLoad_RxTx);
-      valveTimeout=GET_TIMEOUT(payLoad_RxTx)*60*1000;//Convert user value in min. to milli sec.
-      valveTimeout=(valveTimeout==0?60000:valveTimeout);
-
-      if (cmd == 0)      return CLOSE;
-      else if (cmd == 1) return OPEN;
-      else if (cmd== 2) return SHUT;
-      else return cmd;
-    }
-    return -1;
-}
