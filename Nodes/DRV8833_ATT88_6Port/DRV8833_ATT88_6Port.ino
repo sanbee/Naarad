@@ -157,7 +157,7 @@ void setup()
   //  uint8_t pp = digitalPinToPort(PIN_SLP);
   analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
  
-  pinMode(PIN_SLP, OUTPUT);
+  pinMode(PIN_SLP, OUTPUT); 
   pinMode(COMMN, OUTPUT);
   pinMode(SPORT0, OUTPUT);
   pinMode(SPORT1, OUTPUT);
@@ -165,16 +165,22 @@ void setup()
   pinMode(SPORT3, OUTPUT);
   pinMode(SPORT4, OUTPUT);
   pinMode(SPORT5, OUTPUT);
+  //PORTD=PORTB=0x00;
+
 
   // CLOSE all ports.  This generates a 10ms pulse which draws current
   // and therefore must be done one port at a time.
-  for(port=0; port< N_DRV_PORTS; port++) setSolenoidPort(CLOSE,port); 
-  setSolenoidPort(SHUT,0); // This will set both lines of all ports to LOW
+  for(port=0; port< N_DRV_PORTS; port++) 
+    {
+      setSolenoidPort(CLOSE,port); 
+      setSolenoidPort(SHUT,port); // This will set both lines of all ports to LOW
+    }
 
   // Set A0-3, A7 and B0 to LOW
   port=PORTD; 
   setPort(port,LOW_L,PORTD_MASK);  setPort(port, LOW_L, SLP_MASK); 
   PORTD=port;
+
   port=PORTB;
   setPort(port,LOW_L,PORTB_MASK);
   PORTB=port;
@@ -188,8 +194,6 @@ void setup()
 //#################################################################
 void loop()
 {
-  PORTD=PORTB=0x00;
-
   //Calls to measure size of the program
   // rfwrite(0);
   // int cmd = readRFM69();
@@ -200,18 +204,24 @@ void loop()
   for(port=0;port<6;port++)
     {
       setSolenoidPort(OPEN,port); // This generates a 10ms pulse which draws current
-      hibernate(60000,1);
+      hibernate(6000,10);
       setSolenoidPort(CLOSE,port);// This generates a 10ms pulse which draws current
-      hibernate(5000,1);
+      //hibernate(5000,1);
+      //      setSolenoidPort(SHUT,port);
+      //hibernate(5000,1);
     }
-  port=PORTD;
-  setPort(port, LOW_L, PORTD_MASK);
-  setPort(port, LOW_L, SLP_MASK); 
-  PORTD=port;
+  {
+    // The code block leaves port pins in low state, but they draw some residual current.
+    // Don't know why (the LEDs on the test circuit glow weakly)
+    // port=PORTD;
+    // setPort(port, LOW_L, PORTD_MASK);
+    // setPort(port, LOW_L, SLP_MASK); 
+    // PORTD=port;
 
-  port=PORTB;
-  setPort(port, LOW_L, PORTB_MASK); 
-  PORTB=port;
+    // port=PORTB;
+    // setPort(port, LOW_L, PORTB_MASK); 
+    // PORTB=port;
+  }
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
 }
@@ -219,11 +229,11 @@ void loop()
 void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
 {
   //delay(timeout*multiplier); return;
-  //power_
+  //power_adc_disable();
   adc_disable();
   for(unsigned int i=0;i<multiplier;i++)
     Sleepy::loseSomeTime(timeout); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
-  //power_
+  //power_adc_enable();
   adc_enable();
 }
 
@@ -244,32 +254,34 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   setPort(portB_l, IN1, PORTB_MASK); // PB0=IN1;  IB2_0
   
   // Set DRV SLP to HIGH
-  setPort(portD_l,   HIGH_L, SLP_MASK); // PD5/SLP_D=HIGH
-  delay(5);
+  //digitalWrite(PIN_SLP, HIGH);
+  setPort(portD_l,   HIGH_L, SLP_MASK);// PD5/SLP_D=HIGH
+  //delay(5);
   
   if (cPort==1) setPort(portB_l, IN2, DRV_PIN2_MASK[cPort]);
   else          setPort(portD_l, IN2, DRV_PIN2_MASK[cPort]);
+  PORTD=portD_l;
+  PORTB=portB_l;
 
   // printf("   0123 4567\n");
   // printf("   |||| ||||\n");
   // printf("B: "); showbits(portB_l);
   // printf("D: "); showbits(portD_l);
-  PORTD=portD_l;
-  PORTB=portB_l;
 
   delay(40);
 
   // After 20msec, set all DRV port pins and SLP pin to LOW
-  setPort(portD_l, LOW_L, PORTD_MASK);
+  
   setPort(portD_l, LOW_L, SLP_MASK); // PD5/SLP_D=LOW
+  setPort(portD_l, LOW_L, PORTD_MASK);
   setPort(portB_l, LOW_L, PORTB_MASK);
+  PORTD=portD_l;
+  PORTB=portB_l;
 
   // printf("delay 20ms\n");
   // printf("B: "); showbits(portB_l);
   // printf("D: "); showbits(portD_l);
 
-  PORTD=portD_l;
-  PORTB=portB_l;
   // delay(10);
 }
 

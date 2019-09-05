@@ -1,9 +1,9 @@
 //
-// Apparently, the #defines in IDE like PD5, have nothing to do with the actual pin 
-// number to use.  The "pin numbers" on data sheets are called PDx, PBx etc.  The 'D' 
-// and 'B' in those do represent the port register names (PORTB, PORTD, etc.).  The 
-// integer represents the bit in the port registers.  E.g. PD5 corresponds to the bit 5
-// in PORTD variable.
+// Apparently, the #defines in AVR libs (used in Arduino IDE) like PD5, have nothing to
+// do with the actual pin number to use.  The "pin numbers" on data sheets are called
+// PDx, PBx etc.  The 'D' and 'B' in those do represent the port register names (PORTB,
+// PORTD, etc.).  The integer represents the bit in the port registers.  E.g. PD5
+// corresponds to the bit 5 in PORTD variable.
 //
 // The IDE has #defins like PDx, which refers to Dx in pinout diagrams as "arduino
 // labels".  However all online resources say that one should use just the integer x and
