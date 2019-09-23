@@ -45,3 +45,48 @@ o With the default set up on ArduinoIDE 1.8.x, "Arduino as ISP" did not detect A
 
    /export/home/langur/sbhatnag/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino14/bin/avrdude -C/export/home/langur/sbhatnag/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino14/etc/avrdude.conf -v -pattiny88 -cstk500v1 -P/dev/ttyACM0 -b19200 -Uflash:w:/tmp/arduino_build_738819/DRV8833_ATT88_6Port.ino.hex:i 
 
+
+22Sept2019:
+-----------
+
+Following is the board setup for programming the MCU:
+
+Arduino: 1.8.5 (Linux), Board: "ATtiny48/88, Disabled, ATtiny88, 1 MHz (internal), EEPROM retained, B.O.D. Disabled"
+
+#/export/home/langur/sbhatnag/Projects/GitHub/Naarad/Nodes/DRV8833_ATT88_6Port/DRV8833_ATT88_6Port.ino:45:48: note: #pragma message: Compiling in RF69_COMPAT mode
+ #pragma message("Compiling in RF69_COMPAT mode")
+                                                ^
+#Sketch uses 4910 bytes (59%) of program storage space. Maximum is 8192 bytes.
+#Global variables use 221 bytes (43%) of dynamic memory, leaving 291 bytes for local variables. Maximum is 512 bytes.
+
+Following the command to up-load the sketch on the MCU.  Note the "-pattiny88 -cstk500v1"
+is necessary to recognize the ATT88 MCU
+
+/export/home/langur/sbhatnag/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino14/bin/avrdude -C/export/home/langur/sbhatnag/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino14/etc/avrdude.conf -v -pattiny88 -cstk500v1 -P/dev/ttyACM0 -b19200 -Uflash:w:/tmp/arduino_build_584259/DRV8833_ATT88_6Port.ino.hex:i 
+
+Branch Controller6Port_WithRFM
+------------------------------
+
+Making the code in DRV8833_ATT88_6Port.ino on "Controller6Port_WithRFM" branch ready for
+RFM connection.  The code on the Git branch "Controller6Port" is the one which has been
+used to test setting one solenoid ON at a time for 6 min. in a sequence.
+
+This code will send a ping on RFM and listen for response for max. of 1 sec. or 3
+attempts. This is since till the BaseStation's radio range is appropriate to reach this
+controller, it may never hear a response from the BaseStation.  However the radio will be
+connected and s/w read for it on this controller since that's an easy to set the
+parameters of the controller.  Without the radio, the only way would be re-program the
+MCU on the board!
+
+The OTA command is designed to carry the PORT number, but it has not been tested yet on
+the 2Port controller (RFM69_RxTx.ino). TEST IT FIRST!!!
+
+
+Testing Strategy:
+----------------
+
+  0. Ensure that the RFM connections are correct on the board.
+      - May need to compare with the ATT84, where it works.
+
+  1. Write-up the RFM and check that it is communicating with the BaseStation.
+  2. Set the parameters OTA and check the pins via LED connections.

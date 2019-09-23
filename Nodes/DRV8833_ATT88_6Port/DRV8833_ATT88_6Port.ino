@@ -59,8 +59,8 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
 #define RCV_GOT_VALID_PKT 30
-#define MAX_RX_ATTEMPTS 50000  // Keep it <= 65535
-#define VALVE_DEFAULT_ON_TIME 10000 //10 sec.
+#define MAX_RX_ATTEMPTS 3
+#define VALVE_DEFAULT_ON_TIME 10000 //10 sec. Keep it <= 65535
 
 #define PIN_SLP PIN_PD5  // D5 (AT88 pin 11), IDE pin no. D5, but use 5 in the code instead.  Go figure!
 #define COMMN   PIN_PD6  // D6 (AT88 pin 12) IB1_0, IA1_0, IB1_1, IA1_1, IB1_2, IA1_2: IDE pin no. D6, but use 6 in the code instead.  Go figure!
@@ -71,7 +71,7 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define SPORT4  PIN_PD1  // D1 (AT88 pin 03) IB2_2, IDE pin no. D1, but use 1 in the code instead.  Go figure!
 #define SPORT5  PIN_PD0  // D0 (AT88 pin 02) IA2_2, IDE pin no. D0, but use 0 in the code instead.  Go figure!
 
-int RFM69_READ_TIMEOUT = 3000, // 3 sec 
+int RFM69_READ_TIMEOUT = 1000, // 1 sec
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1,
   VALVE_PULSE_WIDTH=10,
@@ -195,7 +195,7 @@ void setup()
   PORTB=port;
 
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1; //minutes in 2 days
-  SYS_SHUTDOWN_INTERVAL=5000; // One minute -- close to the maximum possible with looseSomeTime()
+  SYS_SHUTDOWN_INTERVAL=60000; // One minute -- close to the maximum possible with looseSomeTime()
   Sleepy::loseSomeTime(1000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
   
   //  power_adc_enable();
@@ -257,6 +257,11 @@ void loop()
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   //adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
 
+/*
+  //
+  // This is test code.  It will cycle through all solenoids, setting them ON one at a time
+  // for 6 min each before shutting it OFF.
+  //
   for(port=0;port<6;port++)
     {
       setSolenoidPort(OPEN,port); // This generates a 10ms pulse which draws current
@@ -279,6 +284,7 @@ void loop()
     // PORTB=port;
   }
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  */
   hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
 }
 
@@ -300,8 +306,23 @@ void setPort(byte& port,const byte& val, const byte& mask)
 void setSolenoidPort(const byte& cmd, const byte& cPort)
 {
   byte IN1, IN2, portD_l=getPORTD(), portB_l=getPORTB();
-  if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
-  else if (cmd==CLOSE) {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
+  //
+  // The pin states for OPEN and CLOSE commands are interchanged below to enable the
+  // BLACK wires for all solenoids to be connected to the common output pins of the DRV
+  // (which are A1, B1 for all ports of all DRVs).
+  //
+  // The cable from the post going to the solenoid pit outside has one BLACK wire and 6
+  // coloured wires. The BLACK lead of all solenoids should be shorted and the single
+  // BLACK wire in the cable from the post connected to any one of the OA1 or OB1 ports
+  // of any of the DRVs. Then OA2 and OB2 ports of all DRVs will get the various colour
+  // coded solenoid wires in the cable.
+  //
+  // This is required due to the wiring on 6Port Controller V1.0 PCB
+  //
+  if      (cmd==OPEN)  {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
+  else if (cmd==CLOSE) {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
+  // if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
+  // else if (cmd==CLOSE) {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
   else /*SHUT*/          {IN1=LOW_L; IN2=LOW_L;} // LOW, LOW
 
   // Set both DRV pins of all ports to the same value (IN1)
@@ -358,7 +379,7 @@ static void executeCommand(const int cmd)
   // parameters, but don't control the valve solenoid.  THESE SHOULD
   // IMMEDIATELY RETURN AFTER SERVICING THE COMMANDS.
   if (cmd==NOOP) return;
-  if (cmd==SET_RX_TO)                          {RFM69_READ_TIMEOUT = 1000*GET_PARAM1(payLoad_RxTx);return;} // Default 3 sec.
+  if (cmd==SET_RX_TO)                          {RFM69_READ_TIMEOUT = 1000*GET_PARAM1(payLoad_RxTx);return;} // Default 1 sec.
   if (cmd==SET_TX_INT)
     {
       SYS_SHUTDOWN_INTERVAL = 1000*GET_PARAM1(payLoad_RxTx); // Default 60 sec.
