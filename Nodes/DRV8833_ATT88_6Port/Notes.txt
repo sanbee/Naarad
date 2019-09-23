@@ -86,7 +86,34 @@ Testing Strategy:
 ----------------
 
   0. Ensure that the RFM connections are correct on the board.
-      - May need to compare with the ATT84, where it works.
+      - May need to compare with the ATT84, where it works (TinyTx3).
+      - Following are the connections on TinyTx3:
+ 
+           RFM pin ANT is Pin1
+
+           RFM Pins              ATT84 Pins
+           --------------------------------
+               5                    8
+               6                    9
+               7                    3
+               8                    7
+               9                    5
+
+ 
+          SPI Pin names
+
+              RFM                ATT84
+           --------------------------------
+            MOSI (5)             MISO (8)
+            SCK  (6)             SCK  (9)
+            NSS  (7)             PCINT10 (3)
+            MISO (8)             MOSI (7)
+            DIO0 (9)             INT0 (5)
+
 
   1. Write-up the RFM and check that it is communicating with the BaseStation.
-  2. Set the parameters OTA and check the pins via LED connections.
+  2. Set the parameters OTA.
+  3. Check the pins via LED connections.  This will also test the PORT parameter of the
+     OTA commands.
+
+
