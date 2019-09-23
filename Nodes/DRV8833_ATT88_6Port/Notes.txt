@@ -104,14 +104,27 @@ Testing Strategy:
 
               RFM                ATT84
            --------------------------------
-            MOSI (5)             MISO (8)
-            SCK  (6)             SCK  (9)
-            NSS  (7)             PCINT10 (3)
-            MISO (8)             MOSI (7)
-            DIO0 (9)             INT0 (5)
+            5 (MOSI)             8 (MISO)
+            6 (SCK)              9 (SCK)
+            7 (NSS)              3 (PCINT10)
+            8 (MISO)             7 (MOSI)
+            9 (DIO0)             5 (INT0)
+
+      - Following are the connections on SC6Port V1.0
+
+              RFM                ATT88
+           --------------------------------
+            5 (MOSI)            18 (MISO)
+            6 (SCK)             19 (SCK)
+            7 (NSS)             16 (SS) 
+            8 (MISO)            17 (MOSI)
+            9 (DIO0)             4 (INT0)
 
 
-  1. Write-up the RFM and check that it is communicating with the BaseStation.
+       !!!!! CONCLUSION:  ATT88<-->RFM on SC6Port V1.0 PCB ARE OK !!!!!
+
+
+  1. Wire-up the RFM and check that it is communicating with the BaseStation.
   2. Set the parameters OTA.
   3. Check the pins via LED connections.  This will also test the PORT parameter of the
      OTA commands.
