@@ -126,6 +126,7 @@ Testing Strategy:
 
   1. Wire-up the RFM and check that it is communicating with the BaseStation.
   2. Set the parameters OTA.
+      - Explore using NV memory to hold critical parameters
   3. Check the pins via LED connections.  This will also test the PORT parameter of the
      OTA commands.
 
