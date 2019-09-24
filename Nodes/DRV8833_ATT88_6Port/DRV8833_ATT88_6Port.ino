@@ -323,7 +323,8 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   else if (cmd==CLOSE) {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
   // if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
   // else if (cmd==CLOSE) {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
-  else /*SHUT*/          {IN1=LOW_L; IN2=LOW_L;} // LOW, LOW
+  else if (cmd==SHUT)          {IN1=LOW_L; IN2=LOW_L;} // LOW, LOW
+  else return;  // Not a valid command.  Just return
 
   // Set both DRV pins of all ports to the same value (IN1)
   // Set all DRV IN{A,B}2 pins to same value (IN1).  PD6 is the IN{A,B}1 pin for all DRV ports

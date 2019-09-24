@@ -111,6 +111,7 @@ class ClientThread (Thread):
             key = int(tok[1]);
             n = len(settings5.gPacketHistory[key]);
             #n = min(n,10);
+            print ("key: ",key," Sending ",n," history packets");
             for i in range(n):
                 print ("key: ",key," ",settings5.gPacketHistory[key][i]);
                 self.myc1.send(settings5.gPacketHistory[key][i]);
