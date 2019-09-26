@@ -190,6 +190,16 @@ class ClientThread (Thread):
     #
     #--------------------------------------------------------------------------
     #        
+    def scriptHandler(self,msg):
+        msg=msg.replace("BEGINSCRIPT","");
+        msg=msg.replace("ENDSCRIPT","");
+        msg=str(msg.strip());
+        print 'SH: ',msg;
+        exec(msg);
+        return True;
+    #
+    #--------------------------------------------------------------------------
+    #        
     def messageHandler(self,msg):
         try:
             finished=False;
@@ -288,6 +298,9 @@ class ClientThread (Thread):
                 elif (cmd=="sethlen"):
                     print("### Setting HISTORYLENGTH to ",float(tok[1]),"hr / ",int(float(tok[1])*3600000), "msec");
                     settings5.NAARAD_HISTORYLENGTH=int(float(tok[1])*3600000);
+
+                elif (cmd=="BEGINSCRIPT"):
+                    self.scriptHandler(msg);
                 else:
                     print ("Command ",msg," not understood");
                     finished=True;
@@ -349,6 +362,11 @@ class ClientThread (Thread):
                 msg="";
                 self.myc1.getSock().settimeout(5.0);#Timeout for 5s
                 msg = self.myc1.receive();
+                # if (msg[0]=="BEGINSCRIPT"):
+                #     n = len(msg)-1;
+                #     while (msg[n] != "ENDSCRIPT"):
+                #         msg.append(self.myc1.receive().strip());
+                #         n = len(msg)-1;
                 self.myc1.getSock().settimeout(None);#Set the sock back to blocking
             except socket.timeout as e:
                 self.closeSock(self.myc1.getSock(),"ClientThread: Timed out.  Closing connection. "+str(e));
@@ -363,12 +381,14 @@ class ClientThread (Thread):
                 self.closeSock(self.myc1.getSock(), "ClientThread: Unknown error during receive().  Shutting down the connection. "+str(e));
                 break;
 
-
+#            msg= list(filter(None,msg));  # Remove "" strings!
+            
             if (len(msg) == 0):
                 self.closeSock(self.myc1.getSock(), "Got a zero-length message.  Possible EOF received from client.  Shutting down the connection");
                 break;
             else:
                 finished = self.messageHandler(msg);
+                    
                 #break;
 
         print ("### Exiting " + self.name);

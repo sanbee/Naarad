@@ -1,0 +1,7 @@
+import sys;
+sys.path.append("/home/sanjay/Projects/GitHub/Naarad/RPi/NaaradServer/Simulator");
+
+import cmdnaarad;
+import sendcmd;
+
+cmdnaarad.main(str.split("cmdnaarad RFM_SEND 16 4 10 1  "));
