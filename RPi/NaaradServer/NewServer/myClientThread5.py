@@ -139,12 +139,21 @@ class ClientThread (Thread):
         # infopkt=json.dumps(jdict);
         # self.myc1.send(infopkt);
 
-        with notifyOnCond:
-            notifyOnCond.wait(timeOut);
-            cpkt=settings5.gCurrentPacket[notifyForNodeID];
-            cpkt,jdict=Utils.addTimeStamp("tnot",cpkt);
+        cpkt="{\"rf_fail\": 1,\"source\": \"handleNotify ERROR: error during notification; Possibly no history packet found\"}";
+        try:
+            with notifyOnCond:
+                notifyOnCond.wait(timeOut);
+                cpkt=settings5.gCurrentPacket[notifyForNodeID];
+                cpkt,jdict=Utils.addTimeStamp("tnot",cpkt);
+        except RuntimeError as e:#, socket.error as e):
+            print ("handleNotify: Error during notification.")
+            raise type(e)("handleNotify: Error during notification.");
+        except Exception as e:
+            print ("handleNotify: Error during notification.",str(e))
+
+        finally:
             self.myc1.send(cpkt);
-        settings5.gClientList.unregister(uuid);
+            settings5.gClientList.unregister(uuid);
         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
     #
     #--------------------------------------------------------------------------
@@ -166,17 +175,18 @@ class ClientThread (Thread):
         jdict['uuid']=uuid;
         self.myc1.send(json.dumps(jdict));
 
+        cpkt="{\"rf_fail\": 1,\"source\": \"handleContNotify ERROR: Error during notification\"}";
         try:
             while(settings5.gClientList.continuousNotification(uuid)):
                 with notifyOnCond:
                     notifyOnCond.wait(timeOut);
                     cpkt=settings5.gCurrentPacket[notifyForNodeID];
                     cpkt,jdict=Utils.addTimeStamp("tnot",cpkt);
-                    self.myc1.send(cpkt);
         except RuntimeError as e:#, socket.error as e):
             print ("handleContNotify: Error during notification.")
             raise type(e)("handleContNotify: Error during notification.");
         finally:
+            self.myc1.send(cpkt);
             settings5.gClientList.unregister(uuid);
     #
     #--------------------------------------------------------------------------
