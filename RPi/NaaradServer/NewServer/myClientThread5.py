@@ -139,7 +139,7 @@ class ClientThread (Thread):
         # infopkt=json.dumps(jdict);
         # self.myc1.send(infopkt);
 
-        cpkt="{\"rf_fail\": 1,\"source\": \"handleNotify ERROR: error during notification; Possibly no history packet found\"}";
+        cpkt="{\"rf_fail\": 2,\"source\": \"handleNotify ERROR: error during notification; Possibly no history packet found\"}";
         try:
             with notifyOnCond:
                 notifyOnCond.wait(timeOut);

@@ -27,7 +27,11 @@ def cnotifyNaaradSend(mesg):
     # "time" is the time-stamp of the arrival of the packet on the server.  "tnot" is the
     # time-stamp when the notification was issued and the packets sent to the client.
     # Both time-stamps use the RTC of the server.
-    dt=jdict["tnot"] - jdict['time'];
+    if (jdict['rf_fail'] == 2):
+        dt=1600;
+    else:
+        dt=jdict["tnot"] - jdict['time'];
+
     return packet,dt;
 
 def cnotify(argv):
