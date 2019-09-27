@@ -65,22 +65,22 @@ def notify(argv):
     the different between the current time and time-stamp in the
     packet are both returned to the caller.
     """
-    if (len(sys.argv) < 7):
+    if (len(argv) < 7):
 
-        print("\nUsage: "+sys.argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
+        print("\nUsage: "+argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
         print(notify.__doc__);
     else:
         try:
-            naaradcmd=sys.argv[1];
-            nodeid=sys.argv[2]
-            cmd=sys.argv[3];
-            src=str(sys.argv[4]);
+            naaradcmd=argv[1];
+            nodeid=argv[2]
+            cmd=argv[3];
+            src=str(argv[4]);
 
             FULLCMD=naaradcmd;
             for i in range(2,6):
-                FULLCMD=FULLCMD+" "+str(sys.argv[i]);
+                FULLCMD=FULLCMD+" "+str(argv[i]);
 
-            nRETRIALS=int(sys.argv[6]);
+            nRETRIALS=int(argv[6]);
 
             print(FULLCMD);
             Retry=0;

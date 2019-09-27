@@ -40,21 +40,21 @@ def neumonic(cmd):
     if (cmd == "PULSE_WIDTH"): return 5;
     raise MyException("Incorrect command string \""+cmd+"\"");
 
-def main(argv):
-        if (len(sys.argv) < 6):
-		print "Usage: "+sys.argv[0]+" RFM_SEND NODEID CMD P1 P0\n";
+def cmdnaarad(argv):
+        if (len(argv) < 6):
+		print "Usage: "+argv[0]+" RFM_SEND NODEID CMD P1 P0\n";
                 print helpmsg;
         else:
                 try:
-		        tt=sys.argv[1];
-                        cmd=sys.argv[2];
-		        for i in range(2,len(sys.argv)):
-                                if ((i==3) and (not sys.argv[i].isdigit())):
-                                        cmd = neumonic(sys.argv[3]);
+		        tt=argv[1];
+                        cmd=argv[2];
+		        for i in range(2,len(argv)):
+                                if ((i==3) and (not argv[i].isdigit())):
+                                        cmd = neumonic(argv[3]);
                                         if (cmd >= 0):
                                                 tt=tt+" "+str(cmd);
                                 else:
-			                tt=tt+" "+sys.argv[i]
+			                tt=tt+" "+argv[i]
 
 		        FULLCMD=tt;
 
@@ -68,4 +68,4 @@ def main(argv):
                 except MyException as e:
                         print str(e);
 if __name__ == "__main__":
-    main(sys.argv)
+    cmdnaarad(sys.argv)
