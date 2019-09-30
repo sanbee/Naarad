@@ -6,8 +6,9 @@ ATT88 Physical Pin | RFM69CW Pins
 19 (SCK)                   |   6 (SCK)
 4 (INT0/2/PCINT18/PD2)    |   9 (DI00)
 
-## Connections for programming ATT88 from Arduino:
+## Programming ATT88 from Arduino:
 
+### Connections:
 Arduino UNO Pin labels |  Physical Pin on ATTiny88-PU
 -----------------------|------------------------------
 10 (SS)           |       1 (RESET)
@@ -17,7 +18,7 @@ Arduino UNO Pin labels |  Physical Pin on ATTiny88-PU
 3.3V              |      20 (VACC) and 7 (VCC)
 GND               |      22 (GND)
 
-## Procedure:
+### Procedure:
 1. [Install ATTinyCore](https://github.com/SpenceKonde/ATTinyCore/blob/master/Installation.md)
 2. Select  Tools->Board->Arduino/Genuino UNO    (or whatever board you are using)
 3. Load ArduinoISP sketch from Files->examples->ArduinoISP
