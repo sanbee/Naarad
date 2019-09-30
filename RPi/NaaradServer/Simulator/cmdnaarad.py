@@ -1,5 +1,6 @@
 #! /usr/bin/python
 import sys
+sys.path.insert(0, '../NaaradServer/NewServer');
 import serverinfo
 
 from mySock import mysocket;
@@ -39,8 +40,7 @@ def neumonic(cmd):
     if (cmd == "PULSE_WIDTH"): return 5;
     raise MyException("Incorrect command string \""+cmd+"\"");
 
-def main(argv):
-        print argv,len(argv);
+def cmdnaarad(argv):
         if (len(argv) < 6):
 		print "Usage: "+argv[0]+" RFM_SEND NODEID CMD P1 P0\n";
                 print helpmsg;
@@ -68,4 +68,4 @@ def main(argv):
                 except MyException as e:
                         print str(e);
 if __name__ == "__main__":
-    main(sys.argv)
+    cmdnaarad(sys.argv)
