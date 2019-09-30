@@ -50,7 +50,7 @@
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
 
 #define SERVER_NODE_ID 5
-#define MY_NODE_ID     16                     // RF12 node ID in the range 1-30
+#define MY_NODE_ID     15                     // RF12 node ID in the range 1-30
 #define network        210                   // RF12 Network group
 #define freq           RF12_433MHZ  // Frequency of RFM12B module
 #define RFM_WAKEUP -1
