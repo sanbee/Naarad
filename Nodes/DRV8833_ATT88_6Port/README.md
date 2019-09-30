@@ -18,8 +18,7 @@ Arduino UNO Pin labels |  Physical Pin on ATTiny88-PU
 GND               |      22 (GND)
 
 ## Procedure:
-
-1. Install ATTinyCore
+1. [Install ATTinyCore](https://github.com/SpenceKonde/ATTinyCore/blob/master/Installation.md)
 2. Select  Tools->Board->Arduino/Genuino UNO    (or whatever board you are using)
 3. Load ArduinoISP sketch from Files->examples->ArduinoISP
 4. Select  Tools->Board->Attiny48/88.  After this, the "Tools" menus should show the following for the board.  Make clock, "B.O.D." and other selections as appropriate:
