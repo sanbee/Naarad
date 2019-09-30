@@ -6,7 +6,7 @@ ATT88 Physical Pin | RFM69CW Pins
 19 (SCK)                   |   6 (SCK)
 4 (INT0/2/PCINT18/PD2)    |   9 (DI00)
 
-## Connections:
+## Connections for programming ATT88 from Arduino:
 
 Arduino UNO Pin labels |  Physical Pin on ATTiny88-PU
 -----------------------|------------------------------
