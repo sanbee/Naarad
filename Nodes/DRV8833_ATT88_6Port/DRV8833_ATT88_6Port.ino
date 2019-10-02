@@ -20,6 +20,15 @@
 //  You should have received a copy of the GNU General Public License
 //  along with Naarad.  If not, see <https:www.gnu.org/licenses/>.
 // 
+
+// THIS VERSION HAS WORKED ON ATT88 WITH RFM69CW MODULE CONNECTED ON THE BRADBOARD.
+// TIMING TO GET REGULAR PINGS AND ACK PACKETS IS FRAGILE FOR SOME REASON.  PERHAPS 
+// IT WILL BE BETTER WHEN NOT ON A BREADBOARD.
+//
+// THE CONNECTIONS BELOW HAVE BEEN TESTED TO WORK.  MOSI/MISO CONNECTIONS BETWEEN
+// ATT88 AND RF69 ARE *OPPOSITE* OF WHAT WORKS ON ATT84.  DON'T UNDERSTAND THIS!
+//                                    SANJAY, O1OCT2019
+
 //--------------------------------------------------------------------------
 // Connections between ATTiny88 MCU and the RFM69CW module:
 //
@@ -59,8 +68,8 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define RCV_TIMEDOUT      10
 #define RCV_GOT_SOME_PKT  20
 #define RCV_GOT_VALID_PKT 30
-#define MAX_RX_ATTEMPTS 3
-#define VALVE_DEFAULT_ON_TIME 10000 //10 sec. Keep it <= 65535
+#define MAX_RX_ATTEMPTS 50000  // Keep it <= 65535
+#define VALVE_DEFAULT_ON_TIME 10000 //10 sec.
 
 #define PIN_SLP PIN_PD5  // D5 (AT88 pin 11), IDE pin no. D5, but use 5 in the code instead.  Go figure!
 #define COMMN   PIN_PD6  // D6 (AT88 pin 12) IB1_0, IA1_0, IB1_1, IA1_1, IB1_2, IA1_2: IDE pin no. D6, but use 6 in the code instead.  Go figure!
@@ -71,7 +80,7 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define SPORT4  PIN_PD1  // D1 (AT88 pin 03) IB2_2, IDE pin no. D1, but use 1 in the code instead.  Go figure!
 #define SPORT5  PIN_PD0  // D0 (AT88 pin 02) IA2_2, IDE pin no. D0, but use 0 in the code instead.  Go figure!
 
-int RFM69_READ_TIMEOUT = 1000, // 1 sec
+int RFM69_READ_TIMEOUT = 3000, // 3 sec 
   SYS_SHUTDOWN_INTERVAL=60000, // 60 sec
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1,
   VALVE_PULSE_WIDTH=10,
@@ -157,15 +166,8 @@ static byte port=0x00;
 
 #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
 #define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
-//#################################################################
-void setup()
+void initPins()
 {
-  rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
-  rf12_sleep(0);                          // Put the RFM12 to sleep
-
-  //  uint8_t pp = digitalPinToPort(PIN_SLP);
-  analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
- 
   pinMode(PIN_SLP, OUTPUT); 
   pinMode(COMMN, OUTPUT);
   pinMode(SPORT0, OUTPUT);
@@ -174,8 +176,18 @@ void setup()
   pinMode(SPORT3, OUTPUT);
   pinMode(SPORT4, OUTPUT);
   pinMode(SPORT5, OUTPUT);
-  //PORTD=PORTB=0x00;
+}
+//#################################################################
+void setup()
+{
+  adc_enable();
+  rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
+  rf12_sleep(0);                          // Put the RFM12 to sleep
 
+  //  uint8_t pp = digitalPinToPort(PIN_SLP);
+  analogReference(INTERNAL);  // Set the aref to the internal 1.1V reference
+ 
+  initPins();
 
   // CLOSE all ports.  This generates a 10ms pulse which draws current
   // and therefore must be done one port at a time.
@@ -195,7 +207,7 @@ void setup()
   PORTB=port;
 
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1; //minutes in 2 days
-  SYS_SHUTDOWN_INTERVAL=60000; // One minute -- close to the maximum possible with looseSomeTime()
+  SYS_SHUTDOWN_INTERVAL=5000; // One minute -- close to the maximum possible with looseSomeTime()
   Sleepy::loseSomeTime(1000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
   
   //  power_adc_enable();
@@ -203,10 +215,16 @@ void setup()
 //#################################################################
 void loop()
 {
-  payLoad_RxTx.supplyV = readVcc(); // Get supply voltage
+  adc_enable();
+
+  initPins();
   //Calls to measure size of the program
   if ((TimeOfLastValveCmd>0)&&((unsigned long)(millis() - TimeOfLastValveCmd) >= valveTimeout))
     {executeCommand(CLOSE);TimeOfLastValveCmd=0;}
+
+  payLoad_RxTx.temp = int((((double(tempReading/10.0)*0.942382812) - 500)/10)*100);
+
+  payLoad_RxTx.supplyV = readVcc(); // Get supply voltage
 
   rfwrite(1);
   delay(10);
@@ -257,20 +275,15 @@ void loop()
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   //adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
 
-/*
-  //
-  // This is test code.  It will cycle through all solenoids, setting them ON one at a time
-  // for 6 min each before shutting it OFF.
-  //
-  for(port=0;port<6;port++)
-    {
-      setSolenoidPort(OPEN,port); // This generates a 10ms pulse which draws current
-      hibernate(valveTimeOut,1);//(6000,10);
-      setSolenoidPort(CLOSE,port);// This generates a 10ms pulse which draws current
-      //hibernate(5000,1);
-      //      setSolenoidPort(SHUT,port);
-      //hibernate(5000,1);
-    }
+  // for(port=0;port<6;port++)
+  //   {
+  //     setSolenoidPort(OPEN,port); // This generates a 10ms pulse which draws current
+  //     hibernate(valveTimeout,1);//(6000,10);
+  //     setSolenoidPort(CLOSE,port);// This generates a 10ms pulse which draws current
+  //     //hibernate(5000,1);
+  //     //      setSolenoidPort(SHUT,port);
+  //     //hibernate(5000,1);
+  //   }
   {
     // The code block leaves port pins in low state, but they draw some residual current.
     // Don't know why (the LEDs on the test circuit glow weakly)
@@ -283,9 +296,11 @@ void loop()
     // setPort(port, LOW_L, PORTB_MASK); 
     // PORTB=port;
   }
-  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
-  */
-  hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
+  adc_disable();  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
+    Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+
+  // hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
 }
 
 void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
@@ -295,7 +310,7 @@ void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
   adc_disable();
   for(unsigned int i=0;i<multiplier;i++)
     Sleepy::loseSomeTime(timeout); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
-  adc_enable();
+  //  adc_enable();
   //power_adc_enable();
 }
 
@@ -306,25 +321,9 @@ void setPort(byte& port,const byte& val, const byte& mask)
 void setSolenoidPort(const byte& cmd, const byte& cPort)
 {
   byte IN1, IN2, portD_l=getPORTD(), portB_l=getPORTB();
-  //
-  // The pin states for OPEN and CLOSE commands are interchanged below to enable the
-  // BLACK wires for all solenoids to be connected to the common output pins of the DRV
-  // (which are A1, B1 for all ports of all DRVs).
-  //
-  // The cable from the post going to the solenoid pit outside has one BLACK wire and 6
-  // coloured wires. The BLACK lead of all solenoids should be shorted and the single
-  // BLACK wire in the cable from the post connected to any one of the OA1 or OB1 ports
-  // of any of the DRVs. Then OA2 and OB2 ports of all DRVs will get the various colour
-  // coded solenoid wires in the cable.
-  //
-  // This is required due to the wiring on 6Port Controller V1.0 PCB
-  //
-  if      (cmd==OPEN)  {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
-  else if (cmd==CLOSE) {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
-  // if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
-  // else if (cmd==CLOSE) {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
-  else if (cmd==SHUT)          {IN1=LOW_L; IN2=LOW_L;} // LOW, LOW
-  else return;  // Not a valid command.  Just return
+  if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
+  else if (cmd==CLOSE) {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
+  else /*SHUT*/          {IN1=LOW_L; IN2=LOW_L;} // LOW, LOW
 
   // Set both DRV pins of all ports to the same value (IN1)
   // Set all DRV IN{A,B}2 pins to same value (IN1).  PD6 is the IN{A,B}1 pin for all DRV ports
@@ -380,7 +379,7 @@ static void executeCommand(const int cmd)
   // parameters, but don't control the valve solenoid.  THESE SHOULD
   // IMMEDIATELY RETURN AFTER SERVICING THE COMMANDS.
   if (cmd==NOOP) return;
-  if (cmd==SET_RX_TO)                          {RFM69_READ_TIMEOUT = 1000*GET_PARAM1(payLoad_RxTx);return;} // Default 1 sec.
+  if (cmd==SET_RX_TO)                          {RFM69_READ_TIMEOUT = 1000*GET_PARAM1(payLoad_RxTx);return;} // Default 3 sec.
   if (cmd==SET_TX_INT)
     {
       SYS_SHUTDOWN_INTERVAL = 1000*GET_PARAM1(payLoad_RxTx); // Default 60 sec.
@@ -405,7 +404,11 @@ static void executeCommand(const int cmd)
 // //--------------------------------------------------------------------------------------------------
 static void rfwrite(const byte wakeup)
  {
-   if (wakeup==1) rf12_sleep(-1);     //wake up RF module
+   if (wakeup==1) 
+     {
+       rf12_sleep(-1);     //wake up RF module
+       //       delay(30);
+     }
    while (!rf12_canSend()) rf12_recvDone();
    rf12_sendStart(0, &payLoad_RxTx, sizeof payLoad_RxTx); 
    rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
@@ -442,6 +445,7 @@ static int readRFM69()
   //################################################################
   
   //  if (rf12_recvDone() && rf12_crc == 0 && (rf12_hdr & RF12_HDR_CTL) == 0) 
+
   if (rf12_recvDone() && rf12_crc == 0)
     {
       payload_nodeID = rf12_hdr & 0x1F;   // extract node ID from received packet
@@ -456,11 +460,10 @@ static int readRFM69()
       valveTimeout=GET_TIMEOUT(payLoad_RxTx)*60*1000;//Convert user value in min. to milli sec.
       valveTimeout=(valveTimeout==0?60000:valveTimeout);
 
-      return cmd;
-      // if (cmd == 0)      return CLOSE;
-      // else if (cmd == 1) return OPEN;
-      // else if (cmd== 2) return SHUT;
-      // else return cmd;
+      if (cmd == 0)      return CLOSE;
+      else if (cmd == 1) return OPEN;
+      else if (cmd== 2) return SHUT;
+      else return cmd;
     }
     return -1;
 }
