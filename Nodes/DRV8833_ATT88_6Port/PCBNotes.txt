@@ -1,0 +1,37 @@
+1. Fix the connections to RFM69CW module
+
+   The following connections have been tested to work on breadboard:
+
+    ATT88 Physical Pin              RFM69CW Pins
+       16 (SS)                        7 (NSS)
+       17 (MOSI)                      5 (MOSI)
+       18 (MISO)                      8 (MISO)
+       19 (SCK)                       6 (SCK)
+        4 (INT0/2/PCINT18/PD2)        9 (DI00)
+
+    On the PCB the connections are
+       17 (MOSI)                      8 (MISO)
+       18 (MISO)                      5 (MOSI)
+
+
+2. ATT88 cannot be programmed when connected to RFM69CW module.
+   Needs a jumper.
+
+   This is because ATT88 pin 16 (SS) is also connected the RFM69CW's pin 7(NSS).  When
+   programming ATT88 from UNO, pin 16 is pulled low to select ATT88 over SPI.  This then
+   also selects RFM69.  Since on one device can be active at a time on SPI, the
+   programming fails.
+
+   Solution:  Disconnect RFM69CW pin 7 and pull it high so that it's MOSI/MISO in-system
+   connections are effectively disabled.  ATT88 can then be programmed.
+
+3. Mark the port output pins and ports.
+
+4. Increase font size.
+
+5. Slightly larger mounting holes
+
+6. Figure out putting labels on the bottom layer.  In particular IC pin labels.
+
+7. Add a port with MCU pins for easier programming.
+     Pins 1,16,17,18,19
