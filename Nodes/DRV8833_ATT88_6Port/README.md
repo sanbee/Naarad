@@ -1,4 +1,4 @@
-### Connections between ATT88 and RFM69CW
+## Connections between ATT88 and RFM69CW
 
 ATT88 Physical Pin | RFM69CW Pins
 -------------------|-------------
