@@ -45,6 +45,12 @@ connecting it back to ATT88 pin 16.
     LTO: "Disabled"
     B.O.D. Level: "B.O.D. Disabled"
 ```
+5. Select Tools->Programmer->"Arduino as ISP".  The "Tools" menu should then show the following:
+```
+    Programmer: "Arduino as ISP"
+```
+6. Now upload your sketch for ATT88 as usual.
+
 ATT88 can operate at 1MHz and 8MHz with internal clock.  
 Operating voltage 
    * 1MHz: 1.8--5.5V.
@@ -53,9 +59,3 @@ Operating voltage
 Power Consumption
    * Active Mode: 1 MHz, 1.8V: 240 μA
    * Power-Down Mode: 0.1 μA at 1.8V
-
-5. Select Tools->Programmer->"Arduino as ISP".  The "Tools" menu should then show the following:
-```
-    Programmer: "Arduino as ISP"
-```
-6. Now upload your sketch for ATT88 as usual.
