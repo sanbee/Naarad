@@ -18,7 +18,7 @@
    Needs a jumper.
 
    This is because ATT88 pin 16 (SS) is also connected the RFM69CW's pin 7(NSS).  When
-   programming ATT88 from UNO, pin 16 is pulled low to select ATT88 over SPI.  This then
+   programming ATT88 from UNO, pin 16 is pulled high to select ATT88 over SPI.  This then
    also selects RFM69.  Since on one device can be active at a time on SPI, the
    programming fails.
 
