@@ -36,7 +36,7 @@ connecting it back to ATT88 pin 16.
 1. [Install ATTinyCore](https://github.com/SpenceKonde/ATTinyCore/blob/master/Installation.md)
 2. Select  Tools->Board->Arduino/Genuino UNO    (or whatever board you are using)
 3. Load ArduinoISP sketch from Files->examples->ArduinoISP
-4. Select  Tools->Board->Attiny48/88.  After this, the "Tools" menus should show the following for the board.  Make clock, "B.O.D." and other selections as appropriate:
+4. Select  Tools->Board->Attiny48/88.  After this, the "Tools" menus should show the following for the board.  Make clock, "B.O.D." and other selections as appropriate.  
 ```
     Board: "ATtiny48/88"
     Chip: ATtiny88
@@ -45,6 +45,15 @@ connecting it back to ATT88 pin 16.
     LTO: "Disabled"
     B.O.D. Level: "B.O.D. Disabled"
 ```
+ATT88 can operate at 1MHz and 8MHz with internal clock.  
+Operating voltage 
+   * 1MHz: 1.8--5.5V.
+   * 8MHz: 2.7--5.5V.   
+
+Power Consumption
+   * Active Mode: 1 MHz, 1.8V: 240 μA
+   * Power-Down Mode: 0.1 μA at 1.8V
+
 5. Select Tools->Programmer->"Arduino as ISP".  The "Tools" menu should then show the following:
 ```
     Programmer: "Arduino as ISP"
