@@ -217,6 +217,7 @@ void setup()
 void loop()
 {
   adc_enable();
+  rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above
 
   initPins();
   //Calls to measure size of the program
