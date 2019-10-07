@@ -1,4 +1,4 @@
-### Connections between ATT88 and RFM69CW
+## Connections between ATT88 and RFM69CW
 
 ATT88 Physical Pin | RFM69CW Pins
 -------------------|-------------
@@ -36,7 +36,7 @@ connecting it back to ATT88 pin 16.
 1. [Install ATTinyCore](https://github.com/SpenceKonde/ATTinyCore/blob/master/Installation.md)
 2. Select  Tools->Board->Arduino/Genuino UNO    (or whatever board you are using)
 3. Load ArduinoISP sketch from Files->examples->ArduinoISP
-4. Select  Tools->Board->Attiny48/88.  After this, the "Tools" menus should show the following for the board.  Make clock, "B.O.D." and other selections as appropriate:
+4. Select  Tools->Board->Attiny48/88.  After this, the "Tools" menus should show the following for the board.  Make clock, "B.O.D." and other selections as appropriate.  
 ```
     Board: "ATtiny48/88"
     Chip: ATtiny88
@@ -50,3 +50,12 @@ connecting it back to ATT88 pin 16.
     Programmer: "Arduino as ISP"
 ```
 6. Now upload your sketch for ATT88 as usual.
+
+ATT88 can operate at 1MHz and 8MHz with internal clock.  
+Operating voltage 
+   * 1MHz: 1.8--5.5V.
+   * 8MHz: 2.7--5.5V.   
+
+Power Consumption
+   * Active Mode: 1 MHz, 1.8V: 240 μA
+   * Power-Down Mode: 0.1 μA at 1.8V
