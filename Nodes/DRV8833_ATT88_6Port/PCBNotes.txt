@@ -35,3 +35,13 @@
 
 7. Add a port with MCU pins for easier programming.
      Pins 1,16,17,18,19
+
+8. Pull-up resistor of 10kOhm on RFM69CW's NSS.  
+      - Add a pull-up resistor of 10KOhm between Pad 7 (NSS) and Pad 2 (VCC) of RFM69CW.
+      - This will allow in circuit programming of the ATT88.  This will pull RFM's NSS
+        high when programming ATT88 from UNO, disabling RFM as an SPI device.  Once the
+	program is loaded to ATT88, rf12_initialize() will pull ATT88's Pin 16 low which
+	is connected to RFM69CW's Pad 7 so that RFM module is selected for SPI
+	transactions between ATT88 and RFM69CW.  (Thank you, DrAzzy).
+      - Without this pull-up resistor, RFM69CW module also responds as an SPI device
+        disallowing programming the ATT88 which in circuit (on the PCB).
