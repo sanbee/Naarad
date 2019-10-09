@@ -60,7 +60,7 @@
 ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
 
 #define SERVER_NODE_ID 5
-#define MY_NODE_ID     15                     // RF12 node ID in the range 1-30
+#define MY_NODE_ID     15                    // RF12 node ID in the range 1-30
 #define network        210                   // RF12 Network group
 #define freq           RF12_433MHZ  // Frequency of RFM12B module
 #define RFM_WAKEUP -1
@@ -169,6 +169,7 @@ static byte port=0x00;
 #define adc_enable() (ADCSRA |= (1<<ADEN)) // re-enable ADC
 void initPins()
 {
+  // pinMode(PIN_PD0, OUTPUT); 
   pinMode(PIN_SLP, OUTPUT); 
   pinMode(COMMN, OUTPUT);
   pinMode(SPORT0, OUTPUT);
@@ -182,6 +183,8 @@ void initPins()
 void setup()
 {
   adc_enable();
+  // RFFreq = 43*10000000 +band*2500*1600)/1e6 == 434.0MHz
+  // Eq. to compute RFFreq is in RF69_compact.cpp::rf69_initialize()
   rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 
   rf12_sleep(0);                          // Put the RFM12 to sleep
 
@@ -190,6 +193,7 @@ void setup()
  
   initPins();
 
+  //  /*-------------------------TEST---------------------------------------
   // CLOSE all ports.  This generates a 10ms pulse which draws current
   // and therefore must be done one port at a time.
   for(port=0; port< N_DRV_PORTS; port++) 
@@ -206,21 +210,41 @@ void setup()
   port=PORTB;
   setPort(port,LOW_L,PORTB_MASK);
   PORTB=port;
+  //  -------------------------TEST---------------------------------------*/
 
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1; //minutes in 2 days
   SYS_SHUTDOWN_INTERVAL=5000; // One minute -- close to the maximum possible with looseSomeTime()
   Sleepy::loseSomeTime(1000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+  adc_enable();
   
   //  power_adc_enable();
 }
 //#################################################################
 void loop()
 {
-  adc_enable();
-  rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above
+  // rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above
 
-  initPins();
-  //Calls to measure size of the program
+  // initPins();
+
+  // for(byte i=0;i<3;i++)
+  //   {
+  //     digitalWrite(COMMN,HIGH);
+  //     delay(100);
+  //     digitalWrite(COMMN,LOW);
+  //     delay(100);
+  //   }
+  // delay(1000);
+
+
+
+  // port=PORTD;
+  // setPort(port, HIGH_L, SLP_MASK); 
+  // PORTD=port;
+  // delay(1000);
+  // port=PORTD;
+  // setPort(port, LOW_L, SLP_MASK); 
+  // PORTD=port;
+
   if ((TimeOfLastValveCmd>0)&&((unsigned long)(millis() - TimeOfLastValveCmd) >= valveTimeout))
     {executeCommand(CLOSE);TimeOfLastValveCmd=0;}
 
@@ -229,10 +253,10 @@ void loop()
   payLoad_RxTx.supplyV = readVcc(); // Get supply voltage
 
   rfwrite(1);
-  delay(10);
 
   lastRF=millis();
   rf12_sleep(RFM_WAKEUP);
+  delay(10);
 
   // readRFM69() returns command if it gets a packet from the server
   // node with a target ID of this node.  It returns -1 otherwise (if
@@ -253,7 +277,7 @@ void loop()
       MaxRxCounter++;
     }
 
-  delay(10); // With the receiver ON, this delay is necessary for the
+  //  delay(10); // With the receiver ON, this delay is necessary for the
 	     // second packet to be issued.  What's the minimum delay?
 
   if (dataReady != RCV_TIMEDOUT)
@@ -268,14 +292,29 @@ void loop()
   // End radio operations
   //
 
+  //  /*-------------------------TEST---------------------------------------
   // If cmd has valid value, process it.
   if (cmd >=0 ) 
     {
       executeCommand(cmd);
     }
+  //  -------------------------TEST---------------------------------------*/
 
   //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
   //adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+
+  // digitalWrite(COMMN,HIGH);
+  // delay(4000);
+  // digitalWrite(COMMN,LOW);
+
+  // port=PORTD;
+  // setPort(port, HIGH_L, SLP_MASK); 
+  // PORTD=port;
+  // delay(3000);
+  // port=PORTD;
+  // setPort(port, LOW_L, SLP_MASK); 
+  // PORTD=port;
+
 
   // for(port=0;port<6;port++)
   //   {
@@ -298,11 +337,11 @@ void loop()
     // setPort(port, LOW_L, PORTB_MASK); 
     // PORTB=port;
   }
-  adc_disable();  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
-  for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
-    Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+  // adc_disable();  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
+  // for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
+  //   Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 
-  // hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
+  hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
 }
 
 void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
@@ -312,7 +351,7 @@ void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
   adc_disable();
   for(unsigned int i=0;i<multiplier;i++)
     Sleepy::loseSomeTime(timeout); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
-  //  adc_enable();
+  adc_enable();
   //power_adc_enable();
 }
 
@@ -409,7 +448,7 @@ static void rfwrite(const byte wakeup)
    if (wakeup==1) 
      {
        rf12_sleep(-1);     //wake up RF module
-       //       delay(30);
+       delay(10);
      }
    while (!rf12_canSend()) rf12_recvDone();
    rf12_sendStart(0, &payLoad_RxTx, sizeof payLoad_RxTx); 
