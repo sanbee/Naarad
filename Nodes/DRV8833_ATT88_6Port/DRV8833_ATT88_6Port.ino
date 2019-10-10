@@ -21,15 +21,25 @@
 //  along with Naarad.  If not, see <https:www.gnu.org/licenses/>.
 // 
 
-// THIS VERSION HAS WORKED ON ATT88 WITH RFM69CW MODULE CONNECTED ON THE BRADBOARD.
-// TIMING TO GET REGULAR PINGS AND ACK PACKETS IS FRAGILE FOR SOME REASON.  PERHAPS 
-// IT WILL BE BETTER WHEN NOT ON A BREADBOARD.
-// THIS CODE HAS WORKED WITH ATT88 WORKING AT 1MHz INTERNAL CLOCK.
+// This version of the code has been tested to work with ATT88 clocked at 4 and 8MHz.
+// The current code is for running it at 4MHz.  For running at 8 MHz, remove the first 4
+// lines of code in setup().  THE CODE DOES NOT WORK AT 1 MHz (THE RADIO DOES NOT WORK
+// BELOW 4 MHZ).
+//
+// This code has been tested on the breadboard and the PCB with the RFM unit
+// connected. Tests to operate the 6 ports by OTA commands has also been tested.  This
+// latter test was by monitoring the INA2 or INB2 control lines going from ATT88 to the
+// DRV8833 by sending the CLOSE command.
 //
 // THE CONNECTIONS BELOW HAVE BEEN TESTED TO WORK.  MOSI/MISO CONNECTIONS BETWEEN
 // ATT88 AND RF69 ARE *OPPOSITE* OF WHAT WORKS ON ATT84.  DON'T UNDERSTAND THIS!
 //                                    SANJAY, O1OCT2019
-
+//
+// The connections below are the right one and are different from connections with ATT84
+// because ATT84 has USI not full hardware SPI. For details see
+// https://github.com/SpenceKonde/ATTinyCore#spi-support.
+//                                    SANJAT, 09OCT2019
+//
 //--------------------------------------------------------------------------
 // Connections between ATTiny88 MCU and the RFM69CW module:
 //
@@ -183,6 +193,26 @@ void initPins()
 void setup()
 {
   adc_enable();
+
+  //---------------FOR RUNNING ATT88 AT 4MHz---------------------------------
+  // The 4 lines below are required only for running the ATT88 at 4MHz. The full
+  // instructions about the procedure using Arudino IDE are at
+  // https://forum.arduino.cc/index.php?topic=624890.msg4233505#msg4233505
+  //
+  // Add to (your documents folder)/hardware/ATTinyCore/avr/boards.txt the follwing lines in the attinyx8 section:
+  // attinyx8.menu.clock.4internal=4 MHz (must set CLKPR in sketch)
+  // attinyx8.menu.clock.4internal.bootloader.low_fuses=0x62
+  // attinyx8.menu.clock.4internal.build.f_cpu=4000000L
+  // attinyx8.menu.clock.4internal.bootloader.file=empty/empty_all.hex
+  //
+  // At the top of your setup(), add the following 4 lines of code:
+  //
+  cli(); //disable interrupts - this is a timed sequence.
+  CLKPR=0x80; //change enable
+  CLKPR=0x01; //set prescaler to 2
+  sei(); //enable interrupts
+  //---------------FOR RUNNING ATT88 AT 4MHz---------------------------------
+
   // RFFreq = 43*10000000 +band*2500*1600)/1e6 == 434.0MHz
   // Eq. to compute RFFreq is in RF69_compact.cpp::rf69_initialize()
   rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above 

@@ -14,7 +14,9 @@
        18 (MISO)                      5 (MOSI)
 
 
-2. ATT88 cannot be programmed when connected to RFM69CW module.
+2. !!!NOT REQUIRED. SEE BULLET 8 BELOW FOR A BETTER SOLUTION!!!
+
+   ATT88 cannot be programmed when connected to RFM69CW module.
    Needs a jumper.
 
    This is because ATT88 pin 16 (SS) is also connected the RFM69CW's pin 7(NSS).  When
@@ -38,7 +40,7 @@
 
 8. Pull-up resistor of 10kOhm on RFM69CW's NSS.  
       - Add a pull-up resistor of 10KOhm between Pad 7 (NSS) and Pad 2 (VCC) of RFM69CW.
-      - This will allow in circuit programming of the ATT88.  This will pull RFM's NSS
+      - This will allow in-circuit programming of the ATT88.  This will pull RFM's NSS
         high when programming ATT88 from UNO, disabling RFM as an SPI device.  Once the
 	program is loaded to ATT88, rf12_initialize() will pull ATT88's Pin 16 low which
 	is connected to RFM69CW's Pad 7 so that RFM module is selected for SPI
