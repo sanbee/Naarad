@@ -24,7 +24,7 @@
 // This version of the code has been tested to work with ATT88 clocked at 4 and 8MHz.
 // The current code is for running it at 4MHz.  For running at 8 MHz, remove the first 4
 // lines of code in setup().  THE CODE DOES NOT WORK AT 1 MHz (THE RADIO DOES NOT WORK
-// BELOW 4 MHZ).
+// BELOW 4 MHZ https://jeelabs.org/2011/12/10/inside-the-rf12-driver/).
 //
 // This code has been tested on the breadboard and the PCB with the RFM unit
 // connected. Tests to operate the 6 ports by OTA commands has also been tested.  This
