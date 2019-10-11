@@ -527,13 +527,12 @@ static int readRFM69()
       if ((payload_nodeID != SERVER_NODE_ID) && (GET_NODEID(payLoad_RxTx) != MY_NODE_ID)) return -1;
 
       cmd=GET_CMD(payLoad_RxTx);
-      inPort=GET_PORT(payLoad_RxTx);
       valveTimeout=GET_TIMEOUT(payLoad_RxTx)*60*1000;//Convert user value in min. to milli sec.
       valveTimeout=(valveTimeout==0?60000:valveTimeout);
 
-      if (cmd == 0)      return CLOSE;
-      else if (cmd == 1) return OPEN;
-      else if (cmd== 2) return SHUT;
+      if (cmd == 0)      {inPort=GET_PORT(payLoad_RxTx);return CLOSE;}
+      else if (cmd == 1) {inPort=GET_PORT(payLoad_RxTx);return OPEN;}
+      else if (cmd== 2)  {inPort=GET_PORT(payLoad_RxTx);return SHUT;}
       else return cmd;
     }
     return -1;
