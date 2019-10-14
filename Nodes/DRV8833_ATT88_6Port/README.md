@@ -79,5 +79,5 @@ Power Consumption
        CLKPR=0x01; //set prescaler to 2
        sei(); //enable interrupts
 ```
-3. Restart IDE.  Select "4 MHz (must set CLKPR in sketch)".  Upload
+3. Restart IDE.  Select "```4 MHz (must set CLKPR in sketch)```".  Upload
 the boatloader and then your sketch with this setting.
