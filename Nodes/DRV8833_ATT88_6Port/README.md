@@ -59,3 +59,25 @@ Operating voltage
 Power Consumption
    * Active Mode: 1 MHz, 1.8V: 240 μA
    * Power-Down Mode: 0.1 μA at 1.8V
+
+### Procedure to configure ATT88 for 4MHz clock using ATtinyCore:
+
+ The full instructions about the procedure using Arudino IDE are at
+ https://forum.arduino.cc/index.php?topic=624890.msg4233505#msg4233505
+
+1. Add to (your documents folder)/hardware/ATTinyCore/avr/boards.txt the follwing lines in the attinyx8 section:
+```
+       attinyx8.menu.clock.4internal=4 MHz (must set CLKPR in sketch)
+       attinyx8.menu.clock.4internal.bootloader.low_fuses=0x62
+       attinyx8.menu.clock.4internal.build.f_cpu=4000000L
+       attinyx8.menu.clock.4internal.bootloader.file=empty/empty_all.hex
+```
+2. At the top of your setup(), add the following 4 lines of code:
+```
+       cli(); //disable interrupts - this is a timed sequence.
+       CLKPR=0x80; //change enable
+       CLKPR=0x01; //set prescaler to 2
+       sei(); //enable interrupts
+```
+3. Restart IDE.  Select "4 MHz (must set CLKPR in sketch)".  Upload
+the boatloader and then your sketch with this setting.
