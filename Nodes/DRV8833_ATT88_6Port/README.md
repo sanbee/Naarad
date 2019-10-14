@@ -53,8 +53,8 @@ connecting it back to ATT88 pin 16.
 
 ATT88 can operate at 1MHz and 8MHz with internal clock.  
 Operating voltage 
-   * 1MHz: 1.8--5.5V.
-   * 8MHz: 2.7--5.5V.   
+   * 0-4MHz: 1.8--5.5V.
+   * 4-8MHz: 2.7--5.5V.   
 
 Power Consumption
    * Active Mode: 1 MHz, 1.8V: 240 μA
