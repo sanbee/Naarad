@@ -223,7 +223,6 @@ void setup()
  
   initPins();
 
-  //  /*-------------------------TEST---------------------------------------
   // CLOSE all ports.  This generates a 10ms pulse which draws current
   // and therefore must be done one port at a time.
   for(port=0; port< N_DRV_PORTS; port++) 
@@ -240,7 +239,6 @@ void setup()
   port=PORTB;
   setPort(port,LOW_L,PORTB_MASK);
   PORTB=port;
-  //  -------------------------TEST---------------------------------------*/
 
   SYS_SHUTDOWN_INTERVAL_MULTIPLIER=1; //minutes in 2 days
   SYS_SHUTDOWN_INTERVAL=5000; // One minute -- close to the maximum possible with looseSomeTime()
@@ -253,27 +251,6 @@ void setup()
 void loop()
 {
   // rf12_initialize(MY_NODE_ID,freq,network,freqOffset); // Initialize RFM12 with settings defined above
-
-  // initPins();
-
-  // for(byte i=0;i<3;i++)
-  //   {
-  //     digitalWrite(COMMN,HIGH);
-  //     delay(100);
-  //     digitalWrite(COMMN,LOW);
-  //     delay(100);
-  //   }
-  // delay(1000);
-
-
-
-  // port=PORTD;
-  // setPort(port, HIGH_L, SLP_MASK); 
-  // PORTD=port;
-  // delay(1000);
-  // port=PORTD;
-  // setPort(port, LOW_L, SLP_MASK); 
-  // PORTD=port;
 
   if ((TimeOfLastValveCmd>0)&&((unsigned long)(millis() - TimeOfLastValveCmd) >= valveTimeout))
     {executeCommand(CLOSE);TimeOfLastValveCmd=0;}
@@ -307,9 +284,6 @@ void loop()
       MaxRxCounter++;
     }
 
-  //  delay(10); // With the receiver ON, this delay is necessary for the
-	     // second packet to be issued.  What's the minimum delay?
-
   if (dataReady != RCV_TIMEDOUT)
     {
       dataReady=RCV_GOT_VALID_PKT;
@@ -320,69 +294,20 @@ void loop()
   rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
   //=============================================================================
   // End radio operations
-  //
 
-  //  /*-------------------------TEST---------------------------------------
   // If cmd has valid value, process it.
   if (cmd >=0 ) 
-    {
-      executeCommand(cmd);
-    }
-  //  -------------------------TEST---------------------------------------*/
-
-  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
-  //adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
-
-  // digitalWrite(COMMN,HIGH);
-  // delay(4000);
-  // digitalWrite(COMMN,LOW);
-
-  // port=PORTD;
-  // setPort(port, HIGH_L, SLP_MASK); 
-  // PORTD=port;
-  // delay(3000);
-  // port=PORTD;
-  // setPort(port, LOW_L, SLP_MASK); 
-  // PORTD=port;
-
-
-  // for(port=0;port<6;port++)
-  //   {
-  //     setSolenoidPort(OPEN,port); // This generates a 10ms pulse which draws current
-  //     hibernate(valveTimeout,1);//(6000,10);
-  //     setSolenoidPort(CLOSE,port);// This generates a 10ms pulse which draws current
-  //     //hibernate(5000,1);
-  //     //      setSolenoidPort(SHUT,port);
-  //     //hibernate(5000,1);
-  //   }
-  {
-    // The code block leaves port pins in low state, but they draw some residual current.
-    // Don't know why (the LEDs on the test circuit glow weakly)
-    // port=PORTD;
-    // setPort(port, LOW_L, PORTD_MASK);
-    // setPort(port, LOW_L, SLP_MASK); 
-    // PORTD=port;
-
-    // port=PORTB;
-    // setPort(port, LOW_L, PORTB_MASK); 
-    // PORTB=port;
-  }
-  // adc_disable();  //power_adc_disable();//Claim is that with this, the current consumption is down to 0.2uA from 230uA (!)
-  // for(byte i=0;i<SYS_SHUTDOWN_INTERVAL_MULTIPLIER;i++)
-  //   Sleepy::loseSomeTime(SYS_SHUTDOWN_INTERVAL); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
+    executeCommand(cmd);
 
   hibernate(SYS_SHUTDOWN_INTERVAL,SYS_SHUTDOWN_INTERVAL_MULTIPLIER);
 }
 
 void hibernate(const unsigned int& timeout, const unsigned int& multiplier)
 {
-  //delay(timeout*multiplier); return;
-  //power_adc_disable();
   adc_disable();
   for(unsigned int i=0;i<multiplier;i++)
     Sleepy::loseSomeTime(timeout); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
   adc_enable();
-  //power_adc_enable();
 }
 
 
@@ -510,8 +435,6 @@ static long readVcc()
 
 static int readRFM69() 
 {
-  //  digitalWrite(LEDPIN,LOW);    // turn LED off
-  
   // On data receieved from rf12
   //################################################################
   
@@ -537,62 +460,3 @@ static int readRFM69()
     }
     return -1;
 }
-//
-//---------------Old code for reference-------------------------------------
-//
-// #define SETBIT(t,n)  (t |= 1<<n)
-// #define CLRBIT(t,n)  (t &= ~(1 << n))
-// void setPortD(byte& port,const byte& val)
-// {
-//   port = (port & ~MASK_PORTD) | (val & MASK_PORTD);
-// }
-
-// void setPortB(byte& port,const byte& val)
-// {
-//   port = (port & ~MASK_PORTB) | (val & MASK_PORTB);
-// }
-
-// void setSolenoid(const byte& cmd, const byte& port, const byte& bitMap)
-// {
-//   byte CommonPin=0, Pin1=0;
-//   // portD and portB values should be set to whatever is the current
-//   // value of PORTD and PORTB registers.
-//   byte portD=getPORTD(), portB=getPORTB();
-//   // If CommonPin is 1, B0 and A0-3,A7 should be set to 1. Since the
-//   // bits that can change in PORTD and PORTB is controlled by
-//   // MASK_PORTD and MASK_PORTB, setting CommonPin=0b11111111 and then
-//   // blindly using it to set the bits in PORTD and PORTB will work.
-//   if      (cmd == OPEN)  {CommonPin=0xFF; Pin1=0;}
-//   else if (cmd == CLOSE) {CommonPin=0;  Pin1=1;} 
-
-//   // printf("P, S, C: %d %d %d\n",port2BitMap[port], (CommonPin==-1)?1:0, Pin1);
-
-//   // Set both pins of all ports to the same value as the CommonPin
-//   // value, effectively issuing the SHUT command to all ports.  No
-//   // current should be drawn from the battery by any of the ports in
-//   // this state
-//   setPortB(portB, CommonPin);
-//   setPortD(portD, CommonPin);
-
-//   // Now set the other pin of the specific port.  port2BitMap maps the
-//   // port number to the bits in the PORTD.
-//   if (Pin1==1) SETBIT(portD,bitMap[port]);
-//   else         CLRBIT(portD,bitMap[port]);
-    
-//   // Finally, copy the pin settings to PORTD and PORTB registers.  The
-//   // lines below actually sets the hardware.
-//   PORTD=portD;
-//   PORTB=portB;
-//   // printf("B: "); showbits(PORTB);
-//   // printf("A: "); showbits(PORTD);
-//   // printf("Insert 10ms delay\n");
-
-//   // 10ms later, remove the voltage (issue the SHUT command)
-//   delay(10);
-//   setPortD(portD,0x00);
-//   CLRBIT(portB, 0);//setPortB(PORTB,0x00);
-//   PORTD=portD;
-//   PORTB=portB;
-//   delay(10);
-// }
-//
