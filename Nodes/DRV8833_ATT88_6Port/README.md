@@ -52,6 +52,7 @@ connecting it back to ATT88 pin 16.
 6. Now upload your sketch for ATT88 as usual.
 
 ATT88 can operate at 1MHz and 8MHz with internal clock.  
+
 Operating voltage 
    * 0-4MHz: 1.8--5.5V.
    * 4-8MHz: 2.7--5.5V.   
@@ -62,7 +63,7 @@ Power Consumption
 
 ### Procedure to configure ATT88 for 4MHz clock using ATtinyCore:
 
- The full instructions about the procedure using Arudino IDE are at
+ The original instructions about the procedure using Arudino IDE are at
  https://forum.arduino.cc/index.php?topic=624890.msg4233505#msg4233505
 
 1. Add to (your documents folder)/hardware/ATTinyCore/avr/boards.txt the follwing lines in the attinyx8 section:
