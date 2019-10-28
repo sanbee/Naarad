@@ -24,7 +24,7 @@ Pin 16 of ATT88 is SS. RFM69 pin 7 is also connected to this pin.
 When programming the ATT88 from UNO, SS is pulled high to select the
 SPI device connected on this pin.  Since both RFM69's SS is also
 connected to this pin, when pulled high, both SPI devices (ATT88 and
-RFM69) will get selected.  This not disallowed on SPI and therefore
+RFM69) will get selected.  This is not allowed on SPI and therefore
 ATT88 cannot be programmed.
 
 Solution is to disconnect RFM69 pin 7 and pull it high.  This can be
