@@ -20,19 +20,17 @@ Arduino UNO Pin labels |  Physical Pin on ATTiny88-PU
 3.3V              |      20 (VACC) and 7 (VCC)
 GND               |      22 (GND)
 
-Pin 16 of ATT88 is SS. RFM69 pin 7 is also connected to this pin.
+Pin 16 of ATT88 is SS. RFM69CW pin 7 is also connected to this pin.
 When programming the ATT88 from UNO, SS is pulled high to select the
 SPI device connected on this pin.  Since both RFM69's SS is also
 connected to this pin, when pulled high, both SPI devices (ATT88 and
 RFM69) will get selected.  This is not allowed on SPI and therefore
-ATT88 cannot be programmed.
+ATT88 cannot be programmed in-circuit.
 
-Solution is to disconnect RFM69 pin 7 and pull it high.  This can be
-done by connect RFM69 pin 7 to VCC for programming the ATT88 and then
-connecting it back to ATT88 pin 16.
+The solution is to add a pull-resistor between Pin 7 and VCC of the RFM69CW module.  Alternative solution, arguably more tedious, is to disconnect RFM69 pin 7 and pull it high.  This can be done by connect RFM69 pin 7 to VCC for programming the ATT88 and then connecting it back to ATT88 pin 16.
 
 ### Procedure:
-0. Disconnect RFM69 pin 7 from ATT88 pin 16 and pull it high
+0. Disconnect RFM69CW pin 7 from ATT88 pin 16 and pull it high.  This is not necessary if there is a pull-up resistor between Pin 7 and VCC of the RFM69CW module.
 1. [Install ATTinyCore](https://github.com/SpenceKonde/ATTinyCore/blob/master/Installation.md)
 2. Select  Tools->Board->Arduino/Genuino UNO    (or whatever board you are using)
 3. Load ArduinoISP sketch from Files->examples->ArduinoISP
