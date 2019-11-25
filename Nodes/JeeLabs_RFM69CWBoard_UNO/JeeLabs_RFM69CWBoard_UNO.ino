@@ -38,7 +38,7 @@
 // The connections below are the right one and are different from connections with ATT84
 // because ATT84 has USI not full hardware SPI. For details see
 // https://github.com/SpenceKonde/ATTinyCore#spi-support.
-//                                    SANJAY, 09OCT2019
+//                                    SANJAT, 09OCT2019
 //
 //--------------------------------------------------------------------------
 // Connections between ATTiny88 MCU and the RFM69CW module:
@@ -207,10 +207,11 @@ void setup()
   //
   // At the top of your setup(), add the following 4 lines of code:
   //
-  cli(); //disable interrupts - this is a timed sequence.
-  CLKPR=0x80; //change enable
-  CLKPR=0x01; //set prescaler to 2
-  sei(); //enable interrupts
+
+  // cli(); //disable interrupts - this is a timed sequence.
+  // CLKPR=0x80; //change enable
+  // CLKPR=0x01; //set prescaler to 2
+  // sei(); //enable interrupts
   //---------------FOR RUNNING ATT88 AT 4MHz---------------------------------
 
   // RFFreq = 43*10000000 +band*2500*1600)/1e6 == 434.0MHz
@@ -274,9 +275,9 @@ void loop()
   while ((cmd=readRFM69())==-1)
     {
       if (
-	  ((millis() - lastRF) > (unsigned long)RFM69_READ_TIMEOUT) ||
-	  (MaxRxCounter > MAX_RX_ATTEMPTS)
-	  )
+      	  ((millis() - lastRF) > (unsigned long)RFM69_READ_TIMEOUT) ||
+      	  (MaxRxCounter > MAX_RX_ATTEMPTS)
+      	  )
 	{
 	  dataReady=RCV_TIMEDOUT;
 	  break;
@@ -290,7 +291,7 @@ void loop()
       // Following is an ACK packet which is captured by all listener
       // stations (but currently processed only by the base station)
       rfwrite(1);
-    }
+     }
   rf12_sleep(RFM_SLEEP_FOREVER);    //put RF module to sleep
   //=============================================================================
   // End radio operations
@@ -408,6 +409,7 @@ static void rfwrite(const byte wakeup)
    while (!rf12_canSend()) rf12_recvDone();
    rf12_sendStart(0, &payLoad_RxTx, sizeof payLoad_RxTx); 
    rf12_sendWait(1);    //wait for RF to finish sending while in IDLE (1) mode (standby is 2 -- does not work with JeeLib 2018)
+   delay(10);
    rf12_sleep(0);    //put RF module to sleep
 }
 

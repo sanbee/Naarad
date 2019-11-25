@@ -131,3 +131,8 @@ Testing Strategy:
      OTA commands.
 
 
+JeeLabs RFM69CW Board:
+---------------------
+
+R4,R5,R6: 10K
+R1,R2,R3: 4.7K
