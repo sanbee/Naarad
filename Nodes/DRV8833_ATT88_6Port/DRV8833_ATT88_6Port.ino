@@ -38,7 +38,7 @@
 // The connections below are the right one and are different from connections with ATT84
 // because ATT84 has USI not full hardware SPI. For details see
 // https://github.com/SpenceKonde/ATTinyCore#spi-support.
-//                                    SANJAT, 09OCT2019
+//                                    SANJAY, 09OCT2019
 //
 //--------------------------------------------------------------------------
 // Connections between ATTiny88 MCU and the RFM69CW module:
