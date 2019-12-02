@@ -1,10 +1,29 @@
 /* -*-C++-*- */
 //--------------------------------------------------------------------------------------
+//
 // ATtiny84 based wireless sensor (based on Tiny-Tx) and sprinkler
 // controller for DC latching solenoids.
 // By S. Bhatnagar (sanbeepie@gmail.com)
 //
 // GNU GPL V3
+// ******************************************************************
+//  Copyright (c) 2014-2018, 2019 S.Bhatnagar
+// 
+//   This file is part of Naarad software system.
+// 
+//   Naarad is a free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+// 
+//   Naarad is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+// 
+//   You should have received a copy of the GNU General Public License
+//   along with Naarad.  If not, see <https://www.gnu.org/licenses/>.
+// 
 //--------------------------------------------------------------------------------------
 // This code accepts RFM_SEND command with the following usage:
 //     RFM_SEND CMD NODEID PARAM1 PARAM0
@@ -35,7 +54,8 @@
 #define SEQ_LEN 35
 
 #define outputRFTxPin  6
-#define sensorTMP36Pin  0 //the analog pin the TMP36's Vout (sense) pin is connected to
+//#define sensorTMP36Pin  0 //the analog pin the TMP36's Vout (sense) pin is connected to
+#define sensorTMP36Pin  A5 //the analog pin the TMP36's Vout (sense) pin is connected to
 char cmdStr[SEQ_LEN];
 char seqReady = 0;
 char serialCount;
@@ -562,6 +582,7 @@ float readTemperature()
   //initGPIO();
   //getting the voltage reading from the temperature sensor
   int reading=0;
+  analogRead(sensorTMP36Pin);
   for(int i=0; i<10;i++)
     reading += analogRead(sensorTMP36Pin);  
   reading /= 10.0;
@@ -570,9 +591,8 @@ float readTemperature()
   //delay(10);
   
   // converting that reading to voltage, for 3.3v arduino use 3.3
-  float voltage = reading *5.0;
-  voltage /= 1024.0; 
-  
+  float voltage = reading * 5.0; // in mV
+  voltage /= 1024;
   // print out the voltage
   // Serial.print(voltage); Serial.println(" volts");
   
