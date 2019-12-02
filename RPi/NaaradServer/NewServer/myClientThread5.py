@@ -113,8 +113,9 @@ class ClientThread (Thread):
             #n = min(n,10);
             print ("key: ",key," Sending ",n," history packets");
             for i in range(n):
-                print ("key: ",key," ",settings5.gPacketHistory[key][i]);
+                #print ("key: ",key," ",settings5.gPacketHistory[key][i]);
                 self.myc1.send(settings5.gPacketHistory[key][i]);
+            print "###Info: gethpkt: Sent "+str(n)+" packets for key "+tok[1];
         except KeyError:
             print ("gethpkt::Key ",tok[1]," not found");
         self.myc1.send("PHINISHED }");
