@@ -121,7 +121,17 @@ Testing Strategy:
             9 (DIO0)             4 (INT0)
 
 
-       !!!!! CONCLUSION:  ATT88<-->RFM on SC6Port V1.0 PCB ARE OK !!!!!
+       !!!!! CONCLUSION:  Pins 18,17 on ATT88<-->RFM Pin (8,5) on
+             SC6Port V1.0 PCB ARE CONNECTED WRONG !!!!!
+      - Following are the correct connections
+         
+              RFM                ATT88
+           --------------------------------
+            5 (MOSI)            17 (MOSI)
+            6 (SCK)             19 (SCK)
+            7 (NSS)             16 (SS) 
+            8 (MISO)            18 (MISO)
+            9 (DIO0)             4 (INT0)
 
 
   1. Wire-up the RFM and check that it is communicating with the BaseStation.
@@ -136,3 +146,4 @@ JeeLabs RFM69CW Board:
 
 R4,R5,R6: 10K
 R1,R2,R3: 4.7K
+
