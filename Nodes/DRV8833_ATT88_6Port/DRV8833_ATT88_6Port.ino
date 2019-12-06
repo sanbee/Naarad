@@ -90,7 +90,7 @@ ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Slee
 #define SPORT3  PIN_PD3  // D3 (AT88 pin 05) IA2_1, IDE pin no. D3, but use 3 in the code instead.  Go figure!
 #define SPORT4  PIN_PD1  // D1 (AT88 pin 03) IB2_2, IDE pin no. D1, but use 1 in the code instead.  Go figure!
 #define SPORT5  PIN_PD0  // D0 (AT88 pin 02) IA2_2, IDE pin no. D0, but use 0 in the code instead.  Go figure!
-#define TEMP_OUT PIN_PC7 // C7 ATT88 pin 21
+#define TEMP_OUT PIN_PC0 // C7 ATT88 pin 23
 #define TEMP_PWR PIN_PB1 // B1 ATT88 pin 15
 
 int RFM69_READ_TIMEOUT = 3000, // 3 sec 
@@ -258,20 +258,24 @@ int readTemp()
   delay(10); // Allow 10ms for the sensor to be ready
  
   analogRead(TEMP_OUT); // throw away the first reading
+  tempReading=0;
   
   for(int i = 0; i < 10 ; i++) // take 10 more readings
   {
    tempReading += analogRead(TEMP_OUT); // accumulate readings
   }
-  tempReading = tempReading / 10 ; // calculate the average
-
   digitalWrite(TEMP_PWR, LOW); // turn TMP36 sensor off
 
-//  double voltage = tempReading * (1100/1024); // Convert to mV (assume internal reference is accurate)
-  
-  double voltage = tempReading * 0.942382812; // Calibrated conversion to mV
+  tempReading = tempReading / 10 ; // calculate the average
 
-  double temperatureC = (voltage - 500) / 10; // Convert to temperature in degrees C. 
+  float voltage = tempReading * 3.3/1024;
+  float temperatureC = (voltage - 0.5) * 100.0 ;  //converting from 10 mv per degree wit 500 mV offset
+
+
+//  double voltage = tempReading * (1100/1024); // Convert to mV (assume internal reference is accurate)
+  // double voltage = tempReading * 0.942382812; // Calibrated conversion to mV
+
+  // double temperatureC = (voltage - 500) / 10; // Convert to temperature in degrees C. 
 
   return (int)(temperatureC * 100); // Convert temperature to an integer, reversed at receiving end
 }

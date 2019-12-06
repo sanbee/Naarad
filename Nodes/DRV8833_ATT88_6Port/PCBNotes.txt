@@ -47,3 +47,11 @@
 	transactions between ATT88 and RFM69CW.  (Thank you, DrAzzy).
       - Without this pull-up resistor, RFM69CW module also responds as an SPI device
         disallowing programming the ATT88 which in circuit (on the PCB).
+
+9. Measure the 9V battery on one of the MCU pins.  Will need a voltage divider to map 9V
+   to 3.3v.
+
+10. Port to add temp., humidity sensors.
+
+11. Move RFM antenna to the center of the PCB (to benefit from the ground plane)?
+
