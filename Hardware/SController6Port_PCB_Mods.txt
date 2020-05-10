@@ -8,7 +8,8 @@
              4 (INT0/2/PCINT18/PD2)              9 DI00
 
 
-2. Pull-up RFM69CW pin 7 to allow in-circuit programming of the MCU.
+2. Pull-up RFM69CW pin 7 to allow in-circuit programming of the MCU.  
+   A 10K resistor across Pin-2 (VCC) and -7.
 
 3. Mark input pins/ports
 
