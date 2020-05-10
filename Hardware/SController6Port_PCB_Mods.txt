@@ -1,0 +1,27 @@
+1. Change ATT88 pix 18,17 connection to RFM69CW:  ATT88-18, -17 --> RFM64-8, -5.
+
+      ATT88 Physical Pin                       RFM69CW Pins
+            16 (SS)                              7 (NSS)
+            17 (MOSI)                            5 (MOSI)
+            18 (MISO)                            8 (MISO)
+            19 SCK                               6 (SCK)
+             4 (INT0/2/PCINT18/PD2)              9 DI00
+
+
+2. Pull-up RFM69CW pin 7 to allow in-circuit programming of the MCU.
+
+3. Mark input pins/ports
+
+4.Marck output ports
+
+5. Increase font size
+
+6. Mounting holes
+
+7. IC pin labels in the bottom layer.
+
+8. Add MCU programming port
+
+9. Measure 9V
+
+10. Port to add temp, humidity sensors.
