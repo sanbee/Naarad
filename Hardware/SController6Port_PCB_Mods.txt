@@ -13,7 +13,7 @@
 
 3. Mark input pins/ports
 
-4.Marck output ports
+4. Mark output ports
 
 5. Increase font size
 
@@ -26,3 +26,14 @@
 9. Measure 9V
 
 10. Port to add temp, humidity sensors.
+
+11. Solenoid ports are connected as
+      +|-  -|+  +|-  -|+
+
+    Re-route them to be
+      -|+  -|+  -|+  -|+
+
+12. Fix the circuit issue that prevents
+    common ground for all solenoid ports.
+    This will require 7 wires for all 6 ports
+    (as against 12 required currently).
