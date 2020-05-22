@@ -7,6 +7,7 @@ from mySock import mysocket;
 import time;
 
 helpmsg="\n\
+   Maximum value of NODEID, CMD, P1 and P0 below can be 255\n\n\
    Operation       NODEID    CMD       P1                 P0\n\
   --------------------------------------------------------------------------------\n\
    VALVE CLOSE       N        0       PORT          TIMEOUT in minutes (default 30min)\n\

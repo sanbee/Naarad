@@ -1,0 +1,42 @@
+@@@: Tue Oct 01 09:00:41 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -60.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:00:47 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -59.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:00:53 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -60.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:00:56 2019:: {"node_v": 2.73, "cmd": -1, "node_p": -49.5, "rf_fail": 0, "source": "RS0", "node_id": 16, "degc": -50.0}
+@@@: Tue Oct 01 09:00:56 2019:: {"rf_fail":1,"source":"Sending RFM_SEND","cmd":255,"node":16 ,"param0":0 ,"param1":"0 0" }
+@@@: Tue Oct 01 09:00:56 2019:: {"rf_fail":1,"source":"ACKpkt:","cmd":255,"node":16,"p0": 0,"p1": 16 }
+@@@: Tue Oct 01 09:00:59 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -60, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:05 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -62, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:11 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -59.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:16 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -63.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:22 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -59, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:28 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -59, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:38 2019:: {"rf_fail": 1, "source": "Init RFM", "cmd": -1, "node": 0}
+@@@: Tue Oct 01 09:01:38 2019:: {"rf_fail":1,"source":"ACKpkt:","cmd":255,"node":15,"p0": 0,"p1": 15 }
+@@@: Tue Oct 01 09:01:40 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -62, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:42 2019:: {"node_v": 2.5, "cmd": -1, "node_p": -42.5, "rf_fail": 0, "source": "RS0", "node_id": 3, "degc": 23.78}
+@@@: Tue Oct 01 09:01:44 2019:: {"rf_fail":1,"source":"ACKpkt:","cmd":255,"node":15,"p0": 0,"p1": 15 }
+@@@: Tue Oct 01 09:01:46 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -61.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:50 2019:: {"rf_fail":1,"source":"ACKpkt:","cmd":255,"node":15,"p0": 0,"p1": 15 }
+('connection accepted', ('192.168.0.22', 46980), u'open')
+Starting Th798. Watching fd 12
+Th798 got: " RFM_SEND 15 4 10 1"
+Th798 got: " done"
+good bye
+### Exiting Th798
+@@@: Tue Oct 01 09:01:51 2019:: {"rf_fail":1,"source":"Got RFM_SEND","cmd":4,"rx1":2561 ,"node":15 ,"param0":10 ,"param1":"1 6" }
+@@@: Tue Oct 01 09:01:52 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -60.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:01:56 2019:: {"node_v": 3.35, "cmd": -1, "node_p": -32.5, "rf_fail": 0, "source": "RS0", "node_id": 15, "degc": 0.0}
+@@@: Tue Oct 01 09:01:56 2019:: {"rf_fail":1,"source":"Sending RFM_SEND","cmd":4,"node":15 ,"param0":10 ,"param1":"1 0" }
+@@@: Tue Oct 01 09:01:56 2019:: {"rf_fail":1,"source":"ACKpkt:","cmd":4,"node":15,"p0": 10,"p1": 15 }
+@@@: Tue Oct 01 09:01:58 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -67.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:02:03 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -61.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.22}
+@@@: Tue Oct 01 09:02:07 2019:: {"node_v": 3.35, "cmd": -1, "node_p": -30.5, "rf_fail": 0, "source": "RS0", "node_id": 15, "degc": 25.61}
+@@@: Tue Oct 01 09:02:07 2019:: {"rf_fail":1,"source":"Sending RFM_SEND","cmd":255,"node":15 ,"param0":0 ,"param1":"0 0" }
+@@@: Tue Oct 01 09:02:07 2019:: {"rf_fail":1,"source":"ACKpkt:","cmd":255,"node":15,"p0": 0,"p1": 15 }
+@@@: Tue Oct 01 09:02:09 2019:: {"node_v": 2.73, "cmd": -1, "node_p": -48, "rf_fail": 0, "source": "RS0", "node_id": 16, "degc": -50.0}
+@@@: Tue Oct 01 09:02:09 2019:: {"rf_fail":1,"source":"Sending RFM_SEND","cmd":255,"node":16 ,"param0":0 ,"param1":"0 0" }
+@@@: Tue Oct 01 09:02:09 2019:: {"rf_fail":1,"source":"ACKpkt:","cmd":255,"node":16,"p0": 0,"p1": 16 }
+@@@: Tue Oct 01 09:02:09 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -61.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:02:15 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -60.5, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
+@@@: Tue Oct 01 09:02:17 2019:: {"rf_fail":1,"source":"ACKpkt:","cmd":255,"node":15,"p0": 0,"p1": 15 }
+@@@: Tue Oct 01 09:02:21 2019:: {"node_v": 2.41, "cmd": -1, "node_p": -66, "rf_fail": 0, "source": "RS0", "node_id": 1, "degc": 23.12}
