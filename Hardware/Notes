@@ -71,3 +71,13 @@ While I did not use one for my current test, it's advisable to put a 10uF cap be
 One follow up question for the experts now is: The ATTinyCore offers a choice of 8MHz or 1MHz (internal) for clock settings for ATTiny48/88.  However these MCUs can be run at 4MHz or lower as well.  Can I do something in my program to set it to run it at, say, 2 MHz or 4MHz?  If not, can the ATTinyCore be changed to allow other clock settings (as for other ATTinys)?
 
 Thanks all (specially DrAzzy) for all the help and very useful comments and suggestions.
+
+-------------------------------------------------------------------------------------
+
+Connections on the PCB and solenoid wires:
+-----------------------------------------
+
+1. The board being used has one of the connector of each port terminal marked with black ink.  That connector is positive ("+").
+2. Each port terminal has a 2 wires connected. The wire with specs printed on it is connected to the positive ("+") terminal on the PCB for each port.
+   So the connection should be:
+       - The wire with specs printed on it --> Red wire of the solenoid
