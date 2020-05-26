@@ -24,14 +24,14 @@ function operateSolenoid() # $1->node, $2->port, $3->cmd
     ./cmdnaarad.py RFM_SEND $1 4 60 0 # Set ping timeout to 60 sec
 }
 
-echo "argc = " $#;
 if [ $# -lt 3 ]; then
     echo "Usage: $0 NodeID Port# 0/1 [hours]"
+    exit 0;
 elif [ $# -gt 3 ]; then
     let t0=$4*3600;
-    echo "Watering for $4 hours";
+    echo "Watering for $t0 sec";
     operateSolenoid $1 $2 1;
-    sleep t0;
+    sleep $t0;
     operateSolenoid $1 $2 0;
     exit 0;
 elif [ $3 -eq 0 ]; then
