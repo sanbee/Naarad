@@ -1,0 +1,3 @@
+[submodule "Libraries/jeelib.github"]
+	path = Libraries/jeelib.github
+	url = https://github.com/jeelabs/jeelib.git
