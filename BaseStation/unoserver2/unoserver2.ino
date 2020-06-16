@@ -183,6 +183,10 @@ void setup()
 //####################################################################
 void loop() 
 {
+  // Reset RFM69 if the time of last recvd pkt > 10sec.  This reset is a workaround for a
+  // JeeLib issue due to which the radio freezes about ~2 days of continuous operation
+  // (see https://github.com/jeelabs/jeelib/issues/92)
+
   if ((millis() - lastPktRecvd) > 10000)
     {
       Serial.println("{\"rf_fail\":1,\"source\":\"Init RFM\",\"node\": 0 }\0");
