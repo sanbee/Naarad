@@ -6,11 +6,11 @@ from mySock import mysocket;
 import time;
 
 def main(argv):
-    if (len(sys.argv) < 3):
-	print("Usage: "+sys.argv[0]+" LAMP 0|1");
+    if (len(argv) < 3):
+	print("Usage: "+argv[0]+" LAMP 0|1");
     else:
-    	LAMP=sys.argv[1];
-    	OP=sys.argv[2];
+    	LAMP=argv[1];
+    	OP=argv[2];
     	CMD="tell "+LAMP+" "+OP;
 
     	naaradSoc=mysocket();

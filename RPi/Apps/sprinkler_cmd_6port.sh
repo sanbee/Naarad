@@ -29,9 +29,12 @@ if [ $# -lt 3 ]; then
     exit 0;
 elif [ $# -gt 3 ]; then
     let t0=$4*3600;
+    echo "----------------------------------------------------";
     echo "Watering for $t0 sec";
     operateSolenoid $1 $2 1;
+    echo -n "Waiting...";
     sleep $t0;
+    echo
     operateSolenoid $1 $2 0;
     exit 0;
 elif [ $3 -eq 0 ]; then
