@@ -58,6 +58,12 @@ class NaaradTopic (Thread):
                         # right-most packet in the gPacketHistory
                         # queue.
                         nodeID=Utils.getNodeID(jdict);
+
+                        # Save packets to the global latest packet cache. The global
+                        # latestPacket cache is used for notification listners (via
+                        # notify or cnotify).
+                        settings5.gLatestPacket = line;
+
                         if (nodeID > 0):
 		       	    settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
