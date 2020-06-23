@@ -172,6 +172,14 @@ class ClientThread (Thread):
             while(settings5.gClientList.continuousNotification(uuid)):
                 with notifyOnCond:
                     notifyOnCond.wait(timeOut);
+                    # Notification received.  If this thread was waiting for *any* packet
+                    # (notifyForNodeID = -1), ClientList.py::NaaradNotify() will send a
+                    # notification to this thread when *any* packet arrives.  Send the
+                    # latest packet from the gLatestPacket cache to the listener.
+                    #
+                    # If notifyForNodeID >= 0, this thread is looking from packets from a
+                    # node with the specified nodeID.  Send the packets from the per node
+                    # ID current packet cache (gCurrentPacket[]).
                     if (notifyForNodeID < 0):
                         cpkt=settings5.gLatestPacket;
                     else:
