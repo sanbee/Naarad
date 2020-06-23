@@ -61,6 +61,7 @@ class ClientList():
     def NaaradNotify(self,nodeid=-1,cmd=-1,src=''):
         #Notify all register threads
         if (nodeid < 0):
+            # Is this case useful?  Working at all?
             with self.rlock:
                 for c in self.CondList:
                     with c:
@@ -68,6 +69,17 @@ class ClientList():
         else:
             #Notify all registered threads with nodeid;
             with self.rlock:
+                # If there are threads with nodeid==-1, notify them without checking via
+                # isValid().  This essentially notifies these threads for the arrival of
+                # every packet received.
+                threadIndices=self.IDList.findItem(-1);
+                for i in threadIndices:
+                    #if (self.isValid(i,cmd,src)):
+                    c=self.CondList[i];
+                    with c:
+                        c.notify();
+
+                # Notify threads which are looking for packets with specific nodeid.
                 threadIndices=self.IDList.findItem(nodeid);
                 for i in threadIndices:
                     if (self.isValid(i,cmd,src)):

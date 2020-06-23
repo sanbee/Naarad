@@ -2,7 +2,7 @@
 from __future__ import print_function;
 import sys
 import json;
-sys.path.insert(0, '../NaaradServer/NewServer');
+sys.path.insert(0, '../NewServer');
 import serverinfo
 
 from mySock import mysocket;

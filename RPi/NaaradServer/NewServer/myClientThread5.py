@@ -172,7 +172,10 @@ class ClientThread (Thread):
             while(settings5.gClientList.continuousNotification(uuid)):
                 with notifyOnCond:
                     notifyOnCond.wait(timeOut);
-                    cpkt=settings5.gCurrentPacket[notifyForNodeID];
+                    if (notifyForNodeID < 0):
+                        cpkt=settings5.gLatestPacket;
+                    else:
+                        cpkt=settings5.gCurrentPacket[notifyForNodeID];
                     cpkt,jdict=Utils.addTimeStamp("tnot",cpkt);
                     self.myc1.send(cpkt);
         except RuntimeError as e:#, socket.error as e):

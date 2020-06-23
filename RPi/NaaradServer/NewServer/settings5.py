@@ -6,6 +6,7 @@ def init():
     global gPacketHistory, gTimeStamp0Cache,gTimeStamp1Cache,gValueCache;
     global NAARAD_NAMELESS_PACKETS, NAARAD_SHUTDOWN, NAARAD_HISTORYLENGTH;
     global gClientList;
+    global gLatestPacket;
 
     NAARAD_COMPORT = "/dev/ttyACM0";
     # Port number for the socket listening for incoming requests
@@ -30,6 +31,7 @@ def init():
     # Cache of deques per node that hold history of packets for certain
     # length of time (given as a parameter to the NaaradTopic
     # constructor).
+    gLatestPacket = "";
     gPacketHistory= {};
     # Caches for the earliest time-stamp and the latest temperature value
     # in the caches per node.

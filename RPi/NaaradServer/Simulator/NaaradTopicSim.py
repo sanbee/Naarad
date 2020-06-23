@@ -79,7 +79,13 @@ class NaaradTopicSim (Thread):
                         nodeID=Utils.getNodeID(jdict);
                         self.pktHndlr.processInfoPacket(nodeID, jdict);
 
+                        # Add packets to the per-nodeID currentPacket cache as well as
+                        # record it as the global latest packet. The global latestPacket
+                        # cache is used for notification listners (via notify or
+                        # cnotify).
                         settings5.gCurrentPacket[nodeID] = line;
+                        settings5.gLatestPacket = line;
+
                         if (jdict["rf_fail"]==0):
                             self.pktHndlr.addPacket(line,jdict);
 
