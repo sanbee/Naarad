@@ -30,7 +30,7 @@ def cnotifyNaaradSend(mesg):
     dt=jdict["tnot"] - jdict['time'];
     return packet,dt;
 
-def notify(argv):
+def cnotify(argv):
     """
     The function returns a packet received from a NODEID with the
     specified command (CMD) and source (SOURCE).  Specified number of
@@ -42,7 +42,7 @@ def notify(argv):
     function (here, "notify.py").  It is ignored and therefore can be
     any string.  The rest of the strings are in the following order:
 
-       "notify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
+       "cnotify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
 
     The first argument above (argv[1]) has to be the string "notify".
     NODEID is the node-ID for which notification is sought and is the
@@ -63,20 +63,20 @@ def notify(argv):
     the different between the current time and time-stamp in the
     packet are both returned to the caller.
     """
-    if (len(sys.argv) < 7):
+    if (len(argv) < 7):
 
-        print("\nUsage: "+sys.argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
+        print("\nUsage: "+argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
         print(notify.__doc__);
     else:
         try:
-            naaradcmd=sys.argv[1];
-            nodeid=sys.argv[2]
-            cmd=sys.argv[3];
-            src=str(sys.argv[4]);
+            naaradcmd=argv[1];
+            nodeid=argv[2]
+            cmd=argv[3];
+            src=str(argv[4]);
 
             FULLCMD=naaradcmd;
             for i in range(2,6):
-                FULLCMD=FULLCMD+" "+str(sys.argv[i]);
+                FULLCMD=FULLCMD+" "+str(argv[i]);
 
             print(FULLCMD);
             Retry=0;
@@ -96,8 +96,14 @@ def notify(argv):
                 # command.
                 if (len(packet)==0):  
                     break;
-                    
-                print(packet);
+                # Convert time to human-readable format
+                # time.asctime(time.gmtime(1592929995433.7449/1000.0 - 6*3600)) to get the MDT.
+                jdict=json.loads(packet);
+                tt = jdict['time'];
+                dt=jdict["tnot"] - jdict['time'];
+                jdict["tnot"]='{:2.2f}'.format(dt);
+                jdict["time"]=time.asctime(time.gmtime(tt/1000.0 - 6*3600));
+                print(json.dumps(jdict));#packet);
 #            naaradSoc.send("done");     
             naaradSoc.close();
 
@@ -105,4 +111,4 @@ def notify(argv):
             print(str(e));
 
 if __name__ == "__main__":
-    notify(sys.argv)
+    cnotify(sys.argv)
