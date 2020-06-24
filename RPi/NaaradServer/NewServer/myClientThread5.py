@@ -202,6 +202,24 @@ class ClientThread (Thread):
             raise type(e)("abortContinuousNotify: UUID "+str(uuid)+" not registered: "+str(e));
     #
     #--------------------------------------------------------------------------
+    # Handler for running a Python script. Native commands can be included as
+    #      self.messageHandler(cmd);
+    # 
+    def handleRunScript(self,tok):
+        i=tok.strip().find(' ');
+        #script=tok[i+1:].split('\n');
+        script=tok[(i+1):].strip();
+        print("exec'ing the following script:");
+        print("-------------------------------");
+        print(script);
+        print("-------------------------------");
+        exec(script);
+        # n=len(script);
+        # for i in range(n):
+        #     self.messageHandler(script[i]);
+        
+    #
+    #--------------------------------------------------------------------------
     #        
     def messageHandler(self,msg):
         try:
@@ -301,6 +319,11 @@ class ClientThread (Thread):
                 elif (cmd=="sethlen"):
                     print("### Setting HISTORYLENGTH to ",float(tok[1]),"hr / ",int(float(tok[1])*3600000), "msec");
                     settings5.NAARAD_HISTORYLENGTH=int(float(tok[1])*3600000);
+
+                elif (cmd=="runscript"):
+                    self.handleRunScript(msg);
+                    finished=True;
+
                 else:
                     print ("Command ",msg," not understood");
                     finished=True;
