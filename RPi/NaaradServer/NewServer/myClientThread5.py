@@ -149,8 +149,8 @@ class ClientThread (Thread):
             try:
                 self.myc1.send(cpkt);
             except Exception as e:
-                print "###Info: Error in returning uuid over socket connection from notify:", e.message;
-                print "###Info: Ignore this if notify was executed via script sent to the server remotely.";
+                print "###Info: Error in returning packet over socket connecting from notify:", e.message;
+                print "###Info: Ignore this if notify was executed via a remotely-send script.";
             settings5.gClientList.unregister(uuid);
         #print settings5.gClientList.getIDList(),settings5.gClientList.getCondList()
     #
