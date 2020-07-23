@@ -90,25 +90,30 @@ def cnotify(argv):
             print(infopkt);
 
             while True:
-                packet=naaradSoc.receive(True);  # Do a blocking read
-                # End of transmission or the notification was
-                # de-registered by the server or via abortnotify
-                # command.
-                if (len(packet)==0):  
+                try:
+                    packet=naaradSoc.receive(True);  # Do a blocking read
+                    # End of transmission or the notification was
+                    # de-registered by the server or via abortnotify
+                    # command.
+                    if (len(packet)==0):  
+                        break;
+                    # Convert time to human-readable format
+                    # time.asctime(time.gmtime(1592929995433.7449/1000.0 - 6*3600)) to get the MDT.
+                    jdict=json.loads(packet);
+                    tt = jdict['time'];
+                    dt=jdict["tnot"] - jdict['time'];
+                    jdict["tnot"]='{:2.2f}'.format(dt);
+                    jdict["time"]=time.asctime(time.gmtime(tt/1000.0 - 6*3600));
+                    print(json.dumps(jdict));
+                except KeyboardInterrupt as e:
+                    print(str(e)+" cnotify interrupted.  Exiting...");
                     break;
-                # Convert time to human-readable format
-                # time.asctime(time.gmtime(1592929995433.7449/1000.0 - 6*3600)) to get the MDT.
-                jdict=json.loads(packet);
-                tt = jdict['time'];
-                dt=jdict["tnot"] - jdict['time'];
-                jdict["tnot"]='{:2.2f}'.format(dt);
-                jdict["time"]=time.asctime(time.gmtime(tt/1000.0 - 6*3600));
-                print(json.dumps(jdict));#packet);
-#            naaradSoc.send("done");     
+                except:
+                    print("\ncnotify interrupted.  Exiting...");
+                    break;
             naaradSoc.close();
-
         except MyException as e:
-            print(str(e));
+            print("MyException::cnotify: "+str(e));
 
 if __name__ == "__main__":
     cnotify(sys.argv)

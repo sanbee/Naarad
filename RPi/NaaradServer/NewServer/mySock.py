@@ -144,9 +144,13 @@ class mysocket:
                     raise RuntimeError("socket connection broken");
                 chunks += chunk0;
 
+        except KeyboardInterrupt:
+            raise KeyboardInterrup("\nCtrl-C in mySock::receive().");
         except SocketError as e:
             if e.errno == errno.ECONNRESET:
                 raise RuntimeError("mySock::receive: connection reset by peer"); 
+            elif e.errno == errno.EBADF:
+                raise RuntimeError("mySock::receive: Bad file descriptor"); 
             else:
                 raise;
             return "";
