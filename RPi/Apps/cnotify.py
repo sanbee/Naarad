@@ -88,7 +88,7 @@ def cnotify(argv):
             naaradSoc.send(FULLCMD);  
             infopkt=naaradSoc.receive(True); # Do a blocking read
             print(infopkt);
-
+            time_offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone;
             while True:
                 try:
                     packet=naaradSoc.receive(True);  # Do a blocking read
@@ -103,7 +103,7 @@ def cnotify(argv):
                     tt = jdict['time'];
                     dt=jdict["tnot"] - jdict['time'];
                     jdict["tnot"]='{:2.2f}'.format(dt);
-                    jdict["time"]=time.asctime(time.gmtime(tt/1000.0 - 6*3600));
+                    jdict["time"]=time.asctime(time.gmtime(tt/1000.0 - time_offset));
                     print(json.dumps(jdict));
                 except KeyboardInterrupt as e:
                     print(str(e)+" cnotify interrupted.  Exiting...");
