@@ -50,7 +50,13 @@ def cnotify(argv):
     in the received packet.  CMD and SOURCE are the values of the
     'cmd' and 'source' fields in the received packet both of which
     must match the given values for the packet to be valid for
-    notification. TIMEOUT is the length of time in seconds after which
+    notification. NODEID=-1 indicates that notification is requested
+    for packets from all nodes (any node).  CMD=-1 indicates that
+    notification is requested for a packet with any command.  Hence,
+    NODEID=-1 and CMD=-1 will ignore SOURCE specification and will 
+    issue notification for all packets received at the server.
+
+    TIMEOUT is the length of time in seconds after which
     the socket connection is closed and a fresh trials is made till
     the number of trials exceeds nRETRIALS or a valid packet is
     received.  If the re-trials exceed nRETRIALS or the received
@@ -66,7 +72,7 @@ def cnotify(argv):
     if (len(argv) < 7):
 
         print("\nUsage: "+argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
-        print(notify.__doc__);
+        print(cnotify.__doc__);
     else:
         try:
             naaradcmd=argv[1];
