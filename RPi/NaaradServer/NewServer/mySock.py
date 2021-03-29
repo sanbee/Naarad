@@ -101,7 +101,7 @@ class mysocket:
         #     self.sock.settimeout(SOC_RECV_TIMEOUT);
         while ((bytesRecvd < n) and (trials < SOC_RECV_TRIALS)):
             val += self.sock.recv(min(n - bytesRecvd, 2048));
-            bytesRecvd += len(val);
+            bytesRecvd = len(val);
             trials += 1;
         # self.sock.settimeout(0.0);# Set the socket to blocking
         return val.decode('utf-8'), bytesRecvd;
