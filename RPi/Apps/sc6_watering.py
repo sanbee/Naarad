@@ -1,6 +1,8 @@
 import time;
+# THIS SCRIPT DOES NOT EXECUTE ON THE NAARAD SEVER IF THE FOLLOWING LONG COMMENT IS INCLUDED!  DON'T KNOW WHY.
+# LIKELY BUG IN mySock.py::getNChar()
 #
-# This is a script to star a particular sprinkler circute on a Naarad
+# This is a script to start a particular sprinkler circuit on a Naarad
 # Sprinker Controller V2.0 (6 ports).  The opeerateSolenoid() function
 # below send the command "cmd" on port "port" of the Naarad node
 # "node".  This function is a Naarad-system fuction -- i.e. it needs
@@ -60,8 +62,8 @@ def operateSolenoid(self,node,port,cmd):
     time.sleep(0.1);
     self.messageHandler("RFM_SEND "+str(node)+" 4 60 0"); # Set ping timeout to 60 sec
 
-operateSolenoid(self,17,0,1);
-time.sleep(3600*1);
+#operateSolenoid(self,17,0,1);
+#time.sleep(3600*1);
 #time.sleep(20);
 operateSolenoid(self,17,0,0);
 
