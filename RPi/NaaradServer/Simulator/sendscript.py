@@ -10,6 +10,7 @@ import time;
 def sendscript(argv):
     if (len(argv) < 2):
 	print("Usage: cmd");
+        print("       Server used: "+str(serverinfo.SERVER));
     else:
     	CMD=argv[1];
                 
@@ -26,5 +27,5 @@ if __name__ == "__main__":
      xx.append("sendscript");
      xx.append("runscript "+tt);
      #xx.append(tt);
-     print xx;
+     #print xx;
      sendscript(xx);
