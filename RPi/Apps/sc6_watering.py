@@ -1,6 +1,4 @@
 import time;
-# THIS SCRIPT DOES NOT EXECUTE ON THE NAARAD SEVER IF THE FOLLOWING LONG COMMENT IS INCLUDED!  DON'T KNOW WHY.
-# LIKELY BUG IN mySock.py::getNChar()
 #
 # This is a script to start a particular sprinkler circuit on a Naarad
 # Sprinker Controller V2.0 (6 ports).  The opeerateSolenoid() function
