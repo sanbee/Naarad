@@ -95,12 +95,12 @@ class mysocket:
     # SOC_RECV_TRIALS number of trials.
     def getNChar(self,n,blocking):
         bytesRecvd=0;
-        val='';
+        val=b'';
         trials=0;
         # if (blocking==False):
         #     self.sock.settimeout(SOC_RECV_TIMEOUT);
         while ((bytesRecvd < n) and (trials < SOC_RECV_TRIALS)):
-            val += self.sock.recv(min(n - bytesRecvd, 2048));
+            val += (self.sock.recv(min(n - bytesRecvd, 2048)));
             bytesRecvd = len(val);
             trials += 1;
         # self.sock.settimeout(0.0);# Set the socket to blocking

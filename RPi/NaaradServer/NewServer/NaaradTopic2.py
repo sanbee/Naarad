@@ -65,7 +65,7 @@ class NaaradTopic (Thread):
                         settings5.gLatestPacket = line;
 
                         if (nodeID > 0):
-		       	    settings5.gCurrentPacket[nodeID] = line;
+                            settings5.gCurrentPacket[nodeID] = line;
                         if (jdict["rf_fail"]==0):
                             self.pktHndlr.addPacket(line,jdict);
                         self.pktHndlr.processInfoPacket(nodeID, jdict);

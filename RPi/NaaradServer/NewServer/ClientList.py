@@ -51,7 +51,7 @@ class ClientList():
             myIndex=self.uuid.findItem(uuid);
             return self.ContinuousNotification[myIndex[0]];
         except IndexError as e:
-                print "IndexError: ",self.IDList, myIndex;
+                print("IndexError: ",self.IDList, myIndex);
                 raise e;
 
     def abortContinuousNotification(self,uuid):
@@ -94,7 +94,7 @@ class ClientList():
 
             myIndex=len(self.IDList);
             print;
-            print "Registered: ",thisID,pktID,hex_uuid,myIndex;
+            print("Registered: ",thisID,pktID,hex_uuid,myIndex);
             print;
             self.IDList.append(thisID);
             self.CondList.append(cond);
@@ -112,7 +112,7 @@ class ClientList():
             try:
                 myIndex=self.uuid.findItem(uuid);
                 print;
-                print "De-registering: ",self.IDList[myIndex[0]],self.PacketIDList[myIndex[0]],self.uuid[myIndex[0]];
+                print("De-registering: ",self.IDList[myIndex[0]],self.PacketIDList[myIndex[0]],self.uuid[myIndex[0]]);
                 print;
                 self.IDList.remove(myIndex[0]);
                 self.CondList.remove(myIndex[0]);
@@ -120,5 +120,5 @@ class ClientList():
                 self.ContinuousNotification.remove(myIndex[0]);
                 self.uuid.remove(myIndex[0]);
             except IndexError as e:
-                print "IndexError: ",self.IDList, myIndex;
+                print("IndexError: ",self.IDList, myIndex);
                 raise e;

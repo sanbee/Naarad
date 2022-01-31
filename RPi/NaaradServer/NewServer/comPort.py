@@ -23,7 +23,7 @@ class comPort:
         self.users=0;
         self.lock=threading.Lock();
         self.com1.timeout=10;
-	self.SOF = '{';
+        self.SOF = '{';
         self.EOF = '}';
 
     def getSerial(self):
