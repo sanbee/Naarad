@@ -1,0 +1,11 @@
+1. The SC6 did not work by March 2021.
+      - RFM connection works flawlessly.
+      - The solenoids aren't triggering at all.
+      - Did not work even after replacing the 9V batteries.
+2. Removed it on 06April21.
+3. Connections:
+      - Two ports were connected, labeled "1" and "2".
+      - Red wires from BOTH the multi-wire cables coming in are connected to port labeld "2"
+      - Blue wires from BOTH the multi-wire cables coming-in are connected to port labled "1".
+      - Pictures of the connection on the phone from 06April2021.
+
