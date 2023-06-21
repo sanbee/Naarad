@@ -1,0 +1,40 @@
+@@@: Fri Jun 26 20:58:20 2020:: {"cmd": -1, "node_p": -52.555420088828164, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 19.819584463785347}
+@@@: Fri Jun 26 20:58:25 2020:: {"cmd": -1, "node_p": -59.15235384775765, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 20.01167490122051}
+@@@: Fri Jun 26 20:58:30 2020:: {"cmd": -1, "node_p": -54.271297250989264, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 19.944360659298216}
+@@@: Fri Jun 26 20:58:35 2020:: {"cmd": -1, "node_p": -42.245333768217655, "rf_fail": 1, "source": "naaradsim", "node_id": 3, "degc": 20.15698236315467}
+### ClientThread: Error during cmd handling.
+Th0 got: "RFM_SEND 3 1 0 0"
+comPortSim.send: RFM_SEND 3 1 0 0
+Th0 got: "RFM_SEND 3 5 0 0"
+comPortSim.send: RFM_SEND 3 5 0 0
+Th0 got: "notify 3 -1 naaradsim 120 2"
+
+Registered:  3 [-1, 'naaradsim'] 8b8bb900f616431299a2685775c597f4 1
+
+@@@: Fri Jun 26 20:58:40 2020:: {"cmd": -1, "node_p": -42.236829930855464, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 19.962339911386703}
+@@@: Fri Jun 26 20:58:45 2020:: {"cmd": -1, "node_p": -55.878431420455485, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 19.925557043553336}
+@@@: Fri Jun 26 20:58:50 2020:: {"cmd": -1, "node_p": -49.224147223709835, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 19.99378633021918}
+@@@: Fri Jun 26 20:58:55 2020:: {"cmd": -1, "node_p": -42.62270005552455, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 20.178648734236575}
+@@@: Fri Jun 26 20:59:00 2020:: {"cmd": -1, "node_p": -52.70407661775162, "rf_fail": 1, "source": "naaradsim", "node_id": 3, "degc": 19.83430691371905}
+### ClientThread: Error during cmd handling.
+Th0 got: "RFM_SEND 3 4 60 0"
+comPortSim.send: RFM_SEND 3 4 60 0
+@@@: Fri Jun 26 20:59:05 2020:: {"cmd": -1, "node_p": -44.03756251090415, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 20.023278071524366}
+@@@: Fri Jun 26 20:59:10 2020:: {"cmd": -1, "node_p": -39.141904188693736, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 19.858944446547486}
+@@@: Fri Jun 26 20:59:15 2020:: {"cmd": -1, "node_p": -40.72824034014707, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 20.205012038675708}
+@@@: Fri Jun 26 20:59:20 2020:: {"cmd": -1, "node_p": -59.755044843852986, "rf_fail": 0, "source": "naaradsim", "node_id": 1, "degc": 19.969656707011058}
+Th0 got: "RFM_SEND 3 4 10 1"
+comPortSim.send: RFM_SEND 3 4 10 1
+Th0 got: "notify 3 -1 naaradsim 120 2"
+
+Registered:  3 [-1, 'naaradsim'] 5b470d0f719049b8a9ba4875dc8cc8f0 2
+
+@@@: Fri Jun 26 20:59:25 2020:: {"cmd": -1, "node_p": -33.385158517224866, "rf_fail": 1, "source": "naaradsim", "node_id": 3, "degc": 19.896676708935672}
+### ClientThread: Error during cmd handling.
+Th0 got: "RFM_SEND 3 5 4 10"
+comPortSim.send: RFM_SEND 3 5 4 10
+Th0 got: "notify 3 -1 naaradsim 120 2"
+
+Registered:  3 [-1, 'naaradsim'] 5f5378ecc7b246b991bfd5fa773c658d 3
+
+
