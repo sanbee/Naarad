@@ -67,10 +67,10 @@ class Pogo:
         # serversock4_ping can get the JSON packet produced in
         # unoserver?.ino due to "GETT" command sent to it
         #
-        # val = self.pktRadio.readInput2();
-        # time.sleep(self.tau);
-        # print ("Pogo GETT:",val);
-        # return val.strip();
+        val = self.pktRadio.readInput2();
+        time.sleep(self.tau);
+        print ("Pogo GETT:",val);
+        return val.strip();
 
         # val = self.pktRadio.readInput2().split('\n')[0];
         # if (val != ""):

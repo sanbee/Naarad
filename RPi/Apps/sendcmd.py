@@ -7,7 +7,7 @@ import time;
 
 def isYes(str):
     print(str);
-    return (raw_input()=="yes");
+    return (input()=="yes");
 
 def main(argv):
     narg = len(sys.argv);

@@ -7,7 +7,7 @@ import time;
 
 def main(argv):
     if (len(argv) < 3):
-	print("Usage: "+argv[0]+" LAMP 0|1");
+        print("Usage: "+argv[0]+" LAMP 0|1");
     else:
     	LAMP=argv[1];
     	OP=argv[2];

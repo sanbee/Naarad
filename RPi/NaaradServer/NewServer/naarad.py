@@ -115,7 +115,7 @@ def startServer():
             if (settings5.NAARAD_SHUTDOWN):
                 print("### Exiting Naarad socket server thread");
         except KeyboardInterrupt:
-            print "\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server";
+            print("\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server");
         
 if __name__ == "__main__":
     initNaarad();
