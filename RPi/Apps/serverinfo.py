@@ -5,9 +5,9 @@ sys.path.insert(0, '../NaaradServer/NewServer');
 def init():
     global SERVER, PORT;
 
-    SERVER="localhost";
+#    SERVER="localhost";
     SERVER="naaradhost";
-    SERVER="192.168.0.95";
+#    SERVER="192.168.0.94";
     PORT=1234;
 
 #    print("Connection: SERVER:",SERVER," PORT:",PORT);
