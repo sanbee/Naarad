@@ -7,6 +7,7 @@ def init():
 
     SERVER="localhost";
     SERVER="naaradhost";
+    SERVER="192.168.0.126";
     PORT=1234;
 
 #    print("Connection: SERVER:",SERVER," PORT:",PORT);

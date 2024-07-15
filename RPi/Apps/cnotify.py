@@ -1,7 +1,8 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 from __future__ import print_function;
 import serverinfo
 import sys
+import os;
 import json;
 sys.path.insert(0, '../NaaradServer/NewServer');
 
@@ -42,7 +43,7 @@ def notify(argv):
     function (here, "notify.py").  It is ignored and therefore can be
     any string.  The rest of the strings are in the following order:
 
-       "notify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
+       "cnotify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
 
     The first argument above (argv[1]) has to be the string "notify".
     NODEID is the node-ID for which notification is sought and is the
@@ -58,6 +59,13 @@ def notify(argv):
     string "FAILED: " to indicate failure to receive a valid packet in
     the given timeout and re-trail attempts.
 
+    When NODEID < 0, all packets (with any value for node_id or node
+    values) will be captured.  
+
+    When CMD < 0, all packets with any cmd or source values will be
+    captured.  When CMD >=0, packets that match both, cmd and source
+    values will be captured.
+
     The received packet is marked as valid if the time-stamp in the
     packet is no older than 1.5sec.  The packet as a JSON string and
     the different between the current time and time-stamp in the
@@ -70,6 +78,8 @@ def notify(argv):
     else:
         try:
             naaradcmd=sys.argv[1];
+            if (naaradcmd != "cnotify"):
+                raise RuntimeError("First argument is "+naaradcmd+".  Did you mean cnotify?");
             nodeid=sys.argv[2]
             cmd=sys.argv[3];
             src=str(sys.argv[4]);
@@ -102,7 +112,9 @@ def notify(argv):
             naaradSoc.close();
 
         except MyException as e:
-            print(str(e));
+            print("###Error: MyException: "+str(e));
+        except RuntimeError as re:
+            print("###Error: "+str(re));
 
 if __name__ == "__main__":
     notify(sys.argv)
