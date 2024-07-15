@@ -15,16 +15,22 @@ class ClientList():
 
         # List of node IDs for which some cleint thread is awaiting notification.  The
         # IDs need not be unique in this list.  E.g. if two separate threads are awaiting
-        # notification of packets from the same node ID, there will to entries in this
-        # list.  The discriminator for the two clients wil be the associated entires in
+        # notification of packets from the same node ID, there will two entries in this
+        # list.  The discriminator for the two clients will be the associated entires in
         # the CondList.
+
         self.IDList = ThreadSafeList();
+
         # List of threading.Condition objects associated with each entry in the IDList
+
         self.CondList = ThreadSafeList();
+
         # List of packet signatures assocaited with each entry in the IDList.  This
         # determines if the packet from the assocaited node ID is valid for issuing a
         # notification via the associated Condition in the CondLIst.
+
         self.PacketIDList = ThreadSafeList();
+
 
         self.ContinuousNotification = ThreadSafeList();
 
@@ -59,6 +65,18 @@ class ClientList():
         self.ContinuousNotification[myIndex[0]]=False;
 
     def NaaradNotify(self,nodeid=-1,cmd=-1,src=''):
+        """
+        For nodeid < 0, generate notification for packets with 
+        any nodeid.  For nodeid >=0 generate notification only
+        for packets that have a matching nodeid.
+        
+        For cmd < 0, generate notification for any value of
+        cmd and source fields in the packets.  For cmd >=0
+        generate notification only for packets for which
+        isValid(threadIndex,cmd,src) is true.  I.e., notification
+        for only those packets which have the given combination 
+        of cmd and source fields.
+        """
         #Notify all register threads
         if (nodeid < 0):
             with self.rlock:
