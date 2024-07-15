@@ -46,7 +46,9 @@ def notify(argv):
 
        "notify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
 
-    The first argument above (argv[1]) has to be the string "notify".
+    The first argument above (argv[1]) has to be the string "notify",
+    and is the name of the notification service from the Naarad server.
+
     NODEID is the node-ID for which notification is sought and is the
     value of the 'node_id' or 'node' fields, whichever is available,
     in the received packet.  CMD and SOURCE are the values of the
