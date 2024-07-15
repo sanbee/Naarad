@@ -59,6 +59,11 @@ def notify(argv):
     string "FAILED: " to indicate failure to receive a valid packet in
     the given timeout and re-trail attempts.
 
+    The first argument determine the service callback in the Naarad server.
+    It therefore has to be "cnotify" for registeration in the Naarad
+    server for Continuous Notification service.  The only other
+    notification service is one-time notification (use the "notify" app).
+
     When NODEID < 0, all packets (with any value for node_id or node
     values) will be captured.  
 

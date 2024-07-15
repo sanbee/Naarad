@@ -32,7 +32,7 @@ class ClientList():
         self.PacketIDList = ThreadSafeList();
 
 
-        self.ContinuousNotification = ThreadSafeList();
+        self.ContinuousNotificationList = ThreadSafeList();
 
         self.uuid = ThreadSafeList();
 
@@ -55,14 +55,14 @@ class ClientList():
     def continuousNotification(self,uuid):
         try:
             myIndex=self.uuid.findItem(uuid);
-            return self.ContinuousNotification[myIndex[0]];
+            return self.ContinuousNotificationList[myIndex[0]];
         except IndexError as e:
                 print "IndexError: ",self.IDList, myIndex;
                 raise e;
 
-    def abortContinuousNotification(self,uuid):
+    def abortContinuousNotificationList(self,uuid):
         myIndex=self.uuid.findItem(uuid);
-        self.ContinuousNotification[myIndex[0]]=False;
+        self.ContinuousNotificationList[myIndex[0]]=False;
 
     def NaaradNotify(self,nodeid=-1,cmd=-1,src=''):
         """
@@ -105,7 +105,7 @@ class ClientList():
             self.IDList.append(thisID);
             self.CondList.append(cond);
             self.PacketIDList.append(pktID);
-            self.ContinuousNotification.append(continuousNotification);
+            self.ContinuousNotificationList.append(continuousNotification);
             self.uuid.append(hex_uuid);
 
         return hex_uuid;
@@ -123,7 +123,7 @@ class ClientList():
                 self.IDList.remove(myIndex[0]);
                 self.CondList.remove(myIndex[0]);
                 self.PacketIDList.remove(myIndex[0]);
-                self.ContinuousNotification.remove(myIndex[0]);
+                self.ContinuousNotificationList.remove(myIndex[0]);
                 self.uuid.remove(myIndex[0]);
             except IndexError as e:
                 print "IndexError: ",self.IDList, myIndex;
