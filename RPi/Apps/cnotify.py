@@ -80,7 +80,7 @@ def notify(argv):
     """
     if (len(sys.argv) < 7):
 
-        print("\nUsage: "+sys.argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
+        print("\nUsage: "+sys.argv[0]+" cnotify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
         print(notify.__doc__);
     else:
         try:
