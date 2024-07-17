@@ -1,7 +1,8 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 from __future__ import print_function;
 import serverinfo
 import sys
+import os;
 import json;
 sys.path.insert(0, '../NaaradServer/NewServer');
 
@@ -44,7 +45,9 @@ def cnotify(argv):
 
        "cnotify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
 
-    The first argument above (argv[1]) has to be the string "notify".
+    The first argument above (argv[1]) has to be the string "cnotify",
+    and is the name of the notification service from the Naarad server.
+
     NODEID is the node-ID for which notification is sought and is the
     value of the 'node_id' or 'node' fields, whichever is available,
     in the received packet.  CMD and SOURCE are the values of the
@@ -64,6 +67,18 @@ def cnotify(argv):
     string "FAILED: " to indicate failure to receive a valid packet in
     the given timeout and re-trail attempts.
 
+    The first argument determine the service callback in the Naarad server.
+    It therefore has to be "cnotify" for registeration in the Naarad
+    server for Continuous Notification service.  The only other
+    notification service is one-time notification (use the "notify" app).
+
+    When NODEID < 0, all packets (with any value for node_id or node
+    values) will be captured.  
+
+    When CMD < 0, all packets with any cmd or source values will be
+    captured.  When CMD >=0, packets that match both, cmd and source
+    values will be captured.
+
     The received packet is marked as valid if the time-stamp in the
     packet is no older than 1.5sec.  The packet as a JSON string and
     the different between the current time and time-stamp in the
@@ -71,14 +86,16 @@ def cnotify(argv):
     """
     if (len(argv) < 7):
 
-        print("\nUsage: "+argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
-        print(cnotify.__doc__);
+        print("\nUsage: "+sys.argv[0]+" cnotify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
+        print(notify.__doc__);
     else:
         try:
-            naaradcmd=argv[1];
-            nodeid=argv[2]
-            cmd=argv[3];
-            src=str(argv[4]);
+            naaradcmd=sys.argv[1];
+            if (naaradcmd != "cnotify"):
+                raise RuntimeError("First argument is "+naaradcmd+".  Did you mean cnotify?");
+            nodeid=sys.argv[2]
+            cmd=sys.argv[3];
+            src=str(sys.argv[4]);
 
             FULLCMD=naaradcmd;
             for i in range(2,6):
@@ -119,7 +136,9 @@ def cnotify(argv):
                     break;
             naaradSoc.close();
         except MyException as e:
-            print("MyException::cnotify: "+str(e));
+            print("###Error: MyException: "+str(e));
+        except RuntimeError as re:
+            print("###Error: "+str(re));
 
 if __name__ == "__main__":
     cnotify(sys.argv)
