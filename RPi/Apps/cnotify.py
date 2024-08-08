@@ -87,12 +87,12 @@ def cnotify(argv):
     if (len(argv) < 7):
 
         print("\nUsage: "+sys.argv[0]+" cnotify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
-        print(notify.__doc__);
+        print(cnotify.__doc__);
     else:
         try:
             naaradcmd=sys.argv[1];
             if (naaradcmd != "cnotify"):
-                raise RuntimeError("First argument is "+naaradcmd+".  Did you mean cnotify?");
+                raise MyException("First argument is "+naaradcmd+".  Did you mean cnotify?");
             nodeid=sys.argv[2]
             cmd=sys.argv[3];
             src=str(sys.argv[4]);
