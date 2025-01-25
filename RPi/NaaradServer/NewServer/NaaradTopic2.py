@@ -32,11 +32,12 @@ class NaaradTopic (Thread):
     # topicsSubscriberList["SensorDataSink"]).
     def run(self):
         while (not settings5.NAARAD_SHUTDOWN):
+            line='{}';
             try:
                 line =self.uno.readline().rstrip();
             except (AttributeError, UnicodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
-                line="";
+                line='{}';
 
             if (not ("cmd" in line)):
                 line=Utils.addKey("cmd",-1,line);

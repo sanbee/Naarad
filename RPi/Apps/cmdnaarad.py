@@ -1,6 +1,10 @@
 #! /usr/bin/python
 import sys
-sys.path.insert(0, '../NaaradServer/NewServer');
+import os
+file_path = os.path.dirname(__file__)
+sys.path.append(file_path);
+print("Loading Naarad modules from: ",file_path);
+sys.path.insert(0, file_path+'/../NaaradServer/NewServer');
 import serverinfo
 
 from mySock import mysocket;
@@ -43,30 +47,30 @@ def neumonic(cmd):
 
 def main(argv):
         if (len(sys.argv) < 6):
-		print "Usage: "+sys.argv[0]+" RFM_SEND NODEID CMD P1 P0\n";
-                print helpmsg;
+                print("Usage: "+sys.argv[0]+" RFM_SEND NODEID CMD P1 P0\n");
+                print(helpmsg);
         else:
                 try:
-		        tt=sys.argv[1];
+                        tt=sys.argv[1];
                         cmd=sys.argv[2];
-		        for i in range(2,len(sys.argv)):
+                        for i in range(2,len(sys.argv)):
                                 if ((i==3) and (not sys.argv[i].isdigit())):
                                         cmd = neumonic(sys.argv[3]);
                                         if (cmd >= 0):
                                                 tt=tt+" "+str(cmd);
                                 else:
-			                tt=tt+" "+sys.argv[i]
+                                        tt=tt+" "+sys.argv[i]
 
-		        FULLCMD=tt;
+                        FULLCMD=tt;
 
-		        print FULLCMD;
-		        naaradSoc=mysocket();
-		        naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
-		        naaradSoc.send("open");time.sleep(0.1);
-		        naaradSoc.send(FULLCMD);#time.sleep(1);
-		        naaradSoc.send("done");time.sleep(0.1);
-		        naaradSoc.close();
+                        print(FULLCMD);
+                        naaradSoc=mysocket();
+                        naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
+                        naaradSoc.send("open");time.sleep(0.1);
+                        naaradSoc.send(FULLCMD);#time.sleep(1);
+                        naaradSoc.send("done");time.sleep(0.1);
+                        naaradSoc.close();
                 except MyException as e:
-                        print str(e);
+                        print(str(e));
 if __name__ == "__main__":
     main(sys.argv)

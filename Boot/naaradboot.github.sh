@@ -10,7 +10,7 @@ else
     sleep 5
 fi
 
-cd /mnt/flash1/Naarad/RPi/NaaradServer/NewServer
+NAARAD_HOME=/mnt/flash1/Naarad/RPi/NaaradServer/NewServer
 
 # Use unoserver2.ino for Arduino UNO
 
@@ -19,7 +19,7 @@ cd /mnt/flash1/Naarad/RPi/NaaradServer/NewServer
 # Start the socket server
 # This has the latest getcpkt and gethpkt protocol
 #python serversoc4.py
-screen -d -m -t Naarad python -B naarad.py
+screen -d -m -t Naarad /usr/bin/python -B $NAARAD_HOME/naarad.py
 
 #screen -d -m -t Naarad bash -c 'python -u -B naarad.py | tee >(grep --line-buffered "Init RFM" >| init.log)'
 

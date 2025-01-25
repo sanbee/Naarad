@@ -27,7 +27,7 @@ def addKey(key,val,jsonStr):
         return json.dumps(jdict);
     except(ValueError) as excpt:
         print("addKey: Not a JSON string: %s"%jsonStr);
-        return jsonStr;
+        return '{}';
     
 def addTimeStamp(name,jsonStr): 
     try:
@@ -36,6 +36,6 @@ def addTimeStamp(name,jsonStr):
         modifyJSON(jdict,keywords,values,0); # Add time=value
         return json.dumps(jdict),jdict;
     except(ValueError) as excpt:
-        print("Not a JSON string: %s"%jsonStr);
+        print("addTimeStamp: Not a JSON string: %s"%jsonStr);
         return jsonStr,json.loads(jsonStr);
         
