@@ -1,1 +1,2 @@
-cnotify.py cnotify -1 -1 whatever 120 2
+NAARADHOME=$(dirname $(readlink -f $0))
+${NAARADHOME}/cnotify.py cnotify -1 -1 showlog 120 2
