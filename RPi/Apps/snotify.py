@@ -1,24 +1,24 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 from __future__ import print_function;
 import sys
 import json;
 sys.path.insert(0, '../NaaradServer/NewServer');
-import serverinfo
 
 from mySock import mysocket;
 import time;
 
+SERVER="raspberrypi";
+SERVER="localhost";
+PORT=1234;
+
 class MyException(Exception):
     pass;
 
-def notifyNaaradSend(mesg):
+def NaaradSend(mesg):
     naaradSoc=mysocket();
-
-    naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
-    naaradSoc.send("notify App");     time.sleep(0.1);
+    naaradSoc.connect(SERVER,PORT);
+    naaradSoc.send("open");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);
-    #infopkt=naaradSoc.receive(True); # Do a blocking read
-    #print(infopkt);
     packet=naaradSoc.receive(True); # Do a blocking read
     time.sleep(1);
     #naaradSoc.send("done");     time.sleep(1);
@@ -46,9 +46,7 @@ def notify(argv):
 
        "notify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
 
-    The first argument above (argv[1]) has to be the string "notify",
-    and is the name of the notification service from the Naarad server.
-
+    The first argument above (argv[1]) has to be the string "notify".
     NODEID is the node-ID for which notification is sought and is the
     value of the 'node_id' or 'node' fields, whichever is available,
     in the received packet.  CMD and SOURCE are the values of the
@@ -68,7 +66,6 @@ def notify(argv):
     packet are both returned to the caller.
     """
     if (len(sys.argv) < 7):
-
         print("\nUsage: "+sys.argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
         print(notify.__doc__);
     else:
@@ -77,17 +74,17 @@ def notify(argv):
             nodeid=sys.argv[2]
             cmd=sys.argv[3];
             src=str(sys.argv[4]);
-
-            FULLCMD=naaradcmd;
             for i in range(2,6):
-                FULLCMD=FULLCMD+" "+str(sys.argv[i]);
+                naaradcmd=naaradcmd+" "+str(sys.argv[i]);
 
             nRETRIALS=int(sys.argv[6]);
+
+            FULLCMD=naaradcmd;
 
             print(FULLCMD);
             Retry=0;
             while (Retry < nRETRIALS):
-                packet, dt = notifyNaaradSend(FULLCMD);
+                packet, dt = NaaradSend(FULLCMD);
                 if (dt > 1500.0):
                     Retry += 1;
                 else:

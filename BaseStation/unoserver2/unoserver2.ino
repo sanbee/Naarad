@@ -86,9 +86,9 @@ char serialCount;
 
 #define NOTHING_TO_SEND -1
 #define N_TRIALS 5
-#define N_LISTENERS 2
+#define N_LISTENERS 6
 #define TX_CMD_Q_LEN 5
-byte listenerNodeIDList[N_LISTENERS]={15,16};
+byte listenerNodeIDList[N_LISTENERS]={15,16,17,18,19,20};
 //####################################################################
 //Data Structure to be received 
 //####################################################################

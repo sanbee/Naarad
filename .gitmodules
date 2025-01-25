@@ -1,3 +1,6 @@
 [submodule "Libraries/jeelib.github"]
 	path = Libraries/jeelib.github
 	url = https://github.com/jeelabs/jeelib.git
+[submodule "Libraries/Eagle_Library_As_SubModule"]
+	path = Libraries/Eagle_Library_As_SubModule
+	url = https://github.com/Seeed-Studio/OPL_Eagle_Library.git

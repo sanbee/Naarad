@@ -144,10 +144,65 @@ void setSolenoidPort(const byte& cmd, const byte& cPort)
   //delay(10);
 }
 
+void setSolenoidPort_production(const byte& cmd, const byte& cPort)
+{
+  byte IN1, IN2, portD_l=getPORTD(), portB_l=getPORTB();
+  // if      (cmd==OPEN)  {IN1=HIGH_L; IN2=LOW_L;} // HIGH, LOW
+  // else if (cmd==CLOSE) {IN1=LOW_L; IN2=HIGH_L;} // LOW, HIGH
+
+  // Reversing the OPEN/CLOSE convention for 6-port controller such
+  // that the BLACK lead from each solenoid is common and the coloured
+  // leads are separate for each.
+  if      (cmd==OPEN)  {IN1=LOW_L; IN2=HIGH_L;} // HIGH, LOW
+  else if (cmd==CLOSE) {IN1=HIGH_L; IN2=LOW_L;} // LOW, HIGH
+  else /*SHUT*/          {IN1=LOW_L; IN2=LOW_L;} // LOW, LOW
+
+  // Set both DRV pins of all ports to the same value (IN1)
+  // Set all DRV IN{A,B}2 pins to same value (IN1).  PD6 is the IN{A,B}1 pin for all DRV ports
+  setPort(portD_l, IN1, PORTD_MASK); // PD{0,1,3,4,6,7}=IN1
+  setPort(portB_l, IN1, PORTB_MASK); // PB0=IN1;  IB2_0
+  
+  // Set DRV SLP to HIGH
+  //digitalWrite(PIN_SLP, HIGH);
+  setPort(portD_l,   HIGH_L, SLP_MASK);// PD5/SLP_D=HIGH
+  //delay(5);
+  
+  if (cPort==1) setPort(portB_l, IN2, DRV_PIN2_MASK[cPort]);
+  else          setPort(portD_l, IN2, DRV_PIN2_MASK[cPort]);
+  PORTD=portD_l;
+  PORTB=portB_l;
+
+  printf("   7654 3210\n");
+  //  printf("   0123 4567\n");
+  printf("   |||| ||||\n");
+  printf("B: "); showbits(portB_l);
+  printf("D: "); showbits(portD_l);
+
+  // // Wait for MULTIPLIER*PULSE_WIDTH time deliver a pulse.
+  // for(byte i=0;i<PULSE_WIDTH_MULTIPLIER;i++) delay(VALVE_PULSE_WIDTH);
+  // //  delay(40);
+
+  // After the pulse (40msec by default), set all DRV port pins and SLP pin to LOW
+  
+  setPort(portD_l, LOW_L, SLP_MASK); // PD5/SLP_D=LOW
+  setPort(portD_l, LOW_L, PORTD_MASK);
+  setPort(portB_l, LOW_L, PORTB_MASK);
+  PORTD=portD_l;
+  PORTB=portB_l;
+
+  // printf("delay 20ms\n");
+  // printf("B: "); showbits(portB_l);
+  // printf("D: "); showbits(portD_l);
+
+  // delay(10);
+}
+
 int main(int argc, char **argv)
 {
   while(1)
     {
+      for(byte i=0;i<4;i++)
+	showbits(i);
       cout <<  "      0          1           2          3           4          5" << endl;
       cout <<  "A0:[D6,D7] B0:[D6,B0]  A1:[D6,D3] B1:[D6,D4]  A2:[D6,D0] B2:[D6,D1]" << endl;
       int port, cmd;
@@ -157,6 +212,8 @@ int main(int argc, char **argv)
       // setSolenoid(cmd,port);
 
       setSolenoidPort(cmd,port);
+      cerr << endl << "Production:" << endl;
+      setSolenoidPort_production(cmd,port);
       printf("------------------------\n");
     }
 }

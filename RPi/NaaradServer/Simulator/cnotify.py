@@ -1,10 +1,9 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 from __future__ import print_function;
 import serverinfo
 import sys
-import os;
 import json;
-sys.path.insert(0, '../NaaradServer/NewServer');
+sys.path.insert(0, '../NewServer');
 
 from mySock import mysocket;
 import time;
@@ -31,7 +30,7 @@ def cnotifyNaaradSend(mesg):
     dt=jdict["tnot"] - jdict['time'];
     return packet,dt;
 
-def cnotify(argv):
+def notify(argv):
     """
     The function returns a packet received from a NODEID with the
     specified command (CMD) and source (SOURCE).  Specified number of
@@ -43,23 +42,15 @@ def cnotify(argv):
     function (here, "notify.py").  It is ignored and therefore can be
     any string.  The rest of the strings are in the following order:
 
-       "cnotify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
+       "notify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
 
-    The first argument above (argv[1]) has to be the string "cnotify",
-    and is the name of the notification service from the Naarad server.
-
+    The first argument above (argv[1]) has to be the string "notify".
     NODEID is the node-ID for which notification is sought and is the
     value of the 'node_id' or 'node' fields, whichever is available,
     in the received packet.  CMD and SOURCE are the values of the
     'cmd' and 'source' fields in the received packet both of which
     must match the given values for the packet to be valid for
-    notification. NODEID=-1 indicates that notification is requested
-    for packets from all nodes (any node).  CMD=-1 indicates that
-    notification is requested for a packet with any command.  Hence,
-    NODEID=-1 and CMD=-1 will ignore SOURCE specification and will 
-    issue notification for all packets received at the server.
-
-    TIMEOUT is the length of time in seconds after which
+    notification. TIMEOUT is the length of time in seconds after which
     the socket connection is closed and a fresh trials is made till
     the number of trials exceeds nRETRIALS or a valid packet is
     received.  If the re-trials exceed nRETRIALS or the received
@@ -67,39 +58,25 @@ def cnotify(argv):
     string "FAILED: " to indicate failure to receive a valid packet in
     the given timeout and re-trail attempts.
 
-    The first argument determine the service callback in the Naarad server.
-    It therefore has to be "cnotify" for registeration in the Naarad
-    server for Continuous Notification service.  The only other
-    notification service is one-time notification (use the "notify" app).
-
-    When NODEID < 0, all packets (with any value for node_id or node
-    values) will be captured.  
-
-    When CMD < 0, all packets with any cmd or source values will be
-    captured.  When CMD >=0, packets that match both, cmd and source
-    values will be captured.
-
     The received packet is marked as valid if the time-stamp in the
     packet is no older than 1.5sec.  The packet as a JSON string and
     the different between the current time and time-stamp in the
     packet are both returned to the caller.
     """
-    if (len(argv) < 7):
+    if (len(sys.argv) < 7):
 
-        print("\nUsage: "+sys.argv[0]+" cnotify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
-        print(cnotify.__doc__);
+        print("\nUsage: "+sys.argv[0]+" notify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
+        print(notify.__doc__);
     else:
         try:
             naaradcmd=sys.argv[1];
-            if (naaradcmd != "cnotify"):
-                raise MyException("First argument is "+naaradcmd+".  Did you mean cnotify?");
             nodeid=sys.argv[2]
             cmd=sys.argv[3];
             src=str(sys.argv[4]);
 
             FULLCMD=naaradcmd;
             for i in range(2,6):
-                FULLCMD=FULLCMD+" "+str(argv[i]);
+                FULLCMD=FULLCMD+" "+str(sys.argv[i]);
 
             print(FULLCMD);
             Retry=0;
@@ -111,34 +88,21 @@ def cnotify(argv):
             naaradSoc.send(FULLCMD);  
             infopkt=naaradSoc.receive(True); # Do a blocking read
             print(infopkt);
-            time_offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone;
+
             while True:
-                try:
-                    packet=naaradSoc.receive(True);  # Do a blocking read
-                    # End of transmission or the notification was
-                    # de-registered by the server or via abortnotify
-                    # command.
-                    if (len(packet)==0):  
-                        break;
-                    # Convert time to human-readable format
-                    # time.asctime(time.gmtime(1592929995433.7449/1000.0 - 6*3600)) to get the MDT.
-                    jdict=json.loads(packet);
-                    tt = jdict['time'];
-                    dt=jdict["tnot"] - jdict['time'];
-                    jdict["tnot"]='{:2.2f}'.format(dt);
-                    jdict["time"]=time.asctime(time.gmtime(tt/1000.0 - time_offset));
-                    print(json.dumps(jdict));
-                except KeyboardInterrupt as e:
-                    print(str(e)+" cnotify interrupted.  Exiting...");
+                packet=naaradSoc.receive(True);  # Do a blocking read
+                # End of transmission or the notification was
+                # de-registered by the server or via abortnotify
+                # command.
+                if (len(packet)==0):  
                     break;
-                except:
-                    print("\ncnotify interrupted.  Exiting...");
-                    break;
+                    
+                print(packet);
+#            naaradSoc.send("done");     
             naaradSoc.close();
+
         except MyException as e:
-            print("###Error: MyException: "+str(e));
-        except RuntimeError as re:
-            print("###Error: "+str(re));
+            print(str(e));
 
 if __name__ == "__main__":
-    cnotify(sys.argv)
+    notify(sys.argv)

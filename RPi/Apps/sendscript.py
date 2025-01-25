@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 import sys;
 #sys.path.insert(0, '../NewServer');
 import serverinfo;
@@ -22,7 +22,7 @@ def sendscript(argv):
     required to stop the circuit after a specified delay.
     """
     if (len(argv) < 2):
-	print("Usage: cmd");
+        print("Usage: cmd");
     else:
     	CMD=argv[1];
                 
@@ -39,5 +39,5 @@ if __name__ == "__main__":
      xx.append("sendscript");
      xx.append("runscript "+tt);
      #xx.append(tt);
-     print xx;
+     print(xx);
      sendscript(xx);

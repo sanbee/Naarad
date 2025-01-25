@@ -21,7 +21,7 @@ def operateSolenoid(self,node,port,cmd):
     self.messageHandler("RFM_SEND "+str(node)+" 4 60 0"); # Set ping timeout to 60 sec
 
 #operateSolenoid(self,17,0,1);
-#time.sleep(3600*1);
+#time.sleep(3600*4);
 #time.sleep(20);
 operateSolenoid(self,17,0,0);
 
