@@ -2,11 +2,7 @@
 import sys
 import os
 import time;
-file_path = os.path.dirname(__file__)
-
-sys.path.append(file_path);
-print("Loading Naarad modules from: ",file_path);
-sys.path.insert(0, file_path+'/../NaaradServer/NewServer');
+import naaradpath
 
 import serverinfo;
 from mySock import mysocket;

@@ -1,4 +1,5 @@
 #! /usr/bin/python
+import naaradpath
 import serverinfo;
 
 from mySock import mysocket;

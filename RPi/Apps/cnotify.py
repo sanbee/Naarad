@@ -1,16 +1,8 @@
 #! /usr/bin/python3
 from __future__ import print_function;
-#------------------------------------------------
+import naaradpath
+
 import sys
-import os;
-file_path = os.path.dirname(__file__)
-sys.path.append(file_path);
-sys.path.insert(0, file_path+'/../NaaradServer/NewServer');
-
-print("Loading Naarad modules from: ",file_path);
-#------------------------------------------------
-
-#sys.path.insert(0, '../NaaradServer/NewServer');
 import serverinfo
 import json;
 from mySock import mysocket;

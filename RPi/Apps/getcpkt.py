@@ -1,6 +1,6 @@
 #! /usr/bin/python
 import sys
-sys.path.insert(0, '../NaaradServer/NewServer');
+import naaradpath
 
 from mySock import mysocket;
 import time;
