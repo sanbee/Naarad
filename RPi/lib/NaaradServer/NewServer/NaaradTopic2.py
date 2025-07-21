@@ -34,7 +34,12 @@ class NaaradTopic (Thread):
         while (not settings5.NAARAD_SHUTDOWN):
             line='{}';
             try:
-                line =self.uno.readline().rstrip();
+                line =self.uno.readline()
+                if (not line):
+                    print("NaaradTopic2::run(): readline() on COM port timedout (uno.readline())");
+                    line='{}';
+                else:
+                    line = line.rstrip();
             except (AttributeError, UnicodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
                 line='{}';

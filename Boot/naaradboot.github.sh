@@ -10,7 +10,8 @@ else
     sleep 5
 fi
 
-NAARAD_HOME=/mnt/flash1/Naarad/RPi/NaaradServer/NewServer
+#NAARAD_HOME=/mnt/flash1/Naarad/RPi/NaaradServer/NewServer
+NAARAD_HOME=/mnt/flash1/Naarad/RPi/lib/NaaradServer/NewServer
 
 # Use unoserver2.ino for Arduino UNO
 
