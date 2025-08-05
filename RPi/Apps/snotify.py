@@ -25,7 +25,7 @@ def NaaradSend(mesg):
     #naaradSoc.close();
 
     jdict=json.loads(packet);
-    
+
     # "time" is the time-stamp of the arrival of the packet on the server.  "tnot" is the
     # time-stamp when the notification was issued and the packets sent to the client.
     # Both time-stamps use the RTC of the server.
@@ -44,7 +44,7 @@ def notify(argv):
     function (here, "notify.py").  It is ignored and therefore can be
     any string.  The rest of the strings are in the following order:
 
-       "notify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
+       "notify" NODEID CMD SOURCE TIMEOUT nRETRIALS
 
     The first argument above (argv[1]) has to be the string "notify".
     NODEID is the node-ID for which notification is sought and is the

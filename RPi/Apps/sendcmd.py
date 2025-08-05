@@ -15,7 +15,7 @@ def main(argv):
     if (narg < 2):
         print("Usage: cmd [SERVER-IP] [SERVER-PORT]");
     else:
-    	CMD=sys.argv[1];
+        CMD=sys.argv[1];
         SERVER_IP=serverinfo.SERVER;
         SERVER_PORT=serverinfo.PORT;
         if (narg > 2):
@@ -26,7 +26,7 @@ def main(argv):
         if (CMD=="shutdown"):
             if (not isYes("shutdown server at "+str(SERVER_IP)+":"+str(SERVER_PORT)+"." + " Are you sure?")):
                 return;
-                
+
         naaradSoc=mysocket();
         naaradSoc.connect(SERVER_IP,SERVER_PORT);
         naaradSoc.send("sendcmd App");

@@ -45,7 +45,7 @@ def sendCommand(cmd,polltimeout):
         args=cmd[3]+" "+cmd[4];
         CMD="RFM_SEND "+str(nodeID)+" "+str(cmdID)+" "+str(args);
 
-        
+
         # nodeID=cmd[2];
         # CMD = cmd[1]+" "+cmd[2];
         print(CMD);

@@ -23,7 +23,7 @@ def cnotifyNaaradSend(mesg):
     #naaradSoc.close();
 
     jdict=json.loads(packet);
-    
+
     # "time" is the time-stamp of the arrival of the packet on the server.  "tnot" is the
     # time-stamp when the notification was issued and the packets sent to the client.
     # Both time-stamps use the RTC of the server.
@@ -42,7 +42,7 @@ def cnotify(argv):
     function (here, "notify.py").  It is ignored and therefore can be
     any string.  The rest of the strings are in the following order:
 
-       "cnotify" NODEID CMD SOURCE TIMEOUT nRETRIALS 
+       "cnotify" NODEID CMD SOURCE TIMEOUT nRETRIALS
 
     The first argument above (argv[1]) has to be the string "cnotify",
     and is the name of the notification service from the Naarad server.
@@ -55,7 +55,7 @@ def cnotify(argv):
     notification. NODEID=-1 indicates that notification is requested
     for packets from all nodes (any node).  CMD=-1 indicates that
     notification is requested for a packet with any command.  Hence,
-    NODEID=-1 and CMD=-1 will ignore SOURCE specification and will 
+    NODEID=-1 and CMD=-1 will ignore SOURCE specification and will
     issue notification for all packets received at the server.
 
     TIMEOUT is the length of time in seconds after which
@@ -72,7 +72,7 @@ def cnotify(argv):
     notification service is one-time notification (use the "notify" app).
 
     When NODEID < 0, all packets (with any value for node_id or node
-    values) will be captured.  
+    values) will be captured 
 
     When CMD < 0, all packets with any cmd or source values will be
     captured.  When CMD >=0, packets that match both, cmd and source
@@ -105,9 +105,9 @@ def cnotify(argv):
 
             naaradSoc=mysocket();
             naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);time.sleep(0.1);
-            naaradSoc.send("Cont Notification App");     
+            naaradSoc.send("Cont Notification App");
             time.sleep(0.1);
-            naaradSoc.send(FULLCMD);  
+            naaradSoc.send(FULLCMD);
             infopkt=naaradSoc.receive(True); # Do a blocking read
             print(infopkt);
             time_offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone;
@@ -117,7 +117,7 @@ def cnotify(argv):
                     # End of transmission or the notification was
                     # de-registered by the server or via abortnotify
                     # command.
-                    if (len(packet)==0):  
+                    if (len(packet)==0):
                         break;
                     # Convert time to human-readable format
                     # time.asctime(time.gmtime(1592929995433.7449/1000.0 - 6*3600)) to get the MDT.
