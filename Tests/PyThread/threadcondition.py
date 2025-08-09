@@ -84,11 +84,11 @@ class ClientList():
         with self.rlock:
             try:
                 myIndex=self.CondList.findItem(myCond);
-                print 'Unregistering ',self.IDList[myIndex[0]];
+                print('Unregistering ',self.IDList[myIndex[0]]);
                 self.IDList.remove(myIndex[0]);
                 self.CondList.remove(myIndex[0]);
             except IndexError:
-                print "IndexError: ",self.IDList, myIndex;
+                print("IndexError: ",self.IDList, myIndex);
 
 
 NotifyClient=ClientList();
@@ -123,12 +123,12 @@ class mainThread(Thread):
         while(True):
             if (counter < 0):
 #                NaaradNotify();
-                print "Exiting MT";
+                print("Exiting MT")
                 break;
             with self.state:
                 if (self.paused):
                     self.state.wait();
-            print counter;
+            print(counter)
             time.sleep(2);
             counter += 1;
             #            if (counter%10==0):
@@ -154,11 +154,11 @@ class clientThread(Thread):
         while(True):
             with self.cond:
                 self.cond.wait(None);
-                print "CT: ",self.myid,counter;
+                print("CT: ",self.myid,counter);
 
 #            if (counter%self.nn == 0):
             if ((counter<0) or (counter>=20)):
-                print "CT exiting ",self.myid,self.nn;
+                print("CT exiting ",self.myid,self.nn);
                 break;
         NotifyClient.unregister(self.cond);
 
