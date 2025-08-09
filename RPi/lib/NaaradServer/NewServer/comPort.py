@@ -36,7 +36,7 @@ class comPort:
             self.users += 1;
 
     def close(self):
-        with lock:
+        with self.lock:
             if (self.com1.isOpen()):
                 if (self.users > 0):
                     self.users -= 1;

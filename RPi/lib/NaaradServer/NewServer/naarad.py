@@ -125,5 +125,19 @@ def startServer():
             print("\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server");
         
 if __name__ == "__main__":
-    initNaarad();
-    startServer();
+    REBOOTS=5;
+    n=0;
+    t0=time.time();
+    while(True):
+        if (n > REBOOTS):
+            break;
+        print("Booting naarad...");
+        initNaarad();
+        startServer();
+        time.sleep(5);
+        print("Re-booting naarad...");
+        # Limit the number of rapid reboots
+        tNow=time.time();
+        if (tNow-t0 < 3600):
+            t0=tNow;
+            n=n+1;

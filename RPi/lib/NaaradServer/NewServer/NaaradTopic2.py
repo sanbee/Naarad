@@ -5,6 +5,26 @@ import time;
 import json;
 import NaaradUtils as Utils;
 
+# import naaradpath
+#import serverinfo;
+from mySock import mysocket;
+import sys
+
+def shutdown():
+    with open("/tmp/naarad_reboot.log", 'a') as file:
+        file.write("Reboot process started at: "+time.asctime());
+
+    CMD="shutdown";
+    SERVER="localhost";
+    PORT=1234;
+
+    naaradSoc=mysocket();
+    naaradSoc.connect(SERVER,PORT);
+    naaradSoc.send("sendcmd App");
+    naaradSoc.send(CMD);time.sleep(0.1);
+    naaradSoc.send("done");
+    naaradSoc.close();
+
 # Class to create a topic of type name.  In implementation, this is a
 # thread that listens for in-coming packets on the serial connection
 # to the UNO and conveys them to all sockets in the
@@ -30,6 +50,21 @@ class NaaradTopic (Thread):
     # blocking mode) and broadcast the packets to all client which
     # have subscribed to this topic (i.e., the list of sockets in
     # topicsSubscriberList["SensorDataSink"]).
+    #
+    #--------------------------------------------------------------
+    # An attempt for automatic reboot in case of uno timeout:
+    #
+    # A blank line from uno.readline() seems to be the only way to
+    # detect that com-port (uno) timedout (!).  On uno timeout,
+    # NaaradTopicException is raised.  It's resolution is to send
+    # "shutdown" on the socket connection that processes client
+    # requests in the main thread.
+    #
+    # The NaaradTopicException here ultimately exits this thread.  And
+    # the shutdown() commands exit the StartServer() call in the main
+    # thread (see naarad.py).  This effectively reboots the system by
+    # calling initNaarad() and startServer() in the main() of
+    # naarad.py
     def run(self):
         while (not settings5.NAARAD_SHUTDOWN):
             line='{}';
@@ -37,12 +72,21 @@ class NaaradTopic (Thread):
                 line =self.uno.readline()
                 if (not line):
                     print("NaaradTopic2::run(): readline() on COM port timedout (uno.readline())");
+                    raise NaaradTopicException;
                     line='{}';
                 else:
                     line = line.rstrip();
             except (AttributeError, UnicodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
                 line='{}';
+            except NaaradTopicException as e:
+                # Send the shutdown command (twice!) on the server
+                # port.
+                # This exits the startServer() call in naarad.py,
+                # allowing the reboot requence to begin.
+                print("Shutting down NT2...");
+                shutdown();
+                shutdown();
 
             if (not ("cmd" in line)):
                 line=Utils.addKey("cmd",-1,line);
