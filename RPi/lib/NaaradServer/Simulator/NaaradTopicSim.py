@@ -92,5 +92,6 @@ class NaaradTopicSim (Thread):
                 except ValueError as e:
                    # print ("Error duing JSON parsing: Line=\""+line+"\""+"Error message: "+e.message());
                     print ("Error duing JSON parsing: Line=\""+line+"\"");
-        if (settings5.NAARAD_SHUTDOWN):
-            print("### Exiting com port server thread");
+            if (settings5.NAARAD_SHUTDOWN):
+                print("### Exiting com port server thread");
+                break;

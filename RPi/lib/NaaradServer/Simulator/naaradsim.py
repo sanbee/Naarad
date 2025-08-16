@@ -18,8 +18,16 @@ from PogoSim import *;
 from comPortSim import *;
 from NaaradTopicSim import NaaradTopicSim;
 
+# Initialize various components, the packet handler and the global
+# settings (settings5.init()).  These are not re-initialized in the
+# event of an automatic reboot, carrying the history records and the state of
+# components across reboots.
 pogo=0;
 uno=0;
+historyLength=6*60*60*1000.0;
+pHndlr=ph.PacketHandler(historyLength);
+# Initialize all the globals
+settings5.init();
 #
 #------------------------------------------------------------------------------------------------------
 #
@@ -28,12 +36,16 @@ uno=0;
 # for data to arrive on the com port.
 def initNaarad():
     global settings5, comPort;
-    global pogo, uno, ph;
+    global pogo, uno, ph,pHndlr;
 
-    historyLength=6*60*60*1000.0; 
-    pHndlr=ph.PacketHandler(historyLength);
-    # Initialize all the globals
-    settings5.init();
+    # Initializationf of the following is moved to the global scope to
+    # enable state of the system to be carried across automatic
+    # reboots.
+    #
+    # pHndlr=ph.PacketHandler(historyLength);
+    # # Initialize all the globals
+    # settings5.init();
+
     #
     # Start the connection to the serial port.  This is the interface for
     # i/o to Arduino UNO
@@ -47,8 +59,6 @@ def initNaarad():
     # command issued via ookRadio will be implemented.
     pogo = PogoSim(None,None);
     # Amount of temporal history the server holds in milli-seconds. 
-    historyLength=6*60*60*1000.0; 
-    pHndlr=ph.PacketHandler(historyLength);
     nSensorNetworkData = NaaradTopicSim(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
     nSensorNetworkData.start();
 #------------------------------------------------------------------------------------------------------
@@ -92,9 +102,27 @@ def startServer():
             myCTh.start();
             if (settings5.NAARAD_SHUTDOWN):
                 print ("### Exiting Naarad socket server thread");
+                break;
         except KeyboardInterrupt:
-            print "\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server";
+            print("\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server");
             
 if __name__ == "__main__":
-    initNaarad();
-    startServer();
+    REBOOTS=5;
+    n=0;
+    t0=time.time();
+    while(True):
+        if (n > REBOOTS):
+            break;
+        print("Boot sequence initiated...");
+        settings5.NAARAD_SHUTDOWN=False;
+        initNaarad();
+        startServer();
+        time.sleep(5);
+        print("Re-booting naarad...");
+        # Limit the number of rapid reboots
+        tNow=time.time();
+        if (tNow-t0 < 3600):
+            t0=tNow;
+            n=n+1;
+    # initNaarad();
+    # startServer();

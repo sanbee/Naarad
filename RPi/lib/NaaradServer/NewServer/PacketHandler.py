@@ -17,13 +17,14 @@ class PacketHandler():
 
         thisTimeStamp=thisJSON["time"];
         paramName = thisJSON["name"];
-        
+
         if (nodeid,paramName) not in settings5.gPacketHistory:
             # This is the first packet for the (nodeid,paramName) combination
-            settings5.gPacketHistory[nodeid,paramName]=deque([]);
-            settings5.gValueCache[nodeid,paramName] = 1e6; # Set it a magic value to initialize it.
-            settings5.gTimeStamp0Cache[nodeid,paramName]=thisTimeStamp;
-            settings5.gTimeStamp1Cache[nodeid,paramName]=thisTimeStamp;
+            if (self.currentHistLen > 0.0):
+                settings5.gPacketHistory[nodeid,paramName]=deque([]);
+                settings5.gValueCache[nodeid,paramName] = 1e6; # Set it a magic value to initialize it.
+                settings5.gTimeStamp0Cache[nodeid,paramName]=thisTimeStamp;
+                settings5.gTimeStamp1Cache[nodeid,paramName]=thisTimeStamp;
 
         dT1=(thisTimeStamp - settings5.gTimeStamp1Cache[nodeid,paramName]);
         if ((dT1 > 60000.0) or (len(settings5.gPacketHistory[nodeid,paramName]) == 0)):
@@ -46,9 +47,10 @@ class PacketHandler():
         # If time diff. between the latest and newest packet is >
         # threshold, set the timeStamp0 to < 0 indicating that max
         # history length has been hit.
-        #if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and 
+        #if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and
         self.currentHistLen = (thisTimeStamp - settings5.gTimeStamp0Cache[nodeid,paramName]) 
-        # if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and 
+        # print("HistLen31: ",self.currentHistLen/(60000.0), settings5.NAARAD_HISTORYLENGTH,len(settings5.gPacketHistory[nodeid]));
+        # if ((settings5.gTimeStamp0Cache[nodeid,paramName] > 0) and
         #     ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid,paramName]) > settings5.NAARAD_HISTORYLENGTH)):#1800000):
         #     settings5.gTimeStamp0Cache[nodeid,paramName] = -1;
 
@@ -57,7 +59,7 @@ class PacketHandler():
         keys=thisJSON.keys();
         if 'cmd' in keys:
             settings5.gClientList.NaaradNotify(thisNodeID,thisJSON['cmd'],thisJSON['source']);
-        
+
     def addPacket(self,packet,thisJSON):
         keys=thisJSON.keys();
         if 'version' in keys:
@@ -71,7 +73,7 @@ class PacketHandler():
         else:
             self.addPacket0(packet,thisJSON);
             #            print "V0->3.1: ",self.convertV0ToV31(thisJSON);
-            
+
     def addPacket0(self,packet,thisJSON):
         nodeid=thisJSON["node_id"];
         thisTimeStamp=thisJSON["time"];
@@ -79,15 +81,16 @@ class PacketHandler():
         # If this is the first packet from a node, make a deque for it
         # in the gPacketHistory dict.
         if nodeid not in settings5.gPacketHistory:
-            settings5.gPacketHistory[nodeid]=deque([]);
-            settings5.gValueCache[nodeid] = 270.0; # Set it a magic value to initialize it.
-            settings5.gTimeStamp0Cache[nodeid]=thisTimeStamp;
-            settings5.gTimeStamp1Cache[nodeid]=thisTimeStamp;
+            if (self.currentHistLen == 0.0):
+                settings5.gPacketHistory[nodeid]=deque([]);
+                settings5.gValueCache[nodeid] = 270.0; # Set it a magic value to initialize it.
+                settings5.gTimeStamp0Cache[nodeid]=thisTimeStamp;
+                settings5.gTimeStamp1Cache[nodeid]=thisTimeStamp;
 
         # The hueristic used to add the current packet to its node's history is:
         #   Add to history if
         #     1. The value (temperature in this case) has changed since last history record
-        #                      and 
+        #                      and
         #     2. More than 5 min. have passed since the last history record
         #                       or
         #     3. This is the first history record
@@ -115,7 +118,7 @@ class PacketHandler():
         # threshold, set the timeStamp0 to < 0 indicating that max
         # history length has been hit.
         self.currentHistLen = (thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]);
-        #print("HistLen: ",self.currentHistLen/(60000.0), settings5.NAARAD_HISTORYLENGTH,len(settings5.gPacketHistory[nodeid]));
+        # print("HistLen0: ",self.currentHistLen/(60000.0), settings5.NAARAD_HISTORYLENGTH,len(settings5.gPacketHistory[nodeid]));
         # if ((settings5.gTimeStamp0Cache[nodeid] > 0) and ((thisTimeStamp - settings5.gTimeStamp0Cache[nodeid]) > self.historyLength)):#1800000):
         #     settings5.gTimeStamp0Cache[nodeid] = -1;
 
@@ -127,7 +130,7 @@ class PacketHandler():
 
         xx=Utils.modifyJSON(jsonDict,keywords,values,0);
         return json.dumps(jsonDict);
-        
+
     # def addTimeStamp(self,jsonStr):
     #     try:
     #         jdict=json.loads(jsonStr);
@@ -137,7 +140,7 @@ class PacketHandler():
     #     except(ValueError) as excpt:
     #         print("Not a JSON string: %s"%jsonStr);
     #         return jsonStr;
-        
+
     def addTimeStamp_Old(self,jsonStr):
         tok = jsonStr.split()
         n=len(tok);
