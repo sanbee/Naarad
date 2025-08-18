@@ -2,7 +2,6 @@ import threading;
 from threading import Thread;
 import settings5;
 import time;
-import json;
 import NaaradUtils as Utils;
 
 # import naaradpath
@@ -10,9 +9,10 @@ import NaaradUtils as Utils;
 from mySock import mysocket;
 import sys
 
-def shutdown():
-    with open("/tmp/naarad_reboot.log", 'a') as file:
-        file.write("Reboot process started at: "+time.asctime());
+def shutdown(log=True):
+    if (log):
+        with open("/tmp/naarad_reboot.log", 'a') as file:
+            file.write("Reboot process started at: "+time.asctime()+"\n");
 
     CMD="shutdown";
     SERVER="localhost";
@@ -78,20 +78,19 @@ class NaaradTopic (Thread):
                     line = line.rstrip();
             except (AttributeError, UnicodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
+                print("Packet content: \"%s\"" %line);
                 line='{}';
             except NaaradTopicException as e:
                 # Send the shutdown command (twice!) on the server
-                # port.
-                # This exits the startServer() call in naarad.py,
-                # allowing the reboot requence to begin.
+                # port.  This exits the startServer() call in
+                # naarad.py, allowing the reboot requence to begin.
                 print("Shutting down NT2...");
                 shutdown();
-                shutdown();
+                shutdown(False); # Don't log a message 
 
             if (not ("cmd" in line)):
                 line=Utils.addKey("cmd",-1,line);
 
-            #print("@@@: "+time.asctime()+": "+line);
             print("@@@: "+time.strftime("%a %b %d %H:%M:%S %Y")+":: "+line);
             rlock = threading.RLock();
             with rlock:

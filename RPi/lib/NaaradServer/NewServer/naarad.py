@@ -27,8 +27,19 @@ import settings5; # All the global settings
 from NaaradTopic2 import NaaradTopic;
 import PacketHandler as ph;
 
+#
+#------------------------------------------------------------------------------------------------------
+#
+# Initialize various components, the packet handler and the global
+# settings (settings5.init()).  These are not re-initialized in the
+# event of an automatic reboot, carrying the history records and the state of
+# components across reboots.
 pogo=0;
 uno=0;
+historyLength=6*60*60*1000.0;
+pHndlr=ph.PacketHandler(historyLength);
+# Initialize all the globals
+settings5.init();
 #
 #------------------------------------------------------------------------------------------------------
 #
@@ -37,11 +48,12 @@ uno=0;
 # for data to arrive on the com port.
 def initNaarad():
     global settings5, comPort, PacketRadio, OOKRadio;
-    global ph, NaaradTopic;
+    global ph, NaaradTopic, pHndlr;
     global pogo, uno;
 
-    # Initialize all the globals
-    settings5.init();
+    # # Initialize all the globals
+    # settings5.init();
+
     #
     # Start the connection to the serial port.  This is the interface for
     # i/o to Arduino UNO
@@ -65,7 +77,7 @@ def initNaarad():
     pogo = Pogo(pktRadio, ookRadio);
     
     # Amount of temporal history the server holds in milli-seconds. 
-    pHndlr=ph.PacketHandler(settings5.NAARAD_HISTORYLENGTH);
+    # pHndlr=ph.PacketHandler(settings5.NAARAD_HISTORYLENGTH);
     nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
     #nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno);
 
@@ -104,7 +116,7 @@ def startServer():
             fd = select.select([serversocket.fileno()],[],[]);
             (clientsocket, address) = serversocket.accept()
         
-            #     #now do something with the clientsocket
+            #now do something with the clientsocket
             myc1 = mysocket(clientsocket);
             connectionType=myc1.receive().strip();
             print ("connection accepted",address,connectionType);
@@ -120,7 +132,8 @@ def startServer():
             threadID = threadID+1;
             myCTh.start();
             if (settings5.NAARAD_SHUTDOWN):
-                print("### Exiting Naarad socket server thread");
+                print ("### Exiting Naarad socket server thread");
+                break;
         except KeyboardInterrupt:
             print("\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server");
         
@@ -131,11 +144,12 @@ if __name__ == "__main__":
     while(True):
         if (n > REBOOTS):
             break;
-        print("Booting naarad...");
+        print("Boot sequence initiated...");
+        settings5.NAARAD_SHUTDOWN=False;
         initNaarad();
         startServer();
         time.sleep(5);
-        print("Re-booting naarad...");
+        print("Re-booting naarad...#",n);
         # Limit the number of rapid reboots
         tNow=time.time();
         if (tNow-t0 < 3600):
