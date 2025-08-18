@@ -81,11 +81,12 @@ class PacketHandler():
         # If this is the first packet from a node, make a deque for it
         # in the gPacketHistory dict.
         if nodeid not in settings5.gPacketHistory:
-            if (self.currentHistLen == 0.0):
-                settings5.gPacketHistory[nodeid]=deque([]);
-                settings5.gValueCache[nodeid] = 270.0; # Set it a magic value to initialize it.
-                settings5.gTimeStamp0Cache[nodeid]=thisTimeStamp;
-                settings5.gTimeStamp1Cache[nodeid]=thisTimeStamp;
+# THIS CONTDITION, MEANT TO ALLOW CARRAYING HISTORY ACROSS AUTOMATIC REBOOTS, NEEDS TO BE RE-TESTED
+#            if (self.currentHistLen == 0.0):
+            settings5.gPacketHistory[nodeid]=deque([]);
+            settings5.gValueCache[nodeid] = 270.0; # Set it a magic value to initialize it.
+            settings5.gTimeStamp0Cache[nodeid]=thisTimeStamp;
+            settings5.gTimeStamp1Cache[nodeid]=thisTimeStamp;
 
         # The hueristic used to add the current packet to its node's history is:
         #   Add to history if

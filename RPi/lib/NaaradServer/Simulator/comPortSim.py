@@ -1,11 +1,15 @@
+import time;
+import json;
+import random;
 #
-#Arduino (UNO in this case) related code lives here.
+# comPort simulation.
 #
 class comPortSim:
     '''
     Object to manage USB-serial connection to Arduino (UNO).
     '''
     def __init__(self, port='/dev/ttyACM0', baudrate=19200):
+        self.nodech=0;
         print ("comPortSim._init__");
 
     def getSerial(self):
@@ -24,4 +28,24 @@ class comPortSim:
         print ("comPortSim.read");
 
     def readline(self,errors='ignore'):
-        print ("comPortSim.readline");
+        try:
+            self.nodech+=1;
+            time.sleep(5);
+            jdict={};
+            jdict["rf_fail"]=0;
+            node=1;
+            if (self.nodech%5==0):
+                node=3;
+                jdict["rf_fail"]=1;
+            jdict["node_id"] = node;
+            jdict["degc"]    = 20.0+(random.random()-0.5)/2.0;
+            jdict["node_p"]  = -30.0-random.random()*30.0;
+            jdict["source"]="naaradsim";
+            line =json.dumps(jdict);
+            if (self.nodech==3):
+                line="Three!";
+        except (AttributeError, UniocodeDecodeError) as excpt:
+                print("Could not decode to utf-8: %s" %excpt);
+                print("Packet content: \"%s\"" %line);
+                line="";
+        return line;
