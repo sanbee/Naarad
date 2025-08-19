@@ -1,3 +1,4 @@
+# USE OF THIS IS DEPRECATED.  THE LOCAL comPort.py HAS THIS CODE NOW AND IS IMPORTED INSTEAD.
 import time;
 import json;
 import random;

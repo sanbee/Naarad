@@ -1,23 +1,16 @@
+# USE OF THIS IS DEPRECATED.  USE ./simulator.py (python -B simlator.py) INSTEAD.
+import os
 import sys;
-sys.path.insert(0, '../NewServer');
+# file_path = os.path.dirname(__file__)+"/../NewServer";
+# sys.path.append(file_path);
+# print("Loading Naarad modules from: ",file_path);
 
-import socket;
-import time;
-import select;
-import errno;
-from socket import error as socket_error;
-import json;
-import threading;
-from threading import Thread;
-
-from mySock import *;
-from myClientThread5 import ClientThread;
-import settings5; # All the global settings
-import PacketHandler as ph;
-from PogoSim import *;
-from comPortSim import *;
-from NaaradTopicSim import NaaradTopicSim;
-
+from naarad_setpaths import *;
+from naarad_imports import *;
+from naarad_hwimports import *;
+#
+#------------------------------------------------------------------------------------------------------
+#
 # Initialize various components, the packet handler and the global
 # settings (settings5.init()).  These are not re-initialized in the
 # event of an automatic reboot, carrying the history records and the state of
@@ -35,10 +28,11 @@ settings5.init();
 # the com port (connection to Ardunio), and start the loop that waits
 # for data to arrive on the com port.
 def initNaarad():
-    global settings5, comPort;
-    global pogo, uno, ph,pHndlr;
+    global settings5, comPort, PacketRadio, OOKRadio;
+    global ph, pHndlr;
+    global pogo, uno;
 
-    # Initializationf of the following is moved to the global scope to
+    # Initialization of the following is moved to the global scope to
     # enable state of the system to be carried across automatic
     # reboots.
     #
@@ -50,24 +44,45 @@ def initNaarad():
     # Start the connection to the serial port.  This is the interface for
     # i/o to Arduino UNO
     #uno=comPort(port=settings5.NAARAD_COMPORT,baudrate=9600);
-    uno=comPortSim(port=settings5.NAARAD_COMPORT);
+    uno=comPort(port=settings5.NAARAD_COMPORT);
     uno.open();
+    time.sleep(1);
+    #
+    # Instantiate the object that encapsulates communcation to the packet
+    # radio (RFM64CW) connected to UNO.
+    pktRadio = PacketRadio(uno);
+    #
+    # Instantiate the object that encapsulates communcation to the OOK
+    # radio connected to the UNO.
+    ookRadio = OOKRadio(uno);
     #
     # The top-level interface of the Naarad (it still carries the old
     # name) system that access both the radios.  This is where the
     # heuristics and smarts based on the data collected from pktRadio and
     # command issued via ookRadio will be implemented.
-    pogo = PogoSim(None,None);
-    # Amount of temporal history the server holds in milli-seconds. 
-    nSensorNetworkData = NaaradTopicSim(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
+    pogo = Pogo(pktRadio, ookRadio);
+
+    # Amount of temporal history the server holds in milli-seconds.
+    nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
+
+    # Start an infinite loop on a separate thread which waits for data
+    # to arrive on the com port (from Arduino) and ingest it.  This
+    # writes to global arrays defined in settings5 object.  The
+    # primary responsibility of this thread is to read the com port
+    # (so that it does not get full), validate the data it reads from
+    # the com port, and add it to the history records.
+    #
+    # History currently is only held in the RAM (for the historyLength
+    # length of time).  When we make the history more persistent
+    # (sqlite DB), this is the thread that will do it.
     nSensorNetworkData.start();
 #------------------------------------------------------------------------------------------------------
 #
-# 
+#
 def startServer():
     global settings5, mysocket, ClientThread
     global uno, pogo;
-    
+
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
     serversocket.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 );
     serversocket.bind(('', settings5.NAARAD_PORT));
@@ -84,12 +99,12 @@ def startServer():
         try:
             fd = select.select([serversocket.fileno()],[],[]);
             (clientsocket, address) = serversocket.accept()
-        
+
             #now do something with the clientsocket
             myc1 = mysocket(clientsocket);
             connectionType=myc1.receive().strip();
             print ("connection accepted",address,connectionType);
-    
+
             # Start a new thread to service this socket connection.  The
             # thread exits when end-of-communication command ("done") is
             # received on myc1 socket or if there is an irrecoverable error or
@@ -105,7 +120,7 @@ def startServer():
                 break;
         except KeyboardInterrupt:
             print("\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server");
-            
+
 if __name__ == "__main__":
     REBOOTS=5;
     n=0;
@@ -118,11 +133,9 @@ if __name__ == "__main__":
         initNaarad();
         startServer();
         time.sleep(5);
-        print("Re-booting naarad...");
+        print("Re-booting naarad...#",n);
         # Limit the number of rapid reboots
         tNow=time.time();
         if (tNow-t0 < 3600):
             t0=tNow;
             n=n+1;
-    # initNaarad();
-    # startServer();

@@ -1,3 +1,4 @@
+# USE OF THIS DEPRECATED.  ../NewServer/NaaradTopic2.py MODULE IS USED INSTEAD.
 import threading;
 from threading import Thread;
 import settings5;
