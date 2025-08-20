@@ -1,32 +1,16 @@
 import os
 import sys;
-file_path = os.path.dirname(__file__)
-sys.path.append(file_path);
-print("Loading Naarad modules from: ",file_path);
 
+# Set paths, especially for loading the Naarad modules.
+from naarad_setpaths import *;
 
-import socket;
-import time;
-from mySock import *;
-import serial;
-import select;
-import sys;
-import errno;
-from socket import error as socket_error;
-import json;
+# Locally necessary modules.  Load a local copy, if found.  Else load
+# from naarad_file_path set in naarad_setpaths.
+from naarad_imports import *;
 
-from Pogo import *;
-from comPort import *;
-from OOKRadio import *;
-from PacketRadio import *;
-import os;#, threading;
-import threading;
-from threading import Thread;
-from myClientThread5 import ClientThread;
-import settings5; # All the global settings
-from NaaradTopic2 import NaaradTopic;
-import PacketHandler as ph;
-
+# Modules that interface with hardware.  Load a local copy, if found.
+# Else load from naarad_file_path set in naarad_setpaths.
+from naarad_hwimports import *;
 #
 #------------------------------------------------------------------------------------------------------
 #
@@ -48,9 +32,14 @@ settings5.init();
 # for data to arrive on the com port.
 def initNaarad():
     global settings5, comPort, PacketRadio, OOKRadio;
-    global ph, NaaradTopic, pHndlr;
+    global ph, pHndlr;
     global pogo, uno;
 
+    # Initialization of the following is moved to the global scope to
+    # enable state of the system to be carried across automatic
+    # reboots.
+    #
+    # pHndlr=ph.PacketHandler(historyLength);
     # # Initialize all the globals
     # settings5.init();
 
@@ -75,11 +64,9 @@ def initNaarad():
     # heuristics and smarts based on the data collected from pktRadio and
     # command issued via ookRadio will be implemented.
     pogo = Pogo(pktRadio, ookRadio);
-    
-    # Amount of temporal history the server holds in milli-seconds. 
-    # pHndlr=ph.PacketHandler(settings5.NAARAD_HISTORYLENGTH);
+
+    # Amount of temporal history the server holds in milli-seconds.
     nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno,pHndlr);
-    #nSensorNetworkData = NaaradTopic(settings5.NAARAD_TOPIC_SENSORDATA, uno);
 
     # Start an infinite loop on a separate thread which waits for data
     # to arrive on the com port (from Arduino) and ingest it.  This
@@ -94,11 +81,11 @@ def initNaarad():
     nSensorNetworkData.start();
 #------------------------------------------------------------------------------------------------------
 #
-# 
+#
 def startServer():
     global settings5, mysocket, ClientThread
     global uno, pogo;
-    
+
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
     serversocket.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 );
     serversocket.bind(('', settings5.NAARAD_PORT));
@@ -106,7 +93,7 @@ def startServer():
 
     # The socket server loop. A new connection, after being accepted, is
     # serviced via a new thread (ClientThread).  ClientThread adds the
-    # opened socket to the topicsSubscriberList if the requested
+    # opened socket to the topicsSubscriberList if the reqeusted
     # connection was of type SensorDataSink.  This server thread
     # terminates when the connection terminates and the associated socket
     # is also removed from the topicsSubscriberList.
@@ -115,12 +102,12 @@ def startServer():
         try:
             fd = select.select([serversocket.fileno()],[],[]);
             (clientsocket, address) = serversocket.accept()
-        
+
             #now do something with the clientsocket
             myc1 = mysocket(clientsocket);
             connectionType=myc1.receive().strip();
             print ("connection accepted",address,connectionType);
-    
+
             # Start a new thread to service this socket connection.  The
             # thread exits when end-of-communication command ("done") is
             # received on myc1 socket or if there is an irrecoverable error or
@@ -136,7 +123,7 @@ def startServer():
                 break;
         except KeyboardInterrupt:
             print("\nIgnoring Ctrl-C.  Use \"sendcmd shutdown\" (twice) to shutdown the server");
-        
+
 if __name__ == "__main__":
     REBOOTS=5;
     n=0;

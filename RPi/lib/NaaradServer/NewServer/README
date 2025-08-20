@@ -1,0 +1,9 @@
+18Aug2025
+
+A new version of naarad.py is copied over to 192.168.0.126 and being run for testing.
+This will be checked-in after sufficient testing.
+
+This unifies the Simulator/naaradsim.py and naarad.py.  The latter is now configured
+via local naarad_*import.py files present in ../Simulator directory. The simulator.py
+should be used instead of naaradsim.py.  simulator.py loads local files comPort.py,
+and uses the production version of naarad.py, NaaradTopic2.py and PacketHandler.py.
