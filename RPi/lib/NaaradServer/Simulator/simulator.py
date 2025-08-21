@@ -20,6 +20,9 @@ from naarad_setpaths import *;
 # from naarad_imports import *;
 # from naarad_hwimports import *;
 
+# The local version of comPort.py simulates the OTA packets read from
+# a simulated serial port.
+
 from naarad import *;
 
 if __name__ == "__main__":
@@ -31,8 +34,8 @@ if __name__ == "__main__":
             break;
         print("Boot sequence initiated...");
         settings5.NAARAD_SHUTDOWN=False;
-        initNaarad();
-        startServer();
+        initNaarad(); # Start the NaaradTopic thread, that injests OTA packets, and return.
+        startServer();# This is blocking, listening on the socket for client connection requests.
         time.sleep(5);
         print("Re-booting naarad...#",n);
         # Limit the number of rapid reboots

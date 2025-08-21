@@ -9,7 +9,7 @@ class comPort:
     Object to manage USB-serial connection to Arduino (UNO).
     '''
     def __init__(self, port='/dev/ttyACM0', baudrate=19200):
-        self.nodech=0;
+        self.pktID=0;
         print ("comPortSim._init__");
 
     def getSerial(self):
@@ -29,12 +29,12 @@ class comPort:
 
     def readline(self,errors='ignore'):
         try:
-            self.nodech+=1;
+            self.pktID+=1;
             time.sleep(5);
             jdict={};
             jdict["rf_fail"]=0;
             node=1;
-            if (self.nodech%5==0):
+            if (self.pktID%5==0):
                 node=3;
                 jdict["rf_fail"]=1;
             jdict["node_id"] = node;
@@ -42,8 +42,14 @@ class comPort:
             jdict["node_p"]  = -30.0-random.random()*30.0;
             jdict["source"]="naaradsim";
             line =json.dumps(jdict);
-            if (self.nodech==3):
+            if (self.pktID==3):
                 line="Three!";
+            #
+            # The following will simulate a com port read timeout in NaaradTopics2::run()
+            # and should initiate an auto-reboot sequence
+            #
+            # if (self.pktID==6):
+            #     line="";
         except (AttributeError, UniocodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
                 print("Packet content: \"%s\"" %line);
