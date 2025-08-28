@@ -8,9 +8,8 @@ from naarad_setpaths import *;
 # from naarad_file_path set in naarad_setpaths.
 from naarad_imports import *;
 
-# Modules necessary for interface with the hardware, or for managing
-# socket connectiosn and threads.  Load a local copy, if found.  Else
-# load from naarad_file_path set in naarad_setpaths.
+# Modules that interface with hardware.  Load a local copy, if found.
+# Else load from naarad_file_path set in naarad_setpaths.
 from naarad_hwimports import *;
 #
 #------------------------------------------------------------------------------------------------------
@@ -19,8 +18,8 @@ from naarad_hwimports import *;
 # settings (settings5.init()).  These are not re-initialized in the
 # event of an automatic reboot, carrying the history records and the state of
 # components across reboots.
-pogo=0;
-uno=0;
+# pogo=0;
+# uno=0;
 historyLength=6*60*60*1000.0;
 pHndlr=ph.PacketHandler(historyLength);
 # Initialize all the globals
@@ -34,7 +33,7 @@ settings5.init();
 def initNaarad():
     global settings5, comPort, PacketRadio, OOKRadio;
     global ph, pHndlr;
-    global pogo, uno;
+   # global pogo, uno;
 
     # Initialization of the following is moved to the global scope to
     # enable state of the system to be carried across automatic
@@ -80,12 +79,13 @@ def initNaarad():
     # length of time).  When we make the history more persistent
     # (sqlite DB), this is the thread that will do it.
     nSensorNetworkData.start();
+    return uno,pogo;
 #------------------------------------------------------------------------------------------------------
 #
 #
-def startServer():
+def startServer(uno_l,pogo_l):
     global settings5, mysocket, ClientThread
-    global uno, pogo;
+#    global uno, pogo;
 
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
     serversocket.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 );
@@ -116,7 +116,7 @@ def startServer():
             # all cases, ClientThread also closes the myc1 socket before
             # exiting.
             name = "Th"+str(threadID);
-            myCTh = ClientThread(threadID, name, myc1, uno, pogo, connectionType);
+            myCTh = ClientThread(threadID, name, myc1, uno_l, pogo_l, connectionType);
             threadID = threadID+1;
             myCTh.start();
             if (settings5.NAARAD_SHUTDOWN):
@@ -134,8 +134,9 @@ if __name__ == "__main__":
             break;
         print("Boot sequence initiated...");
         settings5.NAARAD_SHUTDOWN=False;
-        initNaarad(); # Start the NaaradTopic thread, that injests OTA packets, and return.
-        startServer();# This is blocking, listening on the socket for client connection requests.
+        (uno_g, pogo_g)=initNaarad();
+        startServer(uno_g,pogo_g);
+        uno_g.close();
         time.sleep(5);
         print("Re-booting naarad...#",n);
         # Limit the number of rapid reboots
