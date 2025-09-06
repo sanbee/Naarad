@@ -40,7 +40,7 @@ class comPort:
             if (self.com1.isOpen()):
                 if (self.users > 0):
                     self.users -= 1;
-                if (self.users==0):
+                if (self.users <= 0):
                     self.com1.close();
 
     def send(self,str):

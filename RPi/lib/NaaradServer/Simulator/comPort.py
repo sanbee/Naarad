@@ -1,6 +1,7 @@
 import time;
 import json;
 import random;
+import threading;
 #
 # comPort simulation.
 #
@@ -9,17 +10,33 @@ class comPort:
     Object to manage USB-serial connection to Arduino (UNO).
     '''
     def __init__(self, port='/dev/ttyACM0', baudrate=19200):
-        self.pktID=0;
-        print ("comPortSim._init__");
+        self.nodech=0;
+        self.users=0;
+        self.lock=threading.Lock();
+        print ("-------------------");
+        print ("comPortSim.__init__");
+        print ("-------------------");
 
     def getSerial(self):
+        print ("-------------------");
         print ("comPortSim.getSerial");
+        print ("-------------------");
 
     def open(self):
-        print ("comPortSim.open");
-        
+        with self.lock:
+            print ("-------------------");
+            print ("comPortSim.open");
+            print ("-------------------");
+            self.users += 1;
+
     def close(self):
-        print ("comPortSim.close");
+        with self.lock:
+            if (self.users > 0):
+                self.users -= 1;
+            if (self.users <= 0):
+                print ("-------------------");
+                print ("comPortSim.close");
+                print ("-------------------");
 
     def send(self,str):
         print ("comPortSim.send: "+str);
