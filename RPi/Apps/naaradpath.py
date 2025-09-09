@@ -7,4 +7,4 @@ head,tail=os.path.split(file_path);
 lib_path=head+'/lib/NaaradServer/NewServer';
 sys.path.insert(0, lib_path);
 
-print("Loading Naarad modules from: ",file_path,lib_path);
+print("# Loading Naarad modules from: ",file_path,lib_path);
