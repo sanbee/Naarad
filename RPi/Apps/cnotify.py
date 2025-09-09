@@ -100,7 +100,7 @@ def cnotify(argv):
             for i in range(2,6):
                 FULLCMD=FULLCMD+" "+str(argv[i]);
 
-            print(FULLCMD);
+            print("# CMD: "+FULLCMD);
             Retry=0;
 
             naaradSoc=mysocket();
