@@ -14,15 +14,23 @@ def gethpkt(server,port, nodeid):
         soc.send(CMD); time.sleep(0.1);
         tt='';
         while(tt != "PHINISHED"):
-            val=soc.receive();
-            print val;
-            tt=val.split()[0];
+            try:
+                val=soc.receive();
+                ff=val.split();
+                if (len(ff) > 0):
+                    tt=val.split()[0];
+                else:
+                    tt="";
+                if (tt!="PHINISHED"):
+                    print(val);
+            except RuntimeError:
+                print("RuntimeError:");
 
     soc.send("done");time.sleep(0.1);
 
 def main(argv):
     if (len(sys.argv) < 2):
-        print "Usage: "+sys.argv[0]+" NODEID0 [NODEID1...]";
+        print("Usage: "+sys.argv[0]+" NODEID0 [NODEID1...]");
     else:
         n = len(argv);
         gethpkt(serverinfo.SERVER, serverinfo.PORT, sys.argv[1:n]);
