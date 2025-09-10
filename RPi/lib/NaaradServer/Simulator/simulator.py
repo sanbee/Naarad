@@ -34,8 +34,8 @@ if __name__ == "__main__":
             break;
         print("Boot sequence initiated...");
         settings5.NAARAD_SHUTDOWN=False;
-        initNaarad(); # Start the NaaradTopic thread, that injests OTA packets, and return.
-        startServer();# This is blocking, listening on the socket for client connection requests.
+        uno,pogo=initNaarad(); # Start the NaaradTopic thread, that injests OTA packets, and return.
+        startServer(uno,pogo);# This is blocking, listening on the socket for client connection requests.
         time.sleep(5);
         print("Re-booting naarad...#",n);
         # Limit the number of rapid reboots

@@ -13,6 +13,7 @@ class comPort:
         self.nodech=0;
         self.users=0;
         self.lock=threading.Lock();
+        self.pktID=0;
         print ("-------------------");
         print ("comPortSim.__init__");
         print ("-------------------");
