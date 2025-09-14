@@ -133,7 +133,7 @@ class mysocket:
         
             chunks     = preamble[len_len:];
             MSGLEN     = int(pktlen_str)-bytes_recd;
-            #print ("###pktlen_str:",pktlen_str,len_len,chunks,MSGLEN);
+            #print ("###pktlen_str:|"+preamble+"|","B=",bytes_recd,"pktlen_str=",pktlen_str,"len_len=",len_len,"chunks=",chunks,"MSGLEN=",MSGLEN);
 
             #print ("len=",MSGLEN, "bytes_recd=",bytes_recd,"chunks="+chunks, "preamble="+preamble);
 
@@ -145,7 +145,7 @@ class mysocket:
                 chunks += chunk0;
 
         except KeyboardInterrupt:
-            raise KeyboardInterrup("\nCtrl-C in mySock::receive().");
+            raise KeyboardInterrupt("\nCtrl-C in mySock::receive().");
         except SocketError as e:
             if e.errno == errno.ECONNRESET:
                 raise RuntimeError("mySock::receive: connection reset by peer"); 
