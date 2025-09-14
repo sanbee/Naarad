@@ -30,7 +30,13 @@ def cnotifyNaaradSend(mesg):
     dt=jdict["tnot"] - jdict['time'];
     return packet,dt;
 
-def cnotify(argv):
+def dataSink(data,qualifier=None):
+    if (qualifier=="str"):
+        print(data,flush=True);
+    else:
+        print(json.dumps(data),flush=True);
+        #print(data.get("time"));
+def cnotify(argv,dataConsumer=dataSink):
     """
     The function returns a packet received from a NODEID with the
     specified command (CMD) and source (SOURCE).  Specified number of
@@ -85,16 +91,16 @@ def cnotify(argv):
     """
     if (len(argv) < 7):
 
-        print("\nUsage: "+sys.argv[0]+" cnotify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
+        print("\nUsage: "+argv[0]+" cnotify NODEID CMD SOURCE TIMEOUT nRETRIALS\n");
         print(cnotify.__doc__);
     else:
         try:
-            naaradcmd=sys.argv[1];
+            naaradcmd=argv[1];
             if (naaradcmd != "cnotify"):
                 raise MyException("First argument is "+naaradcmd+".  Did you mean cnotify?");
-            nodeid=sys.argv[2]
-            cmd=sys.argv[3];
-            src=str(sys.argv[4]);
+            nodeid=argv[2]
+            cmd=argv[3];
+            src=str(argv[4]);
 
             FULLCMD=naaradcmd;
             for i in range(2,6):
@@ -109,7 +115,7 @@ def cnotify(argv):
             time.sleep(0.1);
             naaradSoc.send(FULLCMD);
             infopkt=naaradSoc.receive(True); # Do a blocking read
-            print(infopkt);
+            dataConsumer(infopkt,"str");
             time_offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone;
             while True:
                 try:
@@ -119,6 +125,7 @@ def cnotify(argv):
                     # command.
                     if (len(packet)==0):
                         break;
+
                     # Convert time to human-readable format
                     # time.asctime(time.gmtime(1592929995433.7449/1000.0 - 6*3600)) to get the MDT.
                     jdict=json.loads(packet);
@@ -126,12 +133,12 @@ def cnotify(argv):
                     dt=jdict["tnot"] - jdict['time'];
                     jdict["tnot"]='{:2.2f}'.format(dt);
                     jdict["time"]=time.asctime(time.gmtime(tt/1000.0 - time_offset));
-                    print(json.dumps(jdict));
+                    dataConsumer(jdict);
                 except KeyboardInterrupt as e:
                     print(str(e)+" cnotify interrupted.  Exiting...");
                     break;
-                except:
-                    print("\ncnotify interrupted.  Exiting...");
+                except Exception as e:
+                    print(str(e)+"\ncnotify interrupted.  Exiting...");
                     break;
             naaradSoc.close();
         except MyException as e:
