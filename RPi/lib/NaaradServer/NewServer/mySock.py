@@ -106,6 +106,13 @@ class mysocket:
         # self.sock.settimeout(0.0);# Set the socket to blocking
         return val.decode('utf-8'), bytesRecvd;
 
+    # The self.getNChar() calls below don't work with the Naarad Android app.
+    # self.soc.recv(16) call below isn't robust with sgethpkt.py, where
+    # sometimes SOC_MSGLEN_DIGITS aren't recevied, which leads to immediate
+    # exception.  self.getNChar() makes multiple trials to get these critical
+    # bytes, and is more robust for sgethpkt.py kind of code, but, for reasons
+    # unknown, does not work with the Naarad Android App.  -- 14Sept2025.
+    #
     def receive(self,doblocking=True):
         chunks     = [];
 
