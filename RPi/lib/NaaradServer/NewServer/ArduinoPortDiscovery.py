@@ -12,4 +12,4 @@ def ArduinoPortDiscovery():
     return arduino_ports;
 
 if __name__ == "__main__":
-    print(f"Adruno ports discoverted ",ArduinoPortDiscovery());
+    print(f"Adruno ports discovered: ",ArduinoPortDiscovery());

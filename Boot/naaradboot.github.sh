@@ -17,6 +17,13 @@ NAARAD_HOME=/mnt/flash1/Naarad/RPi/lib/NaaradServer/NewServer
 
 # Use "screen /dev/ttyACM0 19200" to connect to Arduino via the serial port
 
+#!!!---------------------------------------------------------------------------------
+#!!! THE ARDUINO PORT IS SET IN $NAARAD_HOME/settings5.py (default is /dev/ttyACM0)
+#!!! IF THE SEVER FAILS TO CONNECT, CHECK THE ARDUINO PORT TO CONNECT TO, AND SET IT
+#!!! IN THE settings5.py FILE.
+#!!! ARDUNIO PORT DISCOVERY SCRIPTS IS $NAARAD_HOME/ArduinoPortDiscovery.py
+#!!!---------------------------------------------------------------------------------
+#
 # Start the socket server
 # This has the latest getcpkt and gethpkt protocol
 #python serversoc4.py
