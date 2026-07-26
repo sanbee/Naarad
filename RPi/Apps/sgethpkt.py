@@ -6,16 +6,32 @@ from mySock import mysocket;
 import time;
 
 def gethpkt(server,port, nodeid):
+    if ("-1" in nodeid):
+        print("###Error: Support for nodeid=-1 to get a list of node IDs from the server is not yet enabled");
+        return;
     soc=mysocket();
     soc.connect(server,port);
     soc.send("open");time.sleep(0.1);
+
+    # The following code snippet to be enabled along with
+    # mods in myClientThread5.py::getNodeList() to return
+    # the list of node IDs.  Without those changes, the
+    # soc.reveive() below will block.
+    #
+    # if (int(nodeid[0])==-1):
+    #     CMD="getnodelist";
+    #     soc.send(CMD); time.sleep(0.1);
+    #     val=soc.receive();
+    #     nodeIDList=list(map(int,val.split()));
+    #     print("Node list: ",nodeIDList);
+
     for i in range(len(nodeid)):
         CMD="gethpkt "+str(nodeid[i]);
         soc.send(CMD); time.sleep(0.1);
         tt='';
         while(tt != "PHINISHED"):
             try:
-                val=soc.receive();
+                val=soc.receive(robust=True);
                 ff=val.split();
                 if (len(ff) > 0):
                     tt=val.split()[0];

@@ -142,7 +142,9 @@ static PacketBuffer str;
 
 //####################################################################
 // Flow control varaiables
-unsigned long lastPktSent[N_LISTENERS], lastPktRecvd=0;
+unsigned long lastPktSent[N_LISTENERS],
+  lastPktRecvd=0,currentMillis=0,
+  lastRFMReset=0;
 
 //####################################################################
 //####################################################################
@@ -183,16 +185,24 @@ void setup()
 //####################################################################
 void loop() 
 {
-  // Reset RFM69 if the time of last recvd pkt > 10sec.  This reset is a workaround for a
-  // JeeLib issue due to which the radio freezes about ~2 days of continuous operation
-  // (see https://github.com/jeelabs/jeelib/issues/92)
+  // Length of day in millisec
+#define RFM_RESET_INTERVAL 86400000
 
-  if ((millis() - lastPktRecvd) > 10000)
+  // Reset RFM69 if the time of last recvd pkt > 5 min.  This reset is a workaround for a
+  // JeeLib issue due to which the radio freezes after about ~2 days of continuous operation
+  // (see https://github.com/jeelabs/jeelib/issues/92)
+  //
+  //  if ((millis() - lastPktRecvd) > RFM_RESET_INTERVAL)
+  currentMillis=millis();
+  // Reset the RFM if no pkt was received for 5min or the last RFM reset was more than a day ago
+  if (((currentMillis - lastRFMReset) > RFM_RESET_INTERVAL) &&
+      ((currentMillis - lastPktRecvd > 300000)))
     {
       Serial.println("{\"rf_fail\":1,\"source\":\"Init RFM\",\"node\": 0 }\0");
       rf12_initialize(MYNODE, freq,group,1600 /*freqOffset*/);
-      lastPktRecvd = millis();
+      lastPktRecvd = lastRFMReset = millis();
     }
+
   if (seqReady) 
     {
       //For debugging -- write the full command on the serial output stream

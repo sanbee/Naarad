@@ -22,7 +22,7 @@ class comPort:
         self.com1.stopbits=serial.STOPBITS_ONE;
         self.users=0;
         self.lock=threading.Lock();
-        self.com1.timeout=10;
+        self.com1.timeout=60;
         self.SOF = '{';
         self.EOF = '}';
 

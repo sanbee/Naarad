@@ -16,9 +16,9 @@ def cnotifyNaaradSend(mesg):
     naaradSoc.connect(serverinfo.SERVER,serverinfo.PORT);
     naaradSoc.send("open");     time.sleep(0.1);
     naaradSoc.send(mesg);       time.sleep(0.1);
-    infopkt=naaradSoc.receive(True); # Do a blocking read
+    infopkt=naaradSoc.receive(doblocking=True,robust=True); # Do a blocking read
     print(infopkt);
-    packet=naaradSoc.receive(True); # Do a blocking read
+    packet=naaradSoc.receive(doblocking=True,robust=True); # Do a blocking read
     #naaradSoc.send("done");     time.sleep(1);
     #naaradSoc.close();
 

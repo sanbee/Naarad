@@ -26,7 +26,7 @@ from cnotify import *
 #
 # dataHandler_bokeh() then sets dataExtractor parameter as the
 # bokeh_document.add_new_tick_callback().  The bokeh_app() does a
-# bokeh_document.root_add(plot), and the the plot object is somehow
+# bokeh_document.root_add(plot), and this plot object somehow
 # interacts with add_new_tick_callback() to update the plot.
 #
 #---------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ def update_data(PlotDataSource, data):
 #---------------------------------------------------------------------------------
 #
 def NaaradPlotter(height,width,title,PlotDataSource):
-    plot = figure(height=height, width=width, title=title);
+    plot = figure(height=height, width=width, title=title,output_backend="webgl");
     plot.line(x='time', y='degC', source=PlotDataSource);
     return plot;
 #

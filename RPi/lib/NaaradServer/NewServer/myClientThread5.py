@@ -51,17 +51,26 @@ class ClientThread (Thread):
         sock.close();
     #
     #--------------------------------------------------------------------------
-    #        
+    #  Send back a blank-separated string of node IDs.
+    #
     def getNodeList(self,tok):
         nodeList=[];
+        nodeListStr="";
         for keys in settings5.gPacketHistory:
             if (isinstance(keys,tuple)):
-                nodeList.append(keys[0]);
+                #nodeList.append(keys[0]);
+                nodeListStr+=str(keys[0])+" ";
             else:
-                nodeList.append(keys);
-        # Convert the list to a list of unique elements
-        nodeList=list(set(nodeList));
-        print("nodeList=",nodeList);
+                #nodeList.append(keys);
+                nodeListStr+=str(keys)+" ";
+        # # Convert the list to a list of unique elements
+        # nodeList=list(set(nodeList));
+
+        # # Convert a list of int to a blank-separated str.
+        # nodeListStr=' '.join(map(str,nodeList))
+
+        self.myc1.send(nodeListStr.strip()); # Remove trailing blank
+        print("nodeList=",nodeListStr);
         pass;
     #
     #--------------------------------------------------------------------------
@@ -109,6 +118,7 @@ class ClientThread (Thread):
             # if (len(tok) >= 2):
             #     print "RSID="+tok[1]+" "+settings5.gCurrentPacket[int(tok[1])];
             #keys  = settings5.gPacketHistory.keys();
+            print("handleGETHPKT.tok: ",tok);
             key = int(tok[1]);
             n = len(settings5.gPacketHistory[key]);
             #n = min(n,10);

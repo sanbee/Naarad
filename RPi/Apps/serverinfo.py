@@ -6,7 +6,7 @@ def init():
     global SERVER, PORT;
 
 #    SERVER="localhost";
-    SERVER="naaradhost";
+#    SERVER="naaradhost.local";
     SERVER="192.168.0.126";
     PORT=1234;
 
