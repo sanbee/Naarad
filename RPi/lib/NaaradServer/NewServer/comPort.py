@@ -3,7 +3,7 @@
 #
 import serial as serial;
 import threading;
-
+COMPORT_TIMEOUT=60;
 class comPort:
     '''
     Object to manage USB-serial connection to Arduino (UNO).
@@ -22,9 +22,10 @@ class comPort:
         self.com1.stopbits=serial.STOPBITS_ONE;
         self.users=0;
         self.lock=threading.Lock();
-        self.com1.timeout=10;
+        self.com1.timeout=COMPORT_TIMEOUT;
         self.SOF = '{';
         self.EOF = '}';
+        print("COM port: ",port," Timeout: ",COMPORT_TIMEOUT);
 
     def getSerial(self):
         return self.com1;

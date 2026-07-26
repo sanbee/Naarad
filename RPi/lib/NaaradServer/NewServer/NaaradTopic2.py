@@ -70,12 +70,12 @@ class NaaradTopic (Thread):
             line='{}';
             try:
                 line =self.uno.readline()
-                if (not line):
-                    print("NaaradTopic2::run(): readline() on COM port timedout (uno.readline())");
-                    raise NaaradTopicException;
-                    line='{}';
-                else:
-                    line = line.rstrip();
+                # if (not line):
+                #     print("NaaradTopic2::run(): readline() on COM port timedout (uno.readline())");
+                #     raise NaaradTopicException;
+                #     line='{}';
+                # else:
+                line = line.rstrip();
             except (AttributeError, UnicodeDecodeError) as excpt:
                 print("Could not decode to utf-8: %s" %excpt);
                 print("Packet content: \"%s\"" %line);
@@ -85,8 +85,8 @@ class NaaradTopic (Thread):
                 # port.  This exits the startServer() call in
                 # naarad.py, allowing the reboot requence to begin.
                 print("Shutting down NT2...");
-                shutdown();
-                shutdown(False); # Don't log a message 
+                # shutdown();
+                # shutdown(False); # Don't log a message 
 
             if (not ("cmd" in line)):
                 line=Utils.addKey("cmd",-1,line);
