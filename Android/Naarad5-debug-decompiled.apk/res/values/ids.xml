@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <id name="action_settings" />
+    <id name="chart" />
+    <id name="connectButton" />
+    <id name="controlRL" />
+    <id name="editText1" />
+    <id name="initButton" />
+    <id name="iv1" />
+    <id name="iv2" />
+    <id name="iv3" />
+    <id name="lamp0" />
+    <id name="lamp1" />
+    <id name="lamp2" />
+    <id name="myImageViewText1" />
+    <id name="myImageViewText2" />
+    <id name="myImageViewText3" />
+    <id name="plotButton" />
+    <id name="plotRL" />
+    <id name="sendButton" />
+    <id name="serverName" />
+    <id name="serverPort" />
+    <id name="setButton" />
+    <id name="tv1" />
+    <id name="tv2" />
+    <id name="txtViewSample" />
+    <id name="viewpager" />
+    <id name="wake" />
+    <id name="wifiControl" />
+</resources>

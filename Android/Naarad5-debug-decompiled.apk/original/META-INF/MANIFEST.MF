@@ -1,0 +1,154 @@
+Manifest-Version: 1.0
+Built-By: Generated-by-ADT
+Created-By: Android Gradle 3.4.2
+
+Name: AndroidManifest.xml
+SHA1-Digest: ArvhpxQCXRwZn6Hh3n3KmuHweP0=
+
+Name: classes.dex
+SHA1-Digest: FtRLcAjm04TGuhNU9iCOXfT6uHA=
+
+Name: naarad/client/tabhost/NaaradAbstractFragment.java.bak
+SHA1-Digest: VzzNByzRbt8LLDtiurnKWVqZ7/I=
+
+Name: naarad/client/tabhost/NaaradPlotFragment.java.bak
+SHA1-Digest: xrUg3y8uwpu968lal+QMCTMUwRs=
+
+Name: org/achartengine/image/zoom-1.png
+SHA1-Digest: pgbFWKrA/2/sF0BNcNPxdVbDjVE=
+
+Name: org/achartengine/image/zoom_in.png
+SHA1-Digest: 8BdHj5K0I7rn17mdrqnDMNYpb30=
+
+Name: org/achartengine/image/zoom_out.png
+SHA1-Digest: HWsYDP3/t8o1MVA+fRdTWspICt8=
+
+Name: res/drawable-hdpi-v4/ic_launcher.png
+SHA1-Digest: Nq8q3HeTluE5JNCBpVvNy3BXtJI=
+
+Name: res/drawable-hdpi-v4/ic_launcher_bg.png
+SHA1-Digest: 6DqO7r3estWSISHL8f1fk+z1t4c=
+
+Name: res/drawable-hdpi-v4/lamp_off.png
+SHA1-Digest: uXFf+NuAs1Yt6rAdt5HZPSh2RKA=
+
+Name: res/drawable-hdpi-v4/lamp_off_crop.png
+SHA1-Digest: h+SejN/6+s0mdT7QiK7I7vRJqec=
+
+Name: res/drawable-hdpi-v4/lamp_on.png
+SHA1-Digest: 1W3AjbC7CTiRkow7C36X3jeABpM=
+
+Name: res/drawable-hdpi-v4/lamp_on_crop.png
+SHA1-Digest: fouHUyVToJQ59kgpLF2G/aqE/Eo=
+
+Name: res/drawable-hdpi-v4/ourhouse2.png
+SHA1-Digest: y6HolDrHtLqBpu61TmnG/RPVC1k=
+
+Name: res/drawable-hdpi-v4/ourhouse2a.png
+SHA1-Digest: umcCSWnZ2ls0YX+3UtVic+ft72A=
+
+Name: res/drawable-hdpi-v4/speech_bubble_green.png
+SHA1-Digest: LarMgtufqH5+9epQpzGraVAJdpY=
+
+Name: res/drawable-hdpi-v4/speech_bubble_l_orange.png
+SHA1-Digest: C1DwIL2Q4zR9U6EmH/XGboknUno=
+
+Name: res/drawable-hdpi-v4/speech_bubble_orange.png
+SHA1-Digest: Z2JCYhT4WHBvVaNOUccjFTxfHr8=
+
+Name: res/drawable-mdpi-v4/ic_launcher.png
+SHA1-Digest: RRxOSvpmhVfCwiprVV/wZlaqQpw=
+
+Name: res/drawable-mdpi-v4/ledoff.9.png
+SHA1-Digest: WQMPQCbllk0rFzqoXD0f2+RswDM=
+
+Name: res/drawable-mdpi-v4/ledon.9.png
+SHA1-Digest: 7zuMmoGsQE+HR4pWYrPXNs946wQ=
+
+Name: res/drawable-mdpi-v4/ourhouse2.png
+SHA1-Digest: y6HolDrHtLqBpu61TmnG/RPVC1k=
+
+Name: res/drawable-mdpi-v4/speech_bubble_green.png
+SHA1-Digest: LarMgtufqH5+9epQpzGraVAJdpY=
+
+Name: res/drawable-mdpi-v4/speech_bubble_orange.png
+SHA1-Digest: C1DwIL2Q4zR9U6EmH/XGboknUno=
+
+Name: res/drawable-xhdpi-v4/ic_launcher.png
+SHA1-Digest: AfPh3OJoypH966MludSW6f1RHg4=
+
+Name: res/drawable-xhdpi-v4/ourhouse2.png
+SHA1-Digest: y6HolDrHtLqBpu61TmnG/RPVC1k=
+
+Name: res/drawable-xxhdpi-v4/ic_launcher.png
+SHA1-Digest: GVIfdEOBv4gEny2T1jDhGGsZOBo=
+
+Name: res/drawable-xxhdpi-v4/ourhouse2.png
+SHA1-Digest: y6HolDrHtLqBpu61TmnG/RPVC1k=
+
+Name: res/layout-v11/activity_naarad_control.xml
+SHA1-Digest: +7e2TlnXwuXTRouOmrfukKv6KzI=
+
+Name: res/layout/activity_main.xml
+SHA1-Digest: 9E1A2DC0wjlJXRxpbhP/TJsNxco=
+
+Name: res/layout/activity_my_page_adapter.xml
+SHA1-Digest: BhNJTaRHmsSOLauyxRlboEp+UBc=
+
+Name: res/layout/activity_my_sample_fragment.xml
+SHA1-Digest: 0kKHQ7sYnMXNkI3NXjQsVvkfo4c=
+
+Name: res/layout/activity_my_tab_factory.xml
+SHA1-Digest: BhNJTaRHmsSOLauyxRlboEp+UBc=
+
+Name: res/layout/activity_naarad_client.xml
+SHA1-Digest: uoTuWzvP8VtLHK4YUsrmOBigzXI=
+
+Name: res/layout/activity_naarad_control.xml
+SHA1-Digest: vloxdOi8wey8n+C6DzgjRhFT5sU=
+
+Name: res/layout/activity_naarad_plot.xml
+SHA1-Digest: Hjl1jc7ntJ7MGWNegrX60dP25rc=
+
+Name: res/layout/activity_naarad_setting.xml
+SHA1-Digest: nHs5d8ZBq5H02Zq55rAGkQqeQ98=
+
+Name: res/layout/activity_setting.xml
+SHA1-Digest: seWw2dszTCvcshcaaFUJ4gI9f3c=
+
+Name: res/layout/xy_chart.xml
+SHA1-Digest: vToLn7pTztW3TxqdE4l2pnp0y5s=
+
+Name: res/menu-v11/main.xml
+SHA1-Digest: hifjvfEGaZBar43cRWcWMamSgic=
+
+Name: res/menu-v11/my_page_adapter.xml
+SHA1-Digest: hifjvfEGaZBar43cRWcWMamSgic=
+
+Name: res/menu-v11/my_sample.xml
+SHA1-Digest: hifjvfEGaZBar43cRWcWMamSgic=
+
+Name: res/menu-v11/my_tab_factory.xml
+SHA1-Digest: hifjvfEGaZBar43cRWcWMamSgic=
+
+Name: res/menu-v11/slimple_text_client.xml
+SHA1-Digest: hifjvfEGaZBar43cRWcWMamSgic=
+
+Name: res/menu/main.xml
+SHA1-Digest: xzD9JVWh5ytJWBCCPlcM8H9GjtM=
+
+Name: res/menu/my_page_adapter.xml
+SHA1-Digest: xzD9JVWh5ytJWBCCPlcM8H9GjtM=
+
+Name: res/menu/my_sample.xml
+SHA1-Digest: xzD9JVWh5ytJWBCCPlcM8H9GjtM=
+
+Name: res/menu/my_tab_factory.xml
+SHA1-Digest: xzD9JVWh5ytJWBCCPlcM8H9GjtM=
+
+Name: res/menu/slimple_text_client.xml
+SHA1-Digest: xzD9JVWh5ytJWBCCPlcM8H9GjtM=
+
+Name: resources.arsc
+SHA1-Digest: tjT3fMq4YSka0xAgr4+sOed0p3U=
+

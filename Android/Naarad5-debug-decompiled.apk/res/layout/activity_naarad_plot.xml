@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@id/plotRL" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ToggleButton android:textSize="0.0dp" android:id="@id/plotButton" android:padding="0.0dp" android:layout_width="30.0dp" android:layout_height="30.0dp" android:layout_margin="0.0dp" android:maxWidth="0.0dp" android:maxHeight="0.0dp" android:textOn="" android:textOff="" android:minWidth="0.0dp" android:minHeight="0.0dp" android:layout_alignParentTop="true" android:layout_alignParentRight="true" android:layout_centerHorizontal="true" />
+    <LinearLayout android:id="@id/chart" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toLeftOf="@id/plotButton" />
+</RelativeLayout>

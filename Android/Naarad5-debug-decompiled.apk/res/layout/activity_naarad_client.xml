@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:paddingLeft="@dimen/activity_horizontal_margin" android:paddingTop="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_horizontal_margin" android:paddingBottom="@dimen/activity_vertical_margin" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditText android:id="@id/editText1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:ems="10" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true">
+        <requestFocus />
+    </EditText>
+    <Button android:id="@id/sendButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Send" android:layout_toLeftOf="@id/editText1" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true" />
+    <Button android:id="@id/initButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Connect" android:layout_alignParentTop="true" android:layout_alignParentRight="true" android:layout_centerVertical="true" />
+    <ToggleButton android:id="@id/lamp0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textOn="Lamp 0" android:textOff="Lamp 0" android:text="Lamp1" android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:layout_centerVertical="true" />
+    <ToggleButton android:id="@id/lamp1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textOn="Lamp 1" android:textOff="Lamp 1" android:text="Lamp2" android:layout_below="@id/lamp0" android:layout_alignParentLeft="true" android:layout_centerVertical="true" />
+    <ToggleButton android:id="@id/lamp2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textOn="Lamp 2" android:textOff="Lamp 2" android:text="Lamp3" android:layout_below="@id/lamp1" android:layout_alignParentLeft="true" android:layout_centerVertical="true" />
+</RelativeLayout>

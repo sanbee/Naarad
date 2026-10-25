@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="naarad.client.tabhost">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <application android:allowBackup="true" android:debuggable="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:name="naarad.client.tabhost.NaaradApp" android:theme="@style/AppTheme">
+        <activity android:configChanges="keyboardHidden|orientation|screenSize" android:label="Naarad1" android:name="naarad.client.tabhost.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:label="@string/title_activity_my_page_adapter" android:name="naarad.client.tabhost.MyPageAdapter"/>
+        <activity android:label="@string/title_activity_my_sample_fragment" android:name="naarad.client.tabhost.NaaradControlFragment"/>
+    </application>
+</manifest>

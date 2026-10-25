@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TabHost android:screenOrientation="landscape" android:id="@android:id/tabhost" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TabWidget android:orientation="horizontal" android:id="@android:id/tabs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="0.0" />
+            <FrameLayout android:id="@android:id/tabcontent" android:layout_width="0.0dp" android:layout_height="0.0dp" android:layout_weight="0.0" />
+            <naarad.client.tabhost.MyViewPager android:configChanges="keyboardHidden|orientation|screenSize" android:layout_gravity="bottom" android:id="@id/viewpager" android:layout_width="match_parent" android:layout_height="wrap_content"
+              xmlns:launcher="http://schemas.android.com/apk/res/com.android.launcher" />
+        </LinearLayout>
+    </TabHost>
+</RelativeLayout>

@@ -1,0 +1,155 @@
+Signature-Version: 1.0
+Created-By: 1.0 (Android)
+SHA1-Digest-Manifest: cpLVAjv/3kP1Dps7WdyQvPDwJkQ=
+X-Android-APK-Signed: 2
+
+Name: AndroidManifest.xml
+SHA1-Digest: HN4p5f4g8rSjJKO0tF4wtHT0nak=
+
+Name: classes.dex
+SHA1-Digest: XOHdyRRO+RvG860UaV1OxSWT59Y=
+
+Name: naarad/client/tabhost/NaaradAbstractFragment.java.bak
+SHA1-Digest: 2b2p9/tMHOPHIqVAC+NYcKDVW2Y=
+
+Name: naarad/client/tabhost/NaaradPlotFragment.java.bak
+SHA1-Digest: rMOH4ozMGL7RVFfu49y0Yw3hASQ=
+
+Name: org/achartengine/image/zoom-1.png
+SHA1-Digest: IAzT9MYuTm6r/Z6HSq1HDIK54ko=
+
+Name: org/achartengine/image/zoom_in.png
+SHA1-Digest: lxpKV8NWap/pIL+3lszROFu6bqA=
+
+Name: org/achartengine/image/zoom_out.png
+SHA1-Digest: fCue4PKIGrdPWlOh/eNvmGpUExA=
+
+Name: res/drawable-hdpi-v4/ic_launcher.png
+SHA1-Digest: nVLQ/wUjf9D4KSB2I7WqoHR14JY=
+
+Name: res/drawable-hdpi-v4/ic_launcher_bg.png
+SHA1-Digest: YsOblAhWFRChmBGrhnJTp40YSL8=
+
+Name: res/drawable-hdpi-v4/lamp_off.png
+SHA1-Digest: t+W1Jh8Fb592TV0xEtdEmp8dIN0=
+
+Name: res/drawable-hdpi-v4/lamp_off_crop.png
+SHA1-Digest: 6iwpEsXqZxCsrImdZE6RACpofX4=
+
+Name: res/drawable-hdpi-v4/lamp_on.png
+SHA1-Digest: QMzt7aFhHc5LUpsQ9XyvDvgAqf8=
+
+Name: res/drawable-hdpi-v4/lamp_on_crop.png
+SHA1-Digest: kLZ8COBDvH9MZBROPKXfgznhWp0=
+
+Name: res/drawable-hdpi-v4/ourhouse2.png
+SHA1-Digest: 0AD4QX0BUudF8nsRVj93yFiZHdM=
+
+Name: res/drawable-hdpi-v4/ourhouse2a.png
+SHA1-Digest: euRlw+DmcdqQvNjVCh6J9GclFkQ=
+
+Name: res/drawable-hdpi-v4/speech_bubble_green.png
+SHA1-Digest: XOIjRytzpfCM6+3TnZM2E4V45MQ=
+
+Name: res/drawable-hdpi-v4/speech_bubble_l_orange.png
+SHA1-Digest: sE0Dl/X7t42HHla8nyBAU8QV/fI=
+
+Name: res/drawable-hdpi-v4/speech_bubble_orange.png
+SHA1-Digest: ooOYErmXiOChn++AFcbWPWm/IDQ=
+
+Name: res/drawable-mdpi-v4/ic_launcher.png
+SHA1-Digest: NBFXy1maYHW4TAiVCw6R9+EBNqI=
+
+Name: res/drawable-mdpi-v4/ledoff.9.png
+SHA1-Digest: QiA5fkt5QnnYp+c7ehgsmEgCqKw=
+
+Name: res/drawable-mdpi-v4/ledon.9.png
+SHA1-Digest: q1y+h07GT2oWEiLKU09lm3jDDR0=
+
+Name: res/drawable-mdpi-v4/ourhouse2.png
+SHA1-Digest: RgvZXOOHztecWuAYIn9+nVwlhls=
+
+Name: res/drawable-mdpi-v4/speech_bubble_green.png
+SHA1-Digest: Nf6AYl5okArSujlmmCJPC8iH5MU=
+
+Name: res/drawable-mdpi-v4/speech_bubble_orange.png
+SHA1-Digest: VNxq157OdvocBTnCE74kpioP+U4=
+
+Name: res/drawable-xhdpi-v4/ic_launcher.png
+SHA1-Digest: qLB+xSuTsdod1eS2aPJel/A5PvE=
+
+Name: res/drawable-xhdpi-v4/ourhouse2.png
+SHA1-Digest: hgCqq7N+mLthoZHlC0GA4CScWcA=
+
+Name: res/drawable-xxhdpi-v4/ic_launcher.png
+SHA1-Digest: W7nSszMeL1x0eIt3K2CoCIHU6Qg=
+
+Name: res/drawable-xxhdpi-v4/ourhouse2.png
+SHA1-Digest: ltXfWmkn1w2/4bGQqYYJ++8UsFA=
+
+Name: res/layout-v11/activity_naarad_control.xml
+SHA1-Digest: tfMPF1H0WYfKh9ut85B52ywJJ70=
+
+Name: res/layout/activity_main.xml
+SHA1-Digest: vJQsvWogNV0XlVeX6mT0wTvgnK4=
+
+Name: res/layout/activity_my_page_adapter.xml
+SHA1-Digest: 2Ihyu0jCqa5l1T7bV2moo8/0e8Y=
+
+Name: res/layout/activity_my_sample_fragment.xml
+SHA1-Digest: g6iYeb1uOsWvc1jgidNZ0GrnZXk=
+
+Name: res/layout/activity_my_tab_factory.xml
+SHA1-Digest: TdFoBImGky387LDR551NEEQj/D0=
+
+Name: res/layout/activity_naarad_client.xml
+SHA1-Digest: H39xrGqc5i3nDQCA9b0jnNBTOFg=
+
+Name: res/layout/activity_naarad_control.xml
+SHA1-Digest: RRUk5xhUKl2Qss1RSeUF186EaVs=
+
+Name: res/layout/activity_naarad_plot.xml
+SHA1-Digest: ZVnfp+2YHTEk8S8Y8jPzc78klMs=
+
+Name: res/layout/activity_naarad_setting.xml
+SHA1-Digest: U68lwRgWBTqH5Iw5b2vsHYsTocU=
+
+Name: res/layout/activity_setting.xml
+SHA1-Digest: nchtU+7mAk60QAeR1rP2OaDakCE=
+
+Name: res/layout/xy_chart.xml
+SHA1-Digest: ZCYfljDglgD9hS6JLCiHDDcfVC4=
+
+Name: res/menu-v11/main.xml
+SHA1-Digest: zpPWdoHS/PO3LNmlvK43sEfLLcc=
+
+Name: res/menu-v11/my_page_adapter.xml
+SHA1-Digest: ntAD/ed0r09177bMVAlUrZbD9eo=
+
+Name: res/menu-v11/my_sample.xml
+SHA1-Digest: rG9l1FsCm5iqwyJOA1AUh+HuRTQ=
+
+Name: res/menu-v11/my_tab_factory.xml
+SHA1-Digest: 8gSzWl4MuhEH9GK0sBM7Sa21x/k=
+
+Name: res/menu-v11/slimple_text_client.xml
+SHA1-Digest: MrDO3F1zo6mtSETeTqNu5hbSfDk=
+
+Name: res/menu/main.xml
+SHA1-Digest: zGjPfN1ebB9lsMeeQXrSedFXrPA=
+
+Name: res/menu/my_page_adapter.xml
+SHA1-Digest: 7oHjU4ft6il9W5qFBvSuV6Qyhw0=
+
+Name: res/menu/my_sample.xml
+SHA1-Digest: 2HIJwMMnQbIEGUZt5nX6oqRgh1I=
+
+Name: res/menu/my_tab_factory.xml
+SHA1-Digest: gvsqSr/I2URRl34lP+LRGRkvKt8=
+
+Name: res/menu/slimple_text_client.xml
+SHA1-Digest: xzm47T1TI5C5iniwb9mc4/UjVNg=
+
+Name: resources.arsc
+SHA1-Digest: 8OS5BqGFmMJ2r+OZ+TK2nS43RM0=
+
